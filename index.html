@@ -80,41 +80,140 @@
       </div>
     </nav>
 
-    <header
-      id="home"
-      class="relative h-screen flex items-center justify-center overflow-hidden"
-    >
-      <div class="absolute inset-0 bg-black/50 z-10"></div>
-      <img
-        src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80"
-        class="absolute inset-0 w-full h-full object-cover"
-        alt="Afikpo dancers and masquerades at sunset along the Ozizza River"
-      />
-      <div class="relative z-20 text-center px-4 max-w-5xl">
-        <h1
-          class="text-4xl md:text-7xl font-extrabold text-white mb-6 drop-shadow-2xl leading-tight"
+    <header id="home" class="relative h-screen w-full overflow-hidden">
+      <div id="carousel-wrapper" class="relative h-full w-full">
+        <div
+          class="carousel-item absolute inset-0 opacity-100 transition-opacity duration-1000 ease-in-out z-10"
         >
-          Where Culture Meets the World
-        </h1>
-        <p
-          class="text-xl md:text-2xl text-gray-200 mb-10 max-w-3xl mx-auto opacity-90"
-        >
-          A global festival celebrating Afikpo’s heritage, music, art, and
-          nature.
-        </p>
-
-        <div class="flex flex-col sm:flex-row justify-center gap-5">
-          <a
-            href="registration.html"
-            class="bg-orange-600 text-white px-12 py-5 rounded-full text-lg font-bold hover:bg-orange-700 transition-all shadow-xl shadow-orange-900/20"
-            >Register Now</a
+          <div class="absolute inset-0 bg-black/50 z-20"></div>
+          <img
+            src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&q=80"
+            class="absolute inset-0 w-full h-full object-cover"
+            alt="Slide 1"
+          />
+          <div
+            class="relative z-30 flex h-full items-center justify-center text-center px-4"
           >
-          <a
-            href="#about"
-            class="bg-white/10 backdrop-blur-md text-white border-2 border-white/30 px-12 py-5 rounded-full text-lg font-bold hover:bg-white hover:text-black transition-all"
-            >Learn More</a
-          >
+            <div class="max-w-5xl">
+              <h1
+                class="text-4xl md:text-7xl font-extrabold text-white mb-6 drop-shadow-2xl leading-tight"
+              >
+                Where Culture Meets the World
+              </h1>
+              <p class="text-xl md:text-2xl text-gray-200 mb-10 opacity-90">
+                A global festival celebrating Afikpo’s heritage, music, art, and
+                nature.
+              </p>
+              <div class="flex flex-col sm:flex-row justify-center gap-5">
+                <a
+                  href="registration.html"
+                  class="bg-orange-600 text-white px-12 py-5 rounded-full text-lg font-bold hover:bg-orange-700 transition-all shadow-xl"
+                  >Register Now</a
+                >
+              </div>
+            </div>
+          </div>
         </div>
+
+        <div
+          class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out"
+        >
+          <div class="absolute inset-0 bg-black/60 z-20"></div>
+          <img
+            src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&q=80"
+            class="absolute inset-0 w-full h-full object-cover"
+            alt="Slide 2"
+          />
+          <div
+            class="relative z-30 flex h-full items-center justify-center text-center px-4"
+          >
+            <div class="max-w-5xl">
+              <h1 class="text-4xl md:text-7xl font-extrabold text-white mb-6">
+                Experience the Vibe
+              </h1>
+              <p class="text-xl md:text-2xl text-gray-200 mb-10">
+                Unforgettable music, dance, and masquerade pageantry.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="carousel-item absolute inset-0 opacity-0 transition-opacity duration-1000 ease-in-out"
+        >
+          <div class="absolute inset-0 bg-black/50 z-20"></div>
+          <img
+            src="https://images.unsplash.com/photo-1523733230460-14979ddca217?auto=format&fit=crop&q=80"
+            class="absolute inset-0 w-full h-full object-cover"
+            alt="Slide 3"
+          />
+          <div
+            class="relative z-30 flex h-full items-center justify-center text-center px-4"
+          >
+            <div class="max-w-5xl">
+              <h1 class="text-4xl md:text-7xl font-extrabold text-white mb-6">
+                Explore Golden Sands
+              </h1>
+              <p class="text-xl md:text-2xl text-gray-200 mb-10">
+                Nature and tourism at the beautiful Ozizza Riverfront.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button
+        id="prevSlide"
+        class="absolute left-4 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white backdrop-blur-md hover:bg-white/30 transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          />
+        </svg>
+      </button>
+      <button
+        id="nextSlide"
+        class="absolute right-4 top-1/2 z-40 -translate-y-1/2 rounded-full bg-white/10 p-3 text-white backdrop-blur-md hover:bg-white/30 transition"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </button>
+
+      <div class="absolute bottom-10 left-1/2 z-40 flex -translate-x-1/2 gap-3">
+        <button
+          class="dot h-3 w-3 rounded-full bg-white/50 transition-all"
+          data-slide="0"
+        ></button>
+        <button
+          class="dot h-3 w-3 rounded-full bg-white/50 transition-all"
+          data-slide="1"
+        ></button>
+        <button
+          class="dot h-3 w-3 rounded-full bg-white/50 transition-all"
+          data-slide="2"
+        ></button>
       </div>
     </header>
 
@@ -316,15 +415,21 @@
           </button>
         </form>
 
-        <div
-          class="pt-10 border-t border-gray-800 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center gap-4"
-        >
-          <p>&copy; 2026 Afikpo Carnival & Resorts Ltd. All rights reserved.</p>
-          <div class="flex gap-6">
+        <div class="max-w-4xl mx-auto text-center">
+          <img
+            class="h-12 mx-auto mb-6 grayscale brightness-200"
+            src="assets/images/Afikpo_logo-removebg.png"
+            alt="Logo"
+          />
+          <div class="flex justify-center space-x-6 mb-8 text-gray-400">
             <a href="#" class="hover:text-orange-500 transition">Facebook</a>
             <a href="#" class="hover:text-orange-500 transition">Instagram</a>
+            <a href="#" class="hover:text-orange-500 transition">YouTube</a>
             <a href="#" class="hover:text-orange-500 transition">X (Twitter)</a>
           </div>
+          <p class="text-gray-500 text-sm border-t border-gray-800 pt-8">
+            &copy; 2026 Afikpo Carnival & Resorts Ltd. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

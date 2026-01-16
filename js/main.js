@@ -127,4 +127,72 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const slides = document.querySelectorAll(".carousel-item");
+  const dots = document.querySelectorAll(".dot");
+  const nextBtn = document.getElementById("nextSlide");
+  const prevBtn = document.getElementById("prevSlide");
+
+  let currentSlide = 0;
+  let slideInterval;
+
+  const showSlide = (index) => {
+    // Remove active states
+    slides.forEach((slide) => {
+      slide.classList.remove("opacity-100", "z-10");
+      slide.classList.add("opacity-0", "z-0");
+    });
+    dots.forEach((dot) => dot.classList.replace("bg-white", "bg-white/50"));
+    dots.forEach((dot) => dot.classList.remove("w-8"));
+
+    // Set new active slide
+    slides[index].classList.add("opacity-100", "z-10");
+    slides[index].classList.remove("opacity-0", "z-0");
+    dots[index].classList.replace("bg-white/50", "bg-white");
+    dots[index].classList.add("w-8"); // Elongate active dot for a modern look
+  };
+
+  const nextSlide = () => {
+    currentSlide = (currentSlide + 1) % slides.length;
+    showSlide(currentSlide);
+  };
+
+  const prevSlide = () => {
+    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+    showSlide(currentSlide);
+  };
+
+  // Auto-play timer (5000ms = 5 seconds)
+  const startAutoPlay = () => {
+    slideInterval = setInterval(nextSlide, 5000);
+  };
+
+  const resetTimer = () => {
+    clearInterval(slideInterval);
+    startAutoPlay();
+  };
+
+  // Event Listeners
+  nextBtn.addEventListener("click", () => {
+    nextSlide();
+    resetTimer();
+  });
+
+  prevBtn.addEventListener("click", () => {
+    prevSlide();
+    resetTimer();
+  });
+
+  dots.forEach((dot, index) => {
+    dot.addEventListener("click", () => {
+      currentSlide = index;
+      showSlide(currentSlide);
+      resetTimer();
+    });
+  });
+
+  // Initialize
+  showSlide(0);
+  startAutoPlay();
+});
 // End of main.js
