@@ -1,0 +1,204 @@
+/* Afikpo International Carnival 2026 - Master Stylesheet
+   Focus: Responsive Design, Smooth Transitions, and Modern UI
+*/
+
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --brand-orange: #ea580c;
+  --brand-red: #b22222;
+  --nav-height: 80px;
+  --glass-bg: rgba(255, 255, 255, 0.9);
+}
+
+/* --- Base Resets --- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* --- Navigation & React-feel Menu --- */
+nav {
+  height: var(--nav-height);
+  transition: all 0.3s ease;
+}
+
+/* Mobile Menu Overlay - Provides responsive menu for mobile/tablet */
+#mobile-menu {
+  position: fixed;
+  top: var(--nav-height);
+  left: 0;
+  width: 100%;
+  height: calc(100vh - var(--nav-height));
+  background-color: white;
+  z-index: 999;
+  flex-direction: column;
+  padding: 2rem;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}
+
+#mobile-menu.hidden {
+  display: none;
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+#mobile-menu:not(.hidden) {
+  display: flex;
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* --- Animations & Micro-interactions --- */
+.nav-link {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: var(--brand-orange);
+  transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Fade-in for page sections as you scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease-out;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Countdown Cards --- */
+.timer-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  transition: transform 0.3s ease;
+}
+
+.timer-box:hover {
+  transform: scale(1.05);
+  border-color: var(--brand-orange);
+}
+
+/* Updated Section Background & Text Colors */
+.bg-brand-gradient {
+  /* Using Afikpo Red and Orange from the logo */
+  background: linear-gradient(135deg, #b22222 0%, #ea580c 100%);
+}
+
+.timer-box-refined {
+  @apply flex flex-col items-center justify-center;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1.5rem;
+  min-width: 100px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .timer-box-refined {
+    min-width: 140px;
+    padding: 2rem;
+  }
+}
+
+.timer-box-refined:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.timer-number {
+  @apply text-4xl md:text-6xl font-black text-white leading-none mb-2;
+  font-variant-numeric: tabular-nums; /* Prevents jumping during countdown */
+}
+
+.timer-label {
+  @apply text-xs md:text-sm font-bold uppercase tracking-widest text-orange-100 opacity-80;
+}
+
+/* --- Responsive Media Queries (Standard) --- */
+
+/* MOBILE ONLY (Up to 767px) */
+@media (max-width: 767px) {
+  .hero-title {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+
+  #mobile-menu a {
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 0.75rem;
+  }
+}
+
+/* TABLET & UP (768px +) */
+@media (min-width: 768px) {
+  .section-padding {
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+  }
+}
+
+/* DESKTOP (1280px +) */
+@media (min-width: 1280px) {
+  #mobile-menu-button {
+    display: none !important;
+  }
+
+  #mobile-menu {
+    display: none !important;
+  }
+}
+
+/* --- Utilities --- */
+.bg-brand-gradient {
+  background: linear-gradient(
+    135deg,
+    var(--brand-orange) 0%,
+    var(--brand-red) 100%
+  );
+}
+
+.text-brand {
+  color: var(--brand-orange);
+}
+
+.btn-primary {
+  background-color: var(--brand-orange);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-primary:hover {
+  background-color: var(--brand-red);
+  transform: scale(1.05);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="icon"
+      type="image/png"
+      href="assets/images/Afikpo_logo-removebg.png"
+    />
+    <title>Registration | Afikpo International Carnival 2026</title>
+    <meta
+      name="description"
+      content="Join the maiden edition of the Afikpo International Carnival. Register as a performer, vendor, volunteer, or tourist for December 2026."
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="bg-gray-50 text-gray-900 font-sans">
+   <nav
+      class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100"
+    >
+      <div
+        class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center"
+      >
+        <a href="index.html" class="hover:opacity-80 transition">
+          <img
+            src="assets/images/Afikpo_logo-removebg.png"
+            alt="AIC Logo"
+            class="h-14 md:h-16 w-auto"
+          />
+        </a>
+
+        <div class="hidden xl:flex items-center space-x-8">
+          <a href="/" class="nav-link ">Home</a>
+          <a href="about.html" class="nav-link">About</a>
+          <a href="why-afikpo.html" class="nav-link">Why Afikpo</a>
+          <a href="events.html" class="nav-link">Event Highlights</a>
+          <a href="gallery.html" class="nav-link">Gallery</a>
+          <a href="partners.html" class="nav-link">Partners</a>
+          <a href="contact.html" class="nav-link">Contact</a>
+          <a
+            href="registration.html"
+            class="bg-orange-600 text-white px-7 py-3 rounded-full font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-200 scale-95 hover:scale-100"
+            >Register Now</a
+          >
+        </div>
+
+        <button
+          id="mobile-menu-button"
+          class="xl:hidden p-2 text-gray-600 focus:outline-none"
+        >
+          <svg
+            class="h-8 w-8"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16m-7 6h7"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <div
+        id="mobile-menu"
+        class="hidden xl:hidden bg-white fixed inset-x-0 top-20 h-screen p-6 flex flex-col space-y-4 shadow-2xl text-center"
+      >
+        <a href="/" class="text-xl py-3 border-b">Home</a>
+        <a href="about.html" class="text-xl py-3 border-b">About</a>
+        <a href="why-afikpo.html" class="text-xl py-3 border-b">Why Afikpo</a>
+
+        <a href="events.html" class="text-xl py-3 border-b">Event Highlights</a>
+        <a href="gallery.html" class="text-xl py-3 border-b">Gallery</a>
+        <a href="partners.html" class="text-xl py-3 border-b">Partners</a>
+        <a href="contact.html" class="text-xl py-3 border-b">Contact</a>
+        <a href="registration.html" class="text-xl py-3 text-orange-600"
+          >Register Now</a
+        >
+      </div>
+    </nav>
+
+    <header
+      class="relative h-[40vh] flex items-center justify-center overflow-hidden"
+    >
+      <div class="absolute inset-0 bg-black/60 z-10"></div>
+      <img
+        src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80"
+        class="absolute inset-0 w-full h-full object-cover"
+        alt="Join the celebration"
+      />
+      <div class="relative z-20 text-center px-4 max-w-4xl">
+        <h1
+          class="text-4xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg"
+        >
+          Join AIC 2026
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-200">
+          Register now for the maiden edition
+        </p>
+      </div>
+    </header>
+
+    <section class="py-20 px-4 max-w-4xl mx-auto">
+      <div
+        class="bg-white p-8 md:p-12 rounded-3xl shadow-lg border border-gray-100"
+      >
+        <form class="space-y-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold mb-2"
+                >Participant Category</label
+              >
+              <select
+                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+                required
+              >
+                <option value="">Select Category</option>
+                <option>Cultural Troupes & Masquerades</option>
+                <option>Musicians & Performers</option>
+                <option>Exhibitors (Artisans & Designers)</option>
+                <option>Vendors (Food & Retail)</option>
+                <option>Sponsors & Corporate Partners</option>
+                <option>Volunteers</option>
+                <option>Tourists & Delegates</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-bold mb-2"
+                >Organisation / Troupe Name</label
+              >
+              <input
+                type="text"
+                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+                placeholder="Name"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold mb-2"
+                >Lead Contact Name</label
+              >
+              <input
+                type="text"
+                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+                placeholder="Full Name"
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-bold mb-2">Email</label>
+              <input
+                type="email"
+                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+                placeholder="Email Address"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-bold mb-2"
+                >Phone (with country code)</label
+              >
+              <input
+                type="tel"
+                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+                placeholder="+234..."
+                required
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-bold mb-2"
+                >Country / State</label
+              >
+              <input
+                type="text"
+                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+                placeholder="Location"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold mb-2"
+              >Short Bio or Description (250 words max)</label
+            >
+            <textarea
+              rows="4"
+              class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+              placeholder="Tell us about yourself or your troupe..."
+            ></textarea>
+          </div>
+
+          <div class="p-6 bg-orange-50 rounded-2xl border border-orange-100">
+            <h4 class="font-bold text-orange-600 mb-2 text-sm uppercase">
+              Terms & Conditions Summary
+            </h4>
+            <ul class="text-xs text-gray-600 space-y-2">
+              <li>
+                • Participants must adhere to the festival schedule and code of
+                conduct.
+              </li>
+              <li>
+                • All performances must be culturally appropriate and respectful
+                of local customs.
+              </li>
+              <li>
+                • Vendors are responsible for permits, hygiene, and local law
+                compliance.
+              </li>
+            </ul>
+            <div class="mt-4 flex items-center gap-2">
+              <input type="checkbox" id="terms" required />
+              <label for="terms" class="text-sm text-gray-700 font-bold"
+                >I agree to the full Terms & Conditions</label
+              >
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition shadow-lg"
+          >
+            Submit Registration
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <footer class="bg-gray-900 text-white py-16 px-4">
+      <div class="max-w-4xl mx-auto text-center border-t border-gray-800 pt-10">
+        <img
+          class="h-12 mx-auto mb-6 grayscale brightness-200"
+          src="assets/images/Afikpo_logo-removebg.png"
+          alt="Logo"
+        />
+        <p class="text-gray-500 text-sm">
+          &copy; 2026 Afikpo Carnival & Resorts Ltd. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
