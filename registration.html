@@ -13,7 +13,9 @@
       name="description"
       content="Join the maiden edition of the Afikpo International Carnival. Register as a performer, vendor, volunteer, or tourist for December 2026."
     />
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body class="bg-gray-50 text-gray-900 font-sans">
@@ -109,7 +111,7 @@
       <div
         class="bg-white p-8 md:p-12 rounded-3xl shadow-lg border border-gray-100"
       >
-        <form class="space-y-6">
+        <form class="space-y-6" id="registration-form">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-bold mb-2"

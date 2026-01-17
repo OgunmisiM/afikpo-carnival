@@ -130,8 +130,6 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener("DOMContentLoaded", () => {
   const slides = document.querySelectorAll(".carousel-item");
   const dots = document.querySelectorAll(".dot");
-  const nextBtn = document.getElementById("nextSlide");
-  const prevBtn = document.getElementById("prevSlide");
 
   let currentSlide = 0;
   let slideInterval;
@@ -157,14 +155,9 @@ document.addEventListener("DOMContentLoaded", () => {
     showSlide(currentSlide);
   };
 
-  const prevSlide = () => {
-    currentSlide = (currentSlide - 1 + slides.length) % slides.length;
-    showSlide(currentSlide);
-  };
-
   // Auto-play timer (5000ms = 5 seconds)
   const startAutoPlay = () => {
-    slideInterval = setInterval(nextSlide, 5000);
+    slideInterval = setInterval(nextSlide, 3000);
   };
 
   const resetTimer = () => {
@@ -172,17 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     startAutoPlay();
   };
 
-  // Event Listeners
-  nextBtn.addEventListener("click", () => {
-    nextSlide();
-    resetTimer();
-  });
-
-  prevBtn.addEventListener("click", () => {
-    prevSlide();
-    resetTimer();
-  });
-
+  // Event Listeners - Only dots (no arrow buttons)
   dots.forEach((dot, index) => {
     dot.addEventListener("click", () => {
       currentSlide = index;
