@@ -152,7 +152,7 @@
           >
             <div class="max-w-5xl">
               <h1 class="text-4xl md:text-7xl font-extrabold text-white mb-6">
-                Explore Golden Sands
+                Explore Golden Sands Beach
               </h1>
               <p class="text-xl md:text-2xl text-gray-200 mb-10">
                 Nature and tourism at the beautiful Ozizza Riverfront.
@@ -247,6 +247,110 @@
           <h2 class="text-4xl font-bold">Quick Highlights</h2>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div
+            class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition group"
+          >
+            <div
+              class="text-pink-600 mb-4 group-hover:scale-110 transition duration-300"
+            >
+              <svg
+                class="w-12 h-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4L8 7L4 4V17C4 18.1046 4.89543 19 6 19H18C19.1046 19 20 18.1046 20 17V4L16 7L12 4Z"
+                />
+                <circle cx="12" cy="11" r="1" fill="currentColor" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Beauty Pageantry</h3>
+            <p class="text-gray-600 text-sm">
+              Beauty Pageantry will produce Miss Afikpo Carnival 2026 and face
+              of Afikpo International Carnival (FAIC) 2026
+            </p>
+          </div>
+          <div
+            class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition group"
+          >
+            <div
+              class="text-blue-600 mb-4 group-hover:scale-110 transition duration-300"
+            >
+              <svg
+                class="w-12 h-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 14C3 14 6 17 12 17C18 17 21 14 21 14L19 10H5L3 14Z M12 6V10 M9 6L11 8 M15 6L13 8"
+                />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Boat Regatta</h3>
+            <p class="text-gray-600 text-sm">
+              Price tagged boat competition for fishing communities and
+              fishermen within Afikpo.
+            </p>
+          </div>
+          <div
+            class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition group"
+          >
+            <div
+              class="text-red-600 mb-4 group-hover:scale-110 transition duration-300"
+            >
+              <svg
+                class="w-12 h-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 10C4 8 6 7 12 7C18 7 20 8 20 10V14C20 16 18 17 12 17C6 17 4 16 4 14V10Z M8 12H9 M15 12H16 M12 17V20L10 18"
+                />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Street Carnival</h3>
+            <p class="text-gray-600 text-sm">
+              Vibrant processions featuring rhythmic music and costumed dancers.
+            </p>
+          </div>
+          <div
+            class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition group"
+          >
+            <div
+              class="text-orange-600 mb-4 group-hover:scale-110 transition duration-300"
+            >
+              <svg
+                class="w-12 h-12"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z"
+                />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold mb-2">Band Competition</h3>
+            <p class="text-gray-600 text-sm">
+              An electrifying battle of rhythm and creativity as massive
+              orchestras compete for musical glory.
+            </p>
+          </div>
           <div
             class="bg-white p-8 rounded-2xl shadow-sm hover:shadow-xl transition group"
           >
@@ -356,8 +460,18 @@
           opportunities.
         </p>
 
-        <form class="flex flex-col sm:flex-row gap-4 mb-12">
+        <form
+          class="flex flex-col sm:flex-row gap-4 mb-12"
+          action="https://api.web3forms.com/submit"
+          method="POST"
+        >
           <input
+            type="hidden"
+            name="access_key"
+            value="fd4bdbec-5561-4c6a-8bee-bc6abed09c2c"
+          />
+          <input
+            name="email"
             type="email"
             placeholder="Email Address"
             class="flex-1 px-8 py-4 rounded-full bg-gray-800 border-none text-white focus:ring-2 focus:ring-orange-600 outline-none transition"
