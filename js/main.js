@@ -178,4 +178,14 @@ document.addEventListener("DOMContentLoaded", () => {
   showSlide(0);
   startAutoPlay();
 });
+
+// Infinite Partner Logo Slider Logic
+document.addEventListener("DOMContentLoaded", () => {
+  const track = document.getElementById("partner-track");
+  if (track) {
+    // Clone the inner HTML to create the loop
+    const clone = track.innerHTML;
+    track.innerHTML += clone; // Append a duplicate set of logos
+  }
+});
 // End of main.js
