@@ -1,9 +1,253 @@
 /**
  * Afikpo International Carnival 2026
  * Master Logic Script - Vanilla JS
+ * 
+ * FORM SUBMISSION & ALERT SYSTEM
+ * Replace 'YOUR_APPS_SCRIPT_URL' with your actual Google Apps Script deployment URL
  */
 
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc2MNaPwFyUrhfuW0nwHeV9ELRejLTIYh3xEwyGloIrYzlsYqCZQsgXvT9NvV-EoYw/exec"; // Replace with your deployment URL
+
+// --- ALERT SYSTEM ---
+function showAlert(message, type = "success") {
+  // Remove existing alerts
+  const existingAlert = document.querySelector(".form-alert");
+  if (existingAlert) {
+    existingAlert.remove();
+  }
+
+  // Create alert container
+  const alertDiv = document.createElement("div");
+  alertDiv.className = "form-alert fixed top-20 left-1/2 transform -translate-x-1/2 z-50 max-w-md w-11/12 md:w-full animate-in fade-in slide-in-from-top-4 duration-300";
+
+  if (type === "success") {
+    alertDiv.innerHTML = `
+      <div class="bg-green-50 border-l-4 border-green-500 p-4 md:p-6 rounded-lg shadow-lg">
+        <div class="flex items-start gap-4">
+          <svg class="w-6 h-6 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-green-800">Success!</h3>
+            <p class="text-green-700 text-sm md:text-base mt-1">${message}</p>
+          </div>
+          <button onclick="this.closest('.form-alert').remove()" class="text-green-500 hover:text-green-700 font-bold text-xl">
+            ×
+          </button>
+        </div>
+      </div>
+    `;
+  } else if (type === "error") {
+    alertDiv.innerHTML = `
+      <div class="bg-red-50 border-l-4 border-red-500 p-4 md:p-6 rounded-lg shadow-lg">
+        <div class="flex items-start gap-4">
+          <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+          </svg>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-red-800">Error!</h3>
+            <p class="text-red-700 text-sm md:text-base mt-1">${message}</p>
+          </div>
+          <button onclick="this.closest('.form-alert').remove()" class="text-red-500 hover:text-red-700 font-bold text-xl">
+            ×
+          </button>
+        </div>
+      </div>
+    `;
+  } else if (type === "warning") {
+    alertDiv.innerHTML = `
+      <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 md:p-6 rounded-lg shadow-lg">
+        <div class="flex items-start gap-4">
+          <svg class="w-6 h-6 text-yellow-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-yellow-800">Notice</h3>
+            <p class="text-yellow-700 text-sm md:text-base mt-1">${message}</p>
+          </div>
+          <button onclick="this.closest('.form-alert').remove()" class="text-yellow-500 hover:text-yellow-700 font-bold text-xl">
+            ×
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  document.body.appendChild(alertDiv);
+
+  // Auto-remove after 6 seconds
+  setTimeout(() => {
+    if (alertDiv.parentElement) {
+      alertDiv.remove();
+    }
+  }, 6000);
+}
+
+// --- FORM SUBMISSION HANDLERS ---
+
+// Handle Registration Form
+function setupRegistrationForm() {
+  const form = document.getElementById("registration-form");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Collect form data - use name attributes for reliability
+    const category = form.querySelector("select[name='category']").value;
+    const organisationName = form.querySelector("input[name='organisationName']").value;
+    const leadName = form.querySelector("input[name='leadName']").value;
+    const email = form.querySelector("input[name='email']").value;
+    const phone = form.querySelector("input[name='phone']").value;
+    const country = form.querySelector("input[name='country']").value;
+    const bio = form.querySelector("textarea[name='bio']").value;
+    const terms = form.querySelector("input[name='terms']").checked;
+
+    // Prepare data
+    const data = {
+      formType: "registration",
+      category: category,
+      organisationName: organisationName,
+      leadName: leadName,
+      email: email,
+      phone: phone,
+      country: country,
+      bio: bio,
+      terms: terms
+    };
+
+    // Disable submit button
+    const submitBtn = form.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
+
+    try {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        showAlert(result.message, "success");
+        form.reset();
+      } else {
+        showAlert(result.message, "error");
+      }
+    } catch (error) {
+      showAlert("Network error: Please check your Apps Script URL and try again.", "error");
+      console.error("Form submission error:", error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit Registration";
+    }
+  });
+}
+
+// Handle Contact Form
+function setupContactForm() {
+  const form = document.getElementById("contact-form");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Collect form data
+    const fullName = form.querySelectorAll("input")[0].value;
+    const email = form.querySelectorAll("input")[1].value;
+    const subject = form.querySelectorAll("input")[2].value;
+    const message = form.querySelector("textarea").value;
+
+    // Prepare data
+    const data = {
+      formType: "contact",
+      fullName: fullName,
+      email: email,
+      subject: subject,
+      message: message
+    };
+
+    // Disable submit button
+    const submitBtn = form.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending...";
+
+    try {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        showAlert(result.message, "success");
+        form.reset();
+      } else {
+        showAlert(result.message, "error");
+      }
+    } catch (error) {
+      showAlert("Network error: Please check your Apps Script URL and try again.", "error");
+      console.error("Form submission error:", error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Send Message";
+    }
+  });
+}
+
+// Handle Subscription Form
+function setupSubscriptionForm() {
+  const form = document.querySelector("#newsletter-form");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    // Collect form data
+    const email = form.querySelector("input[type='email']").value;
+
+    // Prepare data
+    const data = {
+      formType: "subscription",
+      email: email
+    };
+
+    // Disable submit button
+    const submitBtn = form.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Subscribing...";
+
+    try {
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(data)
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success" || result.status === "warning") {
+        showAlert(result.message, result.status);
+        form.reset();
+      } else {
+        showAlert(result.message, "error");
+      }
+    } catch (error) {
+      showAlert("Network error: Please check your Apps Script URL and try again.", "error");
+      console.error("Form submission error:", error);
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Subscribe";
+    }
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  // Setup all forms
+  setupRegistrationForm();
+  setupContactForm();
+  setupSubscriptionForm();
   // --- 1. MOBILE MENU LOGIC ---
   const menuBtn = document.getElementById("mobile-menu-button");
   const mobileMenu = document.getElementById("mobile-menu");

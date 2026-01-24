@@ -9,10 +9,18 @@
       href="assets/images/Afikpo_logo-removebg.png"
     />
     <title>Registration | Afikpo International Carnival 2026</title>
-    <meta
-      name="description"
-      content="Join the maiden edition of the Afikpo International Carnival. Register as a performer, vendor, volunteer, or tourist for December 2026."
-    />
+    <meta name="description" content="Join the maiden edition of the Afikpo International Carnival. Register as a performer, vendor, volunteer, or tourist for December 2026." />
+    <meta name="keywords" content="Register Afikpo Carnival, Carnival Registration, Performer Registration, Vendor Registration, Volunteer, Tourist Registration" />
+    <meta name="author" content="Afikpo Carnival & Resorts Ltd" />
+    <meta property="og:title" content="Register for Afikpo International Carnival 2026" />
+    <meta property="og:description" content="Register now for the Afikpo International Carnival 2026. Join as a performer, vendor, volunteer, or tourist." />
+    <meta property="og:image" content="https://afikpocarnival.com/assets/images/Afikpo_logo-removebg.png" />
+    <meta property="og:url" content="https://afikpocarnival.com/registration.html" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Register for Afikpo International Carnival 2026" />
+    <meta name="twitter:description" content="Join us at the maiden edition of Afikpo International Carnival. Register as performer, vendor, volunteer or tourist." />
+    <link rel="canonical" href="https://afikpocarnival.com/registration.html" />
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -118,17 +126,18 @@
                 >Participant Category</label
               >
               <select
+                name="category"
                 class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
                 required
               >
                 <option value="">Select Category</option>
-                <option>Cultural Troupes & Masquerades</option>
-                <option>Musicians & Performers</option>
-                <option>Exhibitors (Artisans & Designers)</option>
-                <option>Vendors (Food & Retail)</option>
-                <option>Sponsors & Corporate Partners</option>
-                <option>Volunteers</option>
-                <option>Tourists & Delegates</option>
+                <option value="Cultural Troupes & Masquerades">Cultural Troupes & Masquerades</option>
+                <option value="Musicians & Performers">Musicians & Performers</option>
+                <option value="Exhibitors (Artisans & Designers)">Exhibitors (Artisans & Designers)</option>
+                <option value="Vendors (Food & Retail)">Vendors (Food & Retail)</option>
+                <option value="Sponsors & Corporate Partners">Sponsors & Corporate Partners</option>
+                <option value="Volunteers">Volunteers</option>
+                <option value="Tourists & Delegates">Tourists & Delegates</option>
               </select>
             </div>
             <div>
@@ -137,6 +146,7 @@
               >
               <input
                 type="text"
+                name="organisationName"
                 class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
                 placeholder="Name"
                 required
@@ -151,6 +161,7 @@
               >
               <input
                 type="text"
+                name="leadName"
                 class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
                 placeholder="Full Name"
                 required
@@ -159,7 +170,8 @@
             <div>
               <label class="block text-sm font-bold mb-2">Email</label>
               <input
-                type="email"
+                type="text"
+                name="email"
                 class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
                 placeholder="Email Address"
                 required
@@ -174,6 +186,7 @@
               >
               <input
                 type="tel"
+                name="phone"
                 class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
                 placeholder="+234..."
                 required
@@ -185,6 +198,7 @@
               >
               <input
                 type="text"
+                name="country"
                 class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
                 placeholder="Location"
                 required
@@ -198,6 +212,7 @@
             >
             <textarea
               rows="4"
+              name="bio"
               class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
               placeholder="Tell us about yourself or your troupe..."
             ></textarea>
@@ -222,7 +237,7 @@
               </li>
             </ul>
             <div class="mt-4 flex items-center gap-2">
-              <input type="checkbox" id="terms" required />
+              <input type="checkbox" id="terms" name="terms" required />
               <label for="terms" class="text-sm text-gray-700 font-bold"
                 >I agree to the full Terms & Conditions</label
               >
