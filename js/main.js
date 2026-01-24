@@ -206,7 +206,7 @@ function setupSubscriptionForm() {
     e.preventDefault();
 
     // Collect form data
-    const email = form.querySelector("input[type='email']").value;
+    const email = form.querySelector("input[type='text']").value;
 
     // Prepare data
     const data = {
