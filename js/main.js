@@ -432,4 +432,12 @@ document.addEventListener("DOMContentLoaded", () => {
     track.innerHTML += clone; // Append a duplicate set of logos
   }
 });
+document.addEventListener("DOMContentLoaded", () => {
+  const track = document.getElementById("partner-track-2");
+  if (track) {
+    // Clone the inner HTML to create the loop
+    const clone = track.innerHTML;
+    track.innerHTML += clone; // Append a duplicate set of logos
+  }
+});
 // End of main.js
