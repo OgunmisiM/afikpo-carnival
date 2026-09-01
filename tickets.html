@@ -11,54 +11,150 @@
   </head>
   <body class="bg-gray-50 text-gray-900 font-sans selection:bg-orange-100">
     <!-- Navigation -->
-    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
       <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
-        <a href="index.html" class="hover:opacity-80 transition">
+        <!-- Brand Logo -->
+        <a href="index.html" class="hover:opacity-85 transition flex-shrink-0">
           <img src="assets/images/Afikpo_logo-removebg.png" alt="AIC Logo" class="h-14 md:h-16 w-auto" />
         </a>
 
-        <div class="hidden xl:flex items-center space-x-7">
-          <a href="index.html" class="nav-link">Home</a>
-          <a href="about.html" class="nav-link">About</a>
-          <a href="why-afikpo.html" class="nav-link">Why Afikpo</a>
-          <a href="events.html" class="nav-link">Event Highlights</a>
-          <a href="tickets.html" class="nav-link text-orange-600 font-bold">Tickets</a>
-          <a href="store.html" class="nav-link">Shop Merch</a>
-          <a href="pageant-voting.html" class="nav-link">Vote Queen</a>
-          <a href="accommodation.html" class="nav-link">Hotels</a>
-          <a href="tour-guide.html" class="nav-link">Tours</a>
-          <a href="gallery.html" class="nav-link">Gallery</a>
-          <a href="blog.html" class="nav-link">News & Blog</a>
-          <a href="contact.html" class="nav-link">Contact</a>
-          <a href="registration.html" class="bg-orange-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-200 text-sm">Register</a>
+        <!-- Desktop Simplified Navigation -->
+        <div class="hidden lg:flex items-center space-x-6 text-sm font-semibold text-gray-700">
+          <a href="index.html" class="nav-link hover:text-orange-600 transition">Home</a>
+
+          <!-- Discover Dropdown -->
+          <div class="relative group">
+            <button class="nav-link hover:text-orange-600 transition flex items-center gap-1.5 py-2">
+              <span>Discover</span>
+              <svg class="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-transform group-hover:rotate-180 duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute left-0 top-full hidden group-hover:block pt-2 z-50 w-60 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-2 space-y-1">
+                <a href="about.html" class="block px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">About AIC 2026</a>
+                <a href="why-afikpo.html" class="block px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">Why Afikpo (Destination)</a>
+                <a href="events.html" class="block px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">Festival Highlights</a>
+                <a href="gallery.html" class="block px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">Visual Gallery</a>
+                <a href="partners.html" class="block px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">Partners & Sponsors</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Festival Portals Dropdown -->
+          <div class="relative group">
+            <button class="nav-link text-orange-600 font-bold hover:text-orange-600 transition flex items-center gap-1.5 py-2">
+              <span>Festival Portals</span>
+              <svg class="w-4 h-4 text-orange-600 transition-transform group-hover:rotate-180 duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute left-0 top-full hidden group-hover:block pt-2 z-50 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-2 space-y-1">
+                <a href="tickets.html" class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-bold text-orange-600 bg-orange-50 transition">
+                  <span>🎟️</span> <span>Buy Village Tickets</span>
+                </a>
+                <a href="store.html" class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">
+                  <span>🧢</span> <span>Carnival Store (Merch)</span>
+                </a>
+                <a href="pageant-voting.html" class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition">
+                  <span>👑</span> <span>Vote Queen of Afikpo</span>
+                </a>
+                <a href="accommodation.html" class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">
+                  <span>🏨</span> <span>Reserve Hotels & Stay</span>
+                </a>
+                <a href="tour-guide.html" class="flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">
+                  <span>🧭</span> <span>Request a Tour Guide</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Participate Dropdown -->
+          <div class="relative group">
+            <button class="nav-link hover:text-orange-600 transition flex items-center gap-1.5 py-2">
+              <span>Participate</span>
+              <svg class="w-4 h-4 text-gray-400 group-hover:text-orange-600 transition-transform group-hover:rotate-180 duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="absolute left-0 top-full hidden group-hover:block pt-2 z-50 w-64 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-2 space-y-1">
+                <a href="registration.html" class="block px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">Performer / Troupe Registration</a>
+                <a href="vendor-registration.html" class="block px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">Vendor Booth Application</a>
+                <a href="pageant-registration.html" class="block px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition">Queen Pageant Contestant Entry</a>
+                <a href="media-upload.html" class="block px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition">Upload Video / Documentary</a>
+              </div>
+            </div>
+          </div>
+
+          <a href="blog.html" class="nav-link hover:text-orange-600 transition">News & Blog</a>
+          <a href="contact.html" class="nav-link hover:text-orange-600 transition">Contact</a>
         </div>
 
-        <button id="mobile-menu-button" class="xl:hidden p-2 text-gray-600 focus:outline-none">
-          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
-          </svg>
-        </button>
+        <!-- Right Side CTA & Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <a href="tickets.html" class="hidden sm:inline-flex bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-full text-xs transition shadow-lg shadow-orange-200 items-center gap-1.5">
+            <span>Buy Tickets</span>
+            <span>🎟️</span>
+          </a>
+
+          <button id="mobile-menu-button" class="lg:hidden p-2 text-gray-700 focus:outline-none" aria-label="Toggle Menu">
+            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <!-- Mobile Menu -->
-      <div id="mobile-menu" class="hidden xl:hidden bg-white fixed inset-x-0 top-20 h-screen p-6 flex flex-col space-y-3 shadow-2xl text-center overflow-y-auto">
-        <a href="index.html" class="text-lg py-2 border-b">Home</a>
-        <a href="about.html" class="text-lg py-2 border-b">About</a>
-        <a href="why-afikpo.html" class="text-lg py-2 border-b">Why Afikpo</a>
-        <a href="events.html" class="text-lg py-2 border-b">Event Highlights</a>
-        <a href="tickets.html" class="text-lg py-2 border-b text-orange-600 font-bold">Buy Tickets</a>
-        <a href="store.html" class="text-lg py-2 border-b">Carnival Shop</a>
-        <a href="pageant-voting.html" class="text-lg py-2 border-b">Vote Queen</a>
-        <a href="pageant-registration.html" class="text-lg py-2 border-b">Pageant Registration</a>
-        <a href="accommodation.html" class="text-lg py-2 border-b">Hotels & Stay</a>
-        <a href="tour-guide.html" class="text-lg py-2 border-b">Tour Guides</a>
-        <a href="media-upload.html" class="text-lg py-2 border-b">Upload Media</a>
-        <a href="vendor-registration.html" class="text-lg py-2 border-b">Register as Vendor</a>
-        <a href="gallery.html" class="text-lg py-2 border-b">Gallery</a>
-        <a href="partners.html" class="text-lg py-2 border-b">Partners</a>
-        <a href="blog.html" class="text-lg py-2 border-b">Blog & News</a>
-        <a href="contact.html" class="text-lg py-2 border-b">Contact</a>
-        <a href="registration.html" class="text-lg py-3 text-orange-600 font-black">Register Now</a>
+      <!-- Mobile Menu Drawer (Grouped & Clean) -->
+      <div id="mobile-menu" class="hidden lg:hidden bg-white fixed inset-x-0 top-20 h-[calc(100vh-5rem)] p-6 flex flex-col space-y-4 shadow-2xl overflow-y-auto">
+        <a href="index.html" class="text-base font-bold py-2 border-b border-gray-100 text-gray-900">Home</a>
+
+        <!-- Discover Group -->
+        <div class="py-2 border-b border-gray-100">
+          <span class="text-[11px] font-black text-orange-600 uppercase tracking-wider block mb-2">Discover Afikpo</span>
+          <div class="grid grid-cols-2 gap-2 text-xs font-semibold text-gray-700">
+            <a href="about.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600">About AIC</a>
+            <a href="why-afikpo.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600">Why Afikpo</a>
+            <a href="events.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600">Highlights</a>
+            <a href="gallery.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600">Gallery</a>
+            <a href="partners.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600 col-span-2">Partners & Sponsors</a>
+          </div>
+        </div>
+
+        <!-- Portals Group -->
+        <div class="py-2 border-b border-gray-100">
+          <span class="text-[11px] font-black text-orange-600 uppercase tracking-wider block mb-2">Festival Portals</span>
+          <div class="grid grid-cols-2 gap-2 text-xs font-semibold text-gray-700">
+            <a href="tickets.html" class="p-2 rounded-lg bg-orange-50 text-orange-700 font-bold">🎟️ Buy Tickets</a>
+            <a href="store.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600">🧢 Shop Merch</a>
+            <a href="pageant-voting.html" class="p-2 rounded-lg bg-purple-50 text-purple-700 font-bold">👑 Vote Queen</a>
+            <a href="accommodation.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600">🏨 Hotel Booking</a>
+            <a href="tour-guide.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600 col-span-2">🧭 Tour Guides</a>
+          </div>
+        </div>
+
+        <!-- Participate Group -->
+        <div class="py-2 border-b border-gray-100">
+          <span class="text-[11px] font-black text-orange-600 uppercase tracking-wider block mb-2">Participate</span>
+          <div class="grid grid-cols-2 gap-2 text-xs font-semibold text-gray-700">
+            <a href="registration.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600">Performer Entry</a>
+            <a href="vendor-registration.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600">Vendor Booth</a>
+            <a href="pageant-registration.html" class="p-2 rounded-lg bg-gray-50 hover:bg-purple-50 hover:text-purple-600">Pageant Entry</a>
+            <a href="media-upload.html" class="p-2 rounded-lg bg-gray-50 hover:bg-orange-50 hover:text-orange-600">Upload Media</a>
+          </div>
+        </div>
+
+        <a href="blog.html" class="text-base font-bold py-2 border-b border-gray-100 text-gray-900">News & Editorial Blog</a>
+        <a href="contact.html" class="text-base font-bold py-2 border-b border-gray-100 text-gray-900">Contact Us</a>
+
+        <div class="pt-2 pb-6">
+          <a href="tickets.html" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-2xl transition shadow-lg text-center block text-sm">
+            Get Carnival Passes Now 🎟️
+          </a>
+        </div>
       </div>
     </nav>
 
