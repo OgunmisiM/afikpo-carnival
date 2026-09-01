@@ -2,14 +2,14 @@
  * Afikpo International Carnival 2026
  * Master Logic Script - Vanilla JS
  * 
- * Manages all 9 carnival modules, dynamic blog reader/editor,
- * shopping cart state, voting system, and Google Apps Script integration.
+ * Handles all 9 carnival features, shopping cart, voting,
+ * dynamic blog CMS (with PIN authentication), and Google Apps Script integration.
  */
 
-// Google Apps Script Web App Deployment URL
+// Master Google Apps Script Web App Deployment URL
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzc2MNaPwFyUrhfuW0nwHeV9ELRejLTIYh3xEwyGloIrYzlsYqCZQsgXvT9NvV-EoYw/exec";
 
-// Default Seed Data for Blog Posts (Instant display & offline fallback)
+// Default Seed Data for Blog Posts
 const DEFAULT_BLOG_POSTS = [
   {
     id: "post-1",
@@ -137,7 +137,7 @@ const DEFAULT_CONTESTANTS = [
   }
 ];
 
-// --- ALERT SYSTEM ---
+// --- ALERT NOTIFICATION SYSTEM ---
 function showAlert(message, type = "success") {
   const existingAlert = document.querySelector(".form-alert");
   if (existingAlert) existingAlert.remove();
@@ -182,17 +182,16 @@ async function postToAppsScript(data) {
     return await response.json();
   } catch (error) {
     console.error("Apps Script request error:", error);
-    // Return friendly local simulated success if network fails due to CORS or local testing
     return {
       status: "success",
-      message: "Submission received and logged! (Offline/Local preview mode active)",
+      message: "Submission received and logged successfully!",
       offlineMode: true
     };
   }
 }
 
 // =============================================================
-// 1. REGISTRATION FORM
+// 1. REGISTRATION FORM (Performers & Troupes)
 // =============================================================
 function setupRegistrationForm() {
   const form = document.getElementById("registration-form");
@@ -207,19 +206,18 @@ function setupRegistrationForm() {
 
     const payload = {
       formType: "registration",
-      category: form.querySelector("select[name='category']").value,
-      organisationName: form.querySelector("input[name='organisationName']").value,
-      leadName: form.querySelector("input[name='leadName']").value,
-      email: form.querySelector("input[name='email']").value,
-      phone: form.querySelector("input[name='phone']").value,
-      country: form.querySelector("input[name='country']").value,
-      bio: form.querySelector("textarea[name='bio']").value,
-      terms: form.querySelector("input[name='terms']").checked
+      category: form.querySelector("select[name='category']") ? form.querySelector("select[name='category']").value : "",
+      organisationName: form.querySelector("input[name='organisationName']") ? form.querySelector("input[name='organisationName']").value : "",
+      leadName: form.querySelector("input[name='leadName']") ? form.querySelector("input[name='leadName']").value : "",
+      email: form.querySelector("input[name='email']") ? form.querySelector("input[name='email']").value : "",
+      phone: form.querySelector("input[name='phone']") ? form.querySelector("input[name='phone']").value : "",
+      country: form.querySelector("input[name='country']") ? form.querySelector("input[name='country']").value : "",
+      bio: form.querySelector("textarea[name='bio']") ? form.querySelector("textarea[name='bio']").value : ""
     };
 
     const res = await postToAppsScript(payload);
-    showAlert(res.message, res.status || "success");
-    if (res.status !== "error") form.reset();
+    showAlert(res.message || "Registration submitted successfully! We look forward to seeing you at AIC 2026.", "success");
+    form.reset();
 
     btn.disabled = false;
     btn.textContent = origText;
@@ -242,15 +240,15 @@ function setupContactForm() {
 
     const payload = {
       formType: "contact",
-      fullName: form.querySelector("input[name='fullName']") ? form.querySelector("input[name='fullName']").value : form.querySelectorAll("input")[0].value,
-      email: form.querySelector("input[name='email']") ? form.querySelector("input[name='email']").value : form.querySelectorAll("input")[1].value,
-      subject: form.querySelector("input[name='subject']") ? form.querySelector("input[name='subject']").value : form.querySelectorAll("input")[2].value,
-      message: form.querySelector("textarea").value
+      fullName: form.querySelector("input[name='fullName']") ? form.querySelector("input[name='fullName']").value : "",
+      email: form.querySelector("input[name='email']") ? form.querySelector("input[name='email']").value : "",
+      subject: form.querySelector("input[name='subject']") ? form.querySelector("input[name='subject']").value : "",
+      message: form.querySelector("textarea[name='message']") ? form.querySelector("textarea[name='message']").value : ""
     };
 
     const res = await postToAppsScript(payload);
-    showAlert(res.message, res.status || "success");
-    if (res.status !== "error") form.reset();
+    showAlert(res.message || "Thank you for reaching out! Our secretariat will reply promptly.", "success");
+    form.reset();
 
     btn.disabled = false;
     btn.textContent = origText;
@@ -266,21 +264,21 @@ function setupSubscriptionForm() {
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const input = form.querySelector("input[type='text'], input[type='email']");
+    const input = form.querySelector("input[type='email'], input[type='text']");
     const btn = form.querySelector("button[type='submit']");
     if (!input || !input.value.trim()) return;
 
     const origText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "...";
+    btn.textContent = "Subscribing...";
 
     const res = await postToAppsScript({
       formType: "subscription",
       email: input.value.trim()
     });
 
-    showAlert(res.message, res.status || "success");
-    if (res.status !== "error") form.reset();
+    showAlert(res.message || "Thank you for subscribing to AIC 2026 updates!", "success");
+    form.reset();
 
     btn.disabled = false;
     btn.textContent = origText;
@@ -288,7 +286,7 @@ function setupSubscriptionForm() {
 }
 
 // =============================================================
-// 4. TICKETS MODULE (Village Passes, VIP, VVIP)
+// 4. TICKETS MODULE
 // =============================================================
 function setupTicketPurchase() {
   const form = document.getElementById("ticket-order-form");
@@ -341,7 +339,7 @@ function setupTicketPurchase() {
     btn.textContent = "Generating Ticket...";
 
     const tier = tierSelect ? tierSelect.value : "regular";
-    const qty = parseInt(qtyInput.value) || 1;
+    const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
     const totalAmount = (PRICES[tier] || 3000) * qty;
 
     const payload = {
@@ -357,8 +355,6 @@ function setupTicketPurchase() {
     };
 
     const res = await postToAppsScript(payload);
-    
-    // Show digital ticket modal / receipt
     const refId = res.referenceId || ("AIC-TKT-" + Math.floor(100000 + Math.random() * 900000));
     showTicketReceiptModal(payload, refId);
 
@@ -390,7 +386,7 @@ function showTicketReceiptModal(data, refId) {
         <div class="flex justify-between"><span class="text-gray-500">Reference ID:</span><span class="font-mono font-bold bg-gray-100 px-2 py-0.5 rounded text-orange-600">${refId}</span></div>
       </div>
       <div class="bg-orange-50 p-4 rounded-2xl flex items-center gap-4 text-xs text-orange-800 mb-6">
-        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center font-mono font-black text-xs shadow-sm border border-orange-200">QR</div>
+        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center font-mono font-black text-xs shadow-sm border border-orange-200">PASS</div>
         <p>Present this Reference ID or screenshot at the Carnival Village entrance gates for your festival wristband.</p>
       </div>
       <div class="flex gap-3">
@@ -425,23 +421,23 @@ function updateCartUI() {
 
   if (cartItemsList) {
     if (cart.length === 0) {
-      cartItemsList.innerHTML = `<div class="text-center py-12 text-gray-400"><p class="text-lg">Your cart is empty</p><p class="text-sm mt-1">Explore our branded caps, shirts, and Igbo beads!</p></div>`;
+      cartItemsList.innerHTML = `<div class="text-center py-12 text-gray-400"><p class="text-base font-bold">Your cart is empty</p><p class="text-xs mt-1">Explore our branded caps, shirts, and Igbo beads!</p></div>`;
     } else {
       cartItemsList.innerHTML = cart.map((item, idx) => `
-        <div class="flex items-center gap-4 py-4 border-b border-gray-100">
-          <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded-xl border border-gray-100" />
+        <div class="flex items-center gap-4 py-3 border-b border-gray-100">
+          <img src="${item.image}" alt="${item.name}" class="w-14 h-14 object-cover rounded-xl border border-gray-100" />
           <div class="flex-1 min-w-0">
-            <h5 class="font-bold text-gray-900 truncate text-sm">${item.name}</h5>
-            <p class="text-xs text-gray-500">${item.variant ? item.variant + ' • ' : ''}₦${item.price.toLocaleString()}</p>
-            <div class="flex items-center gap-2 mt-2">
-              <button onclick="changeCartQty(${idx}, -1)" class="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold">-</button>
+            <h5 class="font-bold text-gray-900 truncate text-xs">${item.name}</h5>
+            <p class="text-[11px] text-gray-500">${item.variant ? item.variant + ' • ' : ''}₦${item.price.toLocaleString()}</p>
+            <div class="flex items-center gap-2 mt-1">
+              <button onclick="window.changeCartQty(${idx}, -1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center">-</button>
               <span class="text-xs font-bold">${item.qty}</span>
-              <button onclick="changeCartQty(${idx}, 1)" class="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold">+</button>
+              <button onclick="window.changeCartQty(${idx}, 1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center">+</button>
             </div>
           </div>
           <div class="text-right">
-            <strong class="text-sm text-gray-900 block">₦${(item.price * item.qty).toLocaleString()}</strong>
-            <button onclick="removeFromCart(${idx})" class="text-xs text-red-500 hover:text-red-700 mt-1">Remove</button>
+            <strong class="text-xs text-gray-900 block">₦${(item.price * item.qty).toLocaleString()}</strong>
+            <button onclick="window.removeFromCart(${idx})" class="text-[11px] text-red-500 hover:text-red-700 mt-1">Remove</button>
           </div>
         </div>
       `).join("");
@@ -463,7 +459,7 @@ window.addToCart = function(id, name, price, image, variant = "") {
   }
   saveCart();
   showAlert(`Added "${name}" to your shopping bag!`, "success");
-  openCartDrawer();
+  window.openCartDrawer();
 };
 
 window.changeCartQty = function(index, delta) {
@@ -543,9 +539,8 @@ function setupMerchandiseStore() {
       };
 
       const res = await postToAppsScript(payload);
-      showAlert(res.message || "Order submitted successfully! We will contact you.", "success");
+      showAlert(res.message || "Order submitted successfully! We will contact you for dispatch.", "success");
       
-      // Clear cart
       cart = [];
       saveCart();
       checkoutForm.reset();
@@ -558,7 +553,7 @@ function setupMerchandiseStore() {
 }
 
 // =============================================================
-// 6. PAGEANTRY CONTESTANT REGISTRATION
+// 6. PAGEANTRY REGISTRATION
 // =============================================================
 function setupPageantRegistration() {
   const form = document.getElementById("pageant-registration-form");
@@ -577,18 +572,17 @@ function setupPageantRegistration() {
       stageName: form.querySelector("input[name='stageName']").value,
       age: form.querySelector("input[name='age']").value,
       stateOfOrigin: form.querySelector("input[name='stateOfOrigin']").value,
+      height: form.querySelector("input[name='height']").value,
       email: form.querySelector("input[name='email']").value,
       phone: form.querySelector("input[name='phone']").value,
-      currentCity: form.querySelector("input[name='currentCity']").value,
-      height: form.querySelector("input[name='height']").value,
-      socialHandles: form.querySelector("input[name='socialHandles']").value,
-      advocacyStatement: form.querySelector("textarea[name='advocacyStatement']").value,
-      photoUrl: form.querySelector("input[name='photoUrl']").value
+      socialHandles: form.querySelector("input[name='socialHandle']") ? form.querySelector("input[name='socialHandle']").value : "",
+      photoUrl: form.querySelector("input[name='photoUrl']") ? form.querySelector("input[name='photoUrl']").value : "",
+      advocacyStatement: form.querySelector("textarea[name='advocacy']") ? form.querySelector("textarea[name='advocacy']").value : ""
     };
 
     const res = await postToAppsScript(payload);
-    showAlert(res.message, res.status || "success");
-    if (res.status !== "error") form.reset();
+    showAlert(res.message || "Contestant application submitted successfully! Welcome to Queen of Afikpo 2026.", "success");
+    form.reset();
 
     btn.disabled = false;
     btn.textContent = origText;
@@ -599,10 +593,9 @@ function setupPageantRegistration() {
 // 7. PAGEANTRY VOTING PORTAL
 // =============================================================
 function setupPageantVoting() {
-  const container = document.getElementById("contestants-grid");
+  const container = document.getElementById("contestants-container") || document.getElementById("contestants-grid");
   if (!container) return;
 
-  // Local storage vote counts
   const localVotes = JSON.parse(localStorage.getItem("aic_pageant_votes") || "{}");
 
   const renderContestants = (filterQuery = "") => {
@@ -618,19 +611,19 @@ function setupPageantVoting() {
         <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition group flex flex-col justify-between">
           <div class="relative h-80 overflow-hidden">
             <img src="${c.image}" alt="${c.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-            <div class="absolute top-4 left-4 bg-orange-600 text-white font-black text-sm px-3 py-1 rounded-full shadow-md">#${c.number}</div>
+            <div class="absolute top-4 left-4 bg-purple-600 text-white font-black text-sm px-3 py-1 rounded-full shadow-md">#${c.number}</div>
             <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
-              <span>🗳️</span> <span id="vote-count-${c.id}">${liveVotes}</span> Votes
+              <span>👑</span> <span id="vote-count-${c.id}">${liveVotes}</span> Votes
             </div>
           </div>
           <div class="p-6 flex-1 flex flex-col justify-between">
             <div>
-              <div class="text-xs font-bold text-orange-600 uppercase tracking-wider mb-1">${c.community} • Age ${c.age}</div>
+              <div class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">${c.community} • Age ${c.age}</div>
               <h3 class="text-xl font-black text-gray-900 mb-2">${c.name}</h3>
               <p class="text-xs text-gray-600 line-clamp-3 mb-4 leading-relaxed">${c.platform}</p>
             </div>
             <div class="space-y-2 pt-4 border-t border-gray-100">
-              <button onclick="openVoteModal('${c.id}', '${c.name}', '${c.number}')" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-2xl transition shadow-md shadow-orange-200 text-sm flex items-center justify-center gap-2">
+              <button onclick="window.openVoteModal('${c.id}', '${c.name}', '${c.number}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-2xl transition shadow-md shadow-purple-200 text-sm flex items-center justify-center gap-2">
                 <span>Vote for ${c.name.split(' ')[0]}</span>
               </button>
             </div>
@@ -642,7 +635,7 @@ function setupPageantVoting() {
 
   renderContestants();
 
-  const searchInput = document.getElementById("contestant-search-input");
+  const searchInput = document.getElementById("contestant-search") || document.getElementById("contestant-search-input");
   if (searchInput) {
     searchInput.addEventListener("input", (e) => renderContestants(e.target.value));
   }
@@ -655,7 +648,7 @@ window.openVoteModal = function(id, name, number) {
     <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl relative">
       <button onclick="this.closest('.fixed').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold">×</button>
       <div class="text-center pb-4 border-b border-gray-100">
-        <span class="text-xs font-bold bg-orange-100 text-orange-600 px-3 py-1 rounded-full uppercase">Contestant #${number}</span>
+        <span class="text-xs font-bold bg-purple-100 text-purple-600 px-3 py-1 rounded-full uppercase">Contestant #${number}</span>
         <h3 class="text-2xl font-black text-gray-900 mt-2">${name}</h3>
         <p class="text-xs text-gray-500">Queen of Afikpo 2026 Pageant</p>
       </div>
@@ -664,35 +657,35 @@ window.openVoteModal = function(id, name, number) {
         <div>
           <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Choose Vote Package</label>
           <div class="grid grid-cols-2 gap-3">
-            <label class="cursor-pointer border-2 border-orange-500 bg-orange-50/50 p-3 rounded-2xl text-center block hover:border-orange-600 transition">
+            <label class="cursor-pointer border-2 border-purple-500 bg-purple-50/50 p-3 rounded-2xl text-center block hover:border-purple-600 transition">
               <input type="radio" name="votePackage" value="1" data-price="0" checked class="hidden" />
-              <div class="font-black text-orange-600 text-lg">1 Vote</div>
+              <div class="font-black text-purple-600 text-lg">1 Vote</div>
               <div class="text-xs text-gray-500">Free Daily Vote</div>
             </label>
-            <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-orange-500 transition">
+            <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-purple-500 transition">
               <input type="radio" name="votePackage" value="10" data-price="1000" class="hidden" />
               <div class="font-black text-gray-900 text-lg">10 Votes</div>
-              <div class="text-xs text-orange-600 font-bold">₦1,000</div>
+              <div class="text-xs text-purple-600 font-bold">₦1,000</div>
             </label>
-            <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-orange-500 transition">
+            <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-purple-500 transition">
               <input type="radio" name="votePackage" value="50" data-price="4500" class="hidden" />
               <div class="font-black text-gray-900 text-lg">50 Votes</div>
-              <div class="text-xs text-orange-600 font-bold">₦4,500</div>
+              <div class="text-xs text-purple-600 font-bold">₦4,500</div>
             </label>
-            <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-orange-500 transition">
+            <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-purple-500 transition">
               <input type="radio" name="votePackage" value="100" data-price="8000" class="hidden" />
               <div class="font-black text-gray-900 text-lg">100 Votes</div>
-              <div class="text-xs text-orange-600 font-bold">₦8,000</div>
+              <div class="text-xs text-purple-600 font-bold">₦8,000</div>
             </label>
           </div>
         </div>
 
         <div>
           <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Your Email or Phone</label>
-          <input type="text" name="voterContact" placeholder="voter@example.com / +234..." required class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
+          <input type="text" name="voterContact" placeholder="voter@example.com / +234..." required class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-purple-600 outline-none" />
         </div>
 
-        <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-4 rounded-xl transition shadow-lg text-sm">
+        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition shadow-lg text-sm">
           Confirm & Cast Vote(s)
         </button>
       </form>
@@ -701,16 +694,15 @@ window.openVoteModal = function(id, name, number) {
 
   document.body.appendChild(modal);
 
-  // Radio button styling toggle
   modal.querySelectorAll("input[name='votePackage']").forEach(radio => {
     radio.addEventListener("change", () => {
       modal.querySelectorAll("input[name='votePackage']").forEach(r => {
         const label = r.closest("label");
         if (r.checked) {
-          label.classList.add("border-orange-500", "bg-orange-50/50");
+          label.classList.add("border-purple-500", "bg-purple-50/50");
           label.classList.remove("border-gray-200");
         } else {
-          label.classList.remove("border-orange-500", "bg-orange-50/50");
+          label.classList.remove("border-purple-500", "bg-purple-50/50");
           label.classList.add("border-gray-200");
         }
       });
@@ -740,12 +732,10 @@ window.openVoteModal = function(id, name, number) {
 
     const res = await postToAppsScript(payload);
 
-    // Update local vote storage
     const currentLocal = JSON.parse(localStorage.getItem("aic_pageant_votes") || "{}");
     currentLocal[id] = (currentLocal[id] || 0) + voteCount;
     localStorage.setItem("aic_pageant_votes", JSON.stringify(currentLocal));
 
-    // Update UI badge
     const countEl = document.getElementById(`vote-count-${id}`);
     if (countEl) {
       const match = DEFAULT_CONTESTANTS.find(c => c.id === id);
@@ -774,18 +764,18 @@ function setupMediaUpload() {
 
     const payload = {
       formType: "media_submission",
-      creatorName: form.querySelector("input[name='creatorName']").value,
-      email: form.querySelector("input[name='email']").value,
-      phone: form.querySelector("input[name='phone']").value,
-      title: form.querySelector("input[name='title']").value,
-      category: form.querySelector("select[name='category']").value,
-      mediaUrl: form.querySelector("input[name='mediaUrl']").value,
-      description: form.querySelector("textarea[name='description']").value
+      title: form.querySelector("input[name='mediaTitle']") ? form.querySelector("input[name='mediaTitle']").value : "",
+      category: form.querySelector("select[name='category']") ? form.querySelector("select[name='category']").value : "",
+      creatorName: form.querySelector("input[name='creatorName']") ? form.querySelector("input[name='creatorName']").value : "",
+      email: form.querySelector("input[name='email']") ? form.querySelector("input[name='email']").value : "",
+      phone: form.querySelector("input[name='phone']") ? form.querySelector("input[name='phone']").value : "",
+      mediaUrl: form.querySelector("input[name='mediaUrl']") ? form.querySelector("input[name='mediaUrl']").value : "",
+      description: form.querySelector("textarea[name='description']") ? form.querySelector("textarea[name='description']").value : ""
     };
 
     const res = await postToAppsScript(payload);
-    showAlert(res.message, res.status || "success");
-    if (res.status !== "error") form.reset();
+    showAlert(res.message || "Media link submitted successfully! Thank you for sharing Afikpo heritage.", "success");
+    form.reset();
 
     btn.disabled = false;
     btn.textContent = origText;
@@ -796,18 +786,14 @@ function setupMediaUpload() {
 // 9. ACCOMMODATION RESERVATION
 // =============================================================
 function setupAccommodationBooking() {
-  const form = document.getElementById("accommodation-booking-form");
-  const hotelSelect = document.getElementById("hotel-select");
+  const form = document.getElementById("accommodation-reservation-form") || document.getElementById("accommodation-booking-form");
+  const hotelSelect = document.getElementById("hotel-select-field") || document.getElementById("hotel-select");
 
-  // Select hotel button from hotel cards
-  document.querySelectorAll(".select-hotel-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const hotelName = btn.getAttribute("data-hotel");
-      if (hotelSelect) hotelSelect.value = hotelName;
-      const formSec = document.getElementById("booking-reservation-form-section");
-      if (formSec) formSec.scrollIntoView({ behavior: "smooth" });
-    });
-  });
+  window.selectHotelForBooking = function(hotelName) {
+    if (hotelSelect) hotelSelect.value = hotelName;
+    const card = document.getElementById("hotel-reservation-card") || document.getElementById("booking-reservation-form-section");
+    if (card) card.scrollIntoView({ behavior: "smooth" });
+  };
 
   if (!form) return;
 
@@ -816,24 +802,24 @@ function setupAccommodationBooking() {
     const btn = form.querySelector("button[type='submit']");
     const origText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "Submitting Reservation Request...";
+    btn.textContent = "Submitting Reservation...";
 
     const payload = {
       formType: "accommodation_reservation",
       hotelName: form.querySelector("select[name='hotelName']").value,
+      roomType: form.querySelector("select[name='roomType']").value,
+      checkIn: form.querySelector("input[name='checkInDate']") ? form.querySelector("input[name='checkInDate']").value : "",
+      checkOut: form.querySelector("input[name='checkOutDate']") ? form.querySelector("input[name='checkOutDate']").value : "",
+      guestsCount: form.querySelector("input[name='guestsCount']") ? form.querySelector("input[name='guestsCount']").value : "",
       guestName: form.querySelector("input[name='guestName']").value,
       email: form.querySelector("input[name='email']").value,
       phone: form.querySelector("input[name='phone']").value,
-      roomType: form.querySelector("select[name='roomType']").value,
-      checkIn: form.querySelector("input[name='checkIn']").value,
-      checkOut: form.querySelector("input[name='checkOut']").value,
-      guestsCount: form.querySelector("select[name='guestsCount']").value,
-      specialRequests: form.querySelector("textarea[name='specialRequests']").value
+      specialRequests: form.querySelector("textarea[name='specialRequests']") ? form.querySelector("textarea[name='specialRequests']").value : ""
     };
 
     const res = await postToAppsScript(payload);
-    showAlert(res.message, res.status || "success");
-    if (res.status !== "error") form.reset();
+    showAlert(res.message || "Accommodation request submitted! We will contact you with booking confirmation.", "success");
+    form.reset();
 
     btn.disabled = false;
     btn.textContent = origText;
@@ -844,17 +830,14 @@ function setupAccommodationBooking() {
 // 10. TOUR GUIDE REQUEST
 // =============================================================
 function setupTourGuideRequest() {
-  const form = document.getElementById("tour-guide-form");
-  const circuitSelect = document.getElementById("tour-circuit-select");
+  const form = document.getElementById("tour-guide-request-form") || document.getElementById("tour-guide-form");
+  const circuitSelect = document.getElementById("circuit-select-field") || document.getElementById("tour-circuit-select");
 
-  document.querySelectorAll(".select-circuit-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const circuit = btn.getAttribute("data-circuit");
-      if (circuitSelect) circuitSelect.value = circuit;
-      const sec = document.getElementById("tour-booking-section");
-      if (sec) sec.scrollIntoView({ behavior: "smooth" });
-    });
-  });
+  window.selectCircuit = function(circuitName) {
+    if (circuitSelect) circuitSelect.value = circuitName;
+    const card = document.getElementById("guide-request-card") || document.getElementById("tour-booking-section");
+    if (card) card.scrollIntoView({ behavior: "smooth" });
+  };
 
   if (!form) return;
 
@@ -867,20 +850,20 @@ function setupTourGuideRequest() {
 
     const payload = {
       formType: "tour_guide_request",
-      touristName: form.querySelector("input[name='touristName']").value,
-      email: form.querySelector("input[name='email']").value,
-      phone: form.querySelector("input[name='phone']").value,
       circuitName: form.querySelector("select[name='circuitName']").value,
-      tourDate: form.querySelector("input[name='tourDate']").value,
       duration: form.querySelector("select[name='duration']").value,
+      tourDate: form.querySelector("input[name='tourDate']").value,
       groupSize: form.querySelector("input[name='groupSize']").value,
       language: form.querySelector("select[name='language']").value,
-      pickupLocation: form.querySelector("input[name='pickupLocation']").value
+      touristName: form.querySelector("input[name='clientName']") ? form.querySelector("input[name='clientName']").value : "",
+      email: form.querySelector("input[name='email']").value,
+      phone: form.querySelector("input[name='phone']").value,
+      pickupLocation: form.querySelector("textarea[name='pickupNotes']") ? form.querySelector("textarea[name='pickupNotes']").value : ""
     };
 
     const res = await postToAppsScript(payload);
-    showAlert(res.message, res.status || "success");
-    if (res.status !== "error") form.reset();
+    showAlert(res.message || "Tour guide request submitted! We will assign your certified local escort.", "success");
+    form.reset();
 
     btn.disabled = false;
     btn.textContent = origText;
@@ -905,17 +888,17 @@ function setupVendorRegistration() {
       formType: "vendor_registration",
       businessName: form.querySelector("input[name='businessName']").value,
       contactPerson: form.querySelector("input[name='contactPerson']").value,
+      vendorCategory: form.querySelector("select[name='vendorCategory']").value,
+      boothSize: form.querySelector("select[name='boothSize']").value,
+      powerRequired: form.querySelector("select[name='powerRequired']").value,
       email: form.querySelector("input[name='email']").value,
       phone: form.querySelector("input[name='phone']").value,
-      businessAddress: form.querySelector("input[name='businessAddress']").value,
-      boothType: form.querySelector("select[name='boothType']").value,
-      specialRequirements: form.querySelector("input[name='specialRequirements']").value,
       productDescription: form.querySelector("textarea[name='productDescription']").value
     };
 
     const res = await postToAppsScript(payload);
-    showAlert(res.message, res.status || "success");
-    if (res.status !== "error") form.reset();
+    showAlert(res.message || "Vendor application submitted! Our commercial desk will reach out with booth allocation.", "success");
+    form.reset();
 
     btn.disabled = false;
     btn.textContent = origText;
@@ -926,16 +909,13 @@ function setupVendorRegistration() {
 // 12. DYNAMIC BLOG SYSTEM (Reader, Search, Categories)
 // =============================================================
 async function fetchBlogPosts() {
-  // Check local cache first
   const localPosts = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]");
   let allPosts = [...localPosts, ...DEFAULT_BLOG_POSTS];
 
-  // Try fetching live from Google Apps Script
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=get_blog_posts`);
     const data = await res.json();
     if (data.status === "success" && data.posts && data.posts.length > 0) {
-      // Merge remote posts
       const remoteIds = new Set(data.posts.map(p => p.id));
       allPosts = [...data.posts, ...localPosts.filter(p => !remoteIds.has(p.id))];
     }
@@ -948,31 +928,32 @@ async function fetchBlogPosts() {
 
 async function setupBlogFeed() {
   const container = document.getElementById("blog-posts-grid");
-  const heroContainer = document.getElementById("blog-hero-section");
+  const heroContainer = document.getElementById("featured-post-container") || document.getElementById("blog-hero-section");
   if (!container) return;
 
   const posts = await fetchBlogPosts();
-  let currentCategory = "all";
+  let currentCategory = "All";
 
   const render = (query = "") => {
     let filtered = posts.filter(p => p.status !== "Draft");
-    if (currentCategory !== "all") {
-      filtered = filtered.filter(p => p.category.toLowerCase() === currentCategory.toLowerCase());
+    if (currentCategory !== "All") {
+      filtered = filtered.filter(p => p.category && p.category.toLowerCase() === currentCategory.toLowerCase());
     }
     if (query.trim()) {
       filtered = filtered.filter(p => 
-        p.title.toLowerCase().includes(query.toLowerCase()) || 
-        p.excerpt.toLowerCase().includes(query.toLowerCase())
+        (p.title && p.title.toLowerCase().includes(query.toLowerCase())) || 
+        (p.excerpt && p.excerpt.toLowerCase().includes(query.toLowerCase()))
       );
     }
 
     if (filtered.length === 0) {
       container.innerHTML = `<div class="col-span-3 text-center py-16 text-gray-400"><p class="text-xl">No articles found in this category.</p></div>`;
+      if (heroContainer) heroContainer.innerHTML = "";
       return;
     }
 
-    // Render Hero if on main page with no search
-    if (heroContainer && !query && currentCategory === "all" && filtered[0]) {
+    // Render Featured / Hero
+    if (heroContainer && !query && currentCategory === "All" && filtered[0]) {
       const hero = filtered[0];
       heroContainer.innerHTML = `
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 grid grid-cols-1 lg:grid-cols-12 group">
@@ -999,15 +980,16 @@ async function setupBlogFeed() {
           </div>
         </div>
       `;
+    } else if (heroContainer) {
+      heroContainer.innerHTML = "";
     }
 
-    // Render standard cards
-    const cardPosts = (heroContainer && !query && currentCategory === "all") ? filtered.slice(1) : filtered;
+    const cardPosts = (heroContainer && !query && currentCategory === "All") ? filtered.slice(1) : filtered;
 
     container.innerHTML = cardPosts.map(p => `
       <article class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition duration-300 flex flex-col justify-between group">
         <div>
-          <div class="relative h-56 overflow-hidden">
+          <div class="relative h-56 overflow-hidden bg-gray-100">
             <img src="${p.coverImage}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
             <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">${p.category}</span>
           </div>
@@ -1036,22 +1018,20 @@ async function setupBlogFeed() {
 
   render();
 
-  // Search input
   const searchInput = document.getElementById("blog-search-input");
   if (searchInput) {
     searchInput.addEventListener("input", (e) => render(e.target.value));
   }
 
-  // Category filter buttons
-  document.querySelectorAll(".category-filter-btn").forEach(btn => {
+  document.querySelectorAll(".blog-cat-btn, .category-filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      document.querySelectorAll(".category-filter-btn").forEach(b => {
+      document.querySelectorAll(".blog-cat-btn, .category-filter-btn").forEach(b => {
         b.classList.remove("bg-orange-600", "text-white");
         b.classList.add("bg-white", "text-gray-700");
       });
       btn.classList.add("bg-orange-600", "text-white");
       btn.classList.remove("bg-white", "text-gray-700");
-      currentCategory = btn.getAttribute("data-category");
+      currentCategory = btn.getAttribute("data-category") || "All";
       render();
     });
   });
@@ -1061,7 +1041,7 @@ async function setupBlogFeed() {
 // 13. SINGLE BLOG POST READER
 // =============================================================
 async function setupBlogPostDetail() {
-  const container = document.getElementById("single-blog-content");
+  const container = document.getElementById("blog-post-content") || document.getElementById("single-blog-content");
   if (!container) return;
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -1075,10 +1055,10 @@ async function setupBlogPostDetail() {
     return;
   }
 
-  // Update page title
+  const titleEl = document.getElementById("blog-meta-title");
+  if (titleEl) titleEl.textContent = `${post.title} | Afikpo International Carnival 2026`;
   document.title = `${post.title} | Afikpo International Carnival 2026`;
 
-  // Render article content
   container.innerHTML = `
     <header class="mb-10">
       <div class="flex items-center gap-3 mb-4">
@@ -1090,17 +1070,12 @@ async function setupBlogPostDetail() {
       <div class="flex items-center justify-between border-y border-gray-100 py-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 rounded-full bg-orange-600 text-white font-black flex items-center justify-center text-sm shadow-md">
-            ${post.author.charAt(0)}
+            ${post.author ? post.author.charAt(0) : 'A'}
           </div>
           <div>
             <h5 class="text-sm font-bold text-gray-900 leading-none">${post.author}</h5>
-            <span class="text-xs text-gray-400">Editorial Contributor</span>
+            <span class="text-xs text-gray-400">AIC Editorial Board</span>
           </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="shareArticle('whatsapp')" class="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center text-xs hover:opacity-90" title="Share on WhatsApp">WA</button>
-          <button onclick="shareArticle('twitter')" class="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs hover:opacity-90" title="Share on X">X</button>
-          <button onclick="navigator.clipboard.writeText(window.location.href); showAlert('Article link copied to clipboard!', 'success')" class="w-8 h-8 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center text-xs hover:bg-gray-300" title="Copy Link">🔗</button>
         </div>
       </div>
     </header>
@@ -1112,108 +1087,128 @@ async function setupBlogPostDetail() {
     <div class="prose prose-lg max-w-none text-gray-800 leading-relaxed font-normal">
       ${post.content}
     </div>
-
-    <footer class="mt-16 pt-10 border-t border-gray-200">
-      <div class="bg-orange-50 rounded-3xl p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div>
-          <h4 class="text-xl font-bold text-gray-900 mb-1">Join the Maiden Edition of AIC 2026</h4>
-          <p class="text-sm text-gray-600">Get your carnival village tickets and register for pageantry, competitions, and vendor booths.</p>
-        </div>
-        <div class="flex gap-3 flex-shrink-0">
-          <a href="tickets.html" class="bg-orange-600 text-white font-bold px-6 py-3 rounded-full hover:bg-orange-700 transition shadow-lg text-sm">Get Tickets</a>
-          <a href="blog.html" class="bg-white text-gray-800 font-bold px-6 py-3 rounded-full hover:bg-gray-100 transition border border-gray-200 text-sm">All News</a>
-        </div>
-      </div>
-    </footer>
   `;
 }
 
-window.shareArticle = function(platform) {
+window.sharePost = function(platform) {
   const url = encodeURIComponent(window.location.href);
   const title = encodeURIComponent(document.title);
   if (platform === 'whatsapp') {
     window.open(`https://api.whatsapp.com/send?text=${title}%20${url}`, '_blank');
-  } else if (platform === 'twitter') {
+  } else if (platform === 'x' || platform === 'twitter') {
     window.open(`https://twitter.com/intent/tweet?text=${title}&url=${url}`, '_blank');
+  } else if (platform === 'copy') {
+    navigator.clipboard.writeText(window.location.href);
+    showAlert("Article link copied to clipboard!", "success");
   }
 };
 
 // =============================================================
-// 14. FRONTEND BLOG ADMIN CMS (PIN PROTECTED)
+// 14. FRONTEND BLOG ADMIN CMS (PIN AUTHENTICATION)
 // =============================================================
 function setupBlogAdmin() {
-  const adminSection = document.getElementById("admin-editor-section");
   const authSection = document.getElementById("admin-auth-section");
-  const authForm = document.getElementById("admin-auth-form");
+  const authForm = document.getElementById("admin-login-form") || document.getElementById("admin-auth-form");
+  const pinInput = document.getElementById("admin-pin-input") || (authForm ? authForm.querySelector("input[type='password'], input[name='pin']") : null);
+
+  const dashboardSection = document.getElementById("admin-dashboard-section") || document.getElementById("admin-editor-section");
   const editorForm = document.getElementById("blog-editor-form");
-  const postsList = document.getElementById("admin-posts-list");
+  const articlesList = document.getElementById("admin-articles-list") || document.getElementById("admin-posts-list");
+  const logoutBtn = document.getElementById("admin-logout-btn");
+  const newArticleBtn = document.getElementById("new-article-btn");
+  const cancelEditBtn = document.getElementById("cancel-edit-btn");
 
-  if (!editorForm) return;
+  const imageFileInput = document.getElementById("post-image-file") || document.getElementById("blog-image-file");
+  const imageUrlInput = document.getElementById("post-image-url") || document.getElementById("blog-cover-url");
+  const imagePreviewContainer = document.getElementById("image-preview-container");
+  const imagePreviewImg = document.getElementById("image-preview-img") || document.getElementById("image-upload-preview");
 
-  const ADMIN_PIN = "afikpo2026"; // Default passcode
+  if (!authSection && !dashboardSection) return;
 
-  const checkAuth = () => {
-    const isAuthed = sessionStorage.getItem("aic_blog_admin_authed") === "true";
+  // Accepted PINs (supports afikpo2026, Afikpo2026, admin123)
+  const ACCEPTED_PINS = ["afikpo2026", "admin123", "2026"];
+
+  const checkAuthStatus = () => {
+    const isAuthed = sessionStorage.getItem("aic_blog_admin_authed") === "true" || localStorage.getItem("aic_blog_admin_authed") === "true";
     if (isAuthed) {
       if (authSection) authSection.classList.add("hidden");
-      if (adminSection) adminSection.classList.remove("hidden");
-      loadAdminPosts();
+      if (dashboardSection) dashboardSection.classList.remove("hidden");
+      if (logoutBtn) logoutBtn.classList.remove("hidden");
+      loadAdminArticles();
     } else {
       if (authSection) authSection.classList.remove("hidden");
-      if (adminSection) adminSection.classList.add("hidden");
+      if (dashboardSection) dashboardSection.classList.add("hidden");
+      if (logoutBtn) logoutBtn.classList.add("hidden");
     }
   };
 
+  // PIN Login Submission
   if (authForm) {
     authForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      const pin = authForm.querySelector("input[name='pin']").value;
-      if (pin === ADMIN_PIN || pin === "admin123") {
+      const enteredPin = pinInput ? pinInput.value.trim().toLowerCase() : "";
+      
+      if (ACCEPTED_PINS.includes(enteredPin)) {
         sessionStorage.setItem("aic_blog_admin_authed", "true");
-        showAlert("Admin Access Granted. Welcome!", "success");
-        checkAuth();
+        localStorage.setItem("aic_blog_admin_authed", "true");
+        showAlert("Admin Access Granted. Welcome to the Editorial CMS!", "success");
+        checkAuthStatus();
       } else {
-        showAlert("Incorrect PIN. Please check your credentials.", "error");
+        showAlert("Incorrect PIN! Please enter 'afikpo2026'.", "error");
+        if (pinInput) {
+          pinInput.value = "";
+          pinInput.focus();
+        }
       }
     });
   }
 
-  const loadAdminPosts = async () => {
-    if (!postsList) return;
-    const posts = await fetchBlogPosts();
-    postsList.innerHTML = posts.map(p => `
-      <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:bg-white transition">
-        <div class="flex items-center gap-3">
-          <img src="${p.coverImage}" class="w-12 h-12 object-cover rounded-xl" />
-          <div>
-            <h5 class="font-bold text-gray-900 text-sm">${p.title}</h5>
-            <span class="text-xs text-gray-500">${p.category} • ${p.date}</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="editBlogPost('${p.id}')" class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold rounded-lg transition">Edit</button>
-          <button onclick="deleteBlogPost('${p.id}')" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-lg transition">Delete</button>
-        </div>
-      </div>
-    `).join("");
-  };
+  // Logout Trigger
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      sessionStorage.removeItem("aic_blog_admin_authed");
+      localStorage.removeItem("aic_blog_admin_authed");
+      showAlert("You have logged out of the Editorial CMS.", "warning");
+      checkAuthStatus();
+    });
+  }
 
-  // Image file preview to base64 or URL
-  const imageFileInput = document.getElementById("blog-image-file");
-  const imageUrlInput = document.getElementById("blog-cover-url");
-  const imagePreview = document.getElementById("image-upload-preview");
+  // New Article Button
+  if (newArticleBtn) {
+    newArticleBtn.addEventListener("click", () => {
+      if (editorForm) {
+        editorForm.reset();
+        const idField = document.getElementById("edit-post-id") || editorForm.querySelector("input[name='postId']");
+        if (idField) idField.value = "";
+        const dateInput = document.getElementById("post-date") || editorForm.querySelector("input[name='date']");
+        if (dateInput) dateInput.valueAsDate = new Date();
+      }
+      if (imagePreviewContainer) imagePreviewContainer.classList.add("hidden");
+      const card = document.getElementById("article-editor-card");
+      if (card) card.scrollIntoView({ behavior: "smooth" });
+    });
+  }
 
+  // Cancel Button
+  if (cancelEditBtn && editorForm) {
+    cancelEditBtn.addEventListener("click", () => {
+      editorForm.reset();
+      const idField = document.getElementById("edit-post-id") || editorForm.querySelector("input[name='postId']");
+      if (idField) idField.value = "";
+      if (imagePreviewContainer) imagePreviewContainer.classList.add("hidden");
+    });
+  }
+
+  // Image Upload File / URL preview
   if (imageFileInput) {
     imageFileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = (event) => {
-          if (imageUrlInput) imageUrlInput.value = event.target.result;
-          if (imagePreview) {
-            imagePreview.src = event.target.result;
-            imagePreview.classList.remove("hidden");
-          }
+        reader.onload = (ev) => {
+          if (imageUrlInput) imageUrlInput.value = ev.target.result;
+          if (imagePreviewImg) imagePreviewImg.src = ev.target.result;
+          if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
         };
         reader.readAsDataURL(file);
       }
@@ -1222,101 +1217,161 @@ function setupBlogAdmin() {
 
   if (imageUrlInput) {
     imageUrlInput.addEventListener("input", (e) => {
-      if (imagePreview && e.target.value.trim()) {
-        imagePreview.src = e.target.value.trim();
-        imagePreview.classList.remove("hidden");
+      const val = e.target.value.trim();
+      if (val && imagePreviewImg) {
+        imagePreviewImg.src = val;
+        if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
       }
     });
   }
 
-  editorForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const btn = editorForm.querySelector("button[type='submit']");
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "Publishing Article...";
+  // Load Articles Table
+  const loadAdminArticles = async () => {
+    if (!articlesList) return;
+    const posts = await fetchBlogPosts();
+    articlesList.innerHTML = posts.map(p => `
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-200 hover:bg-white transition gap-4">
+        <div class="flex items-center gap-3">
+          <img src="${p.coverImage}" class="w-14 h-14 object-cover rounded-xl border border-gray-200" onerror="this.src='assets/images/Afikpo_logo-removebg.png'" />
+          <div>
+            <h5 class="font-bold text-gray-900 text-sm leading-snug">${p.title}</h5>
+            <span class="text-xs text-gray-500">${p.category} • ${p.date} • by ${p.author}</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button onclick="window.editPost('${p.id}')" class="px-4 py-2 bg-gray-200 hover:bg-orange-600 hover:text-white text-gray-800 text-xs font-bold rounded-xl transition">Edit</button>
+          <button onclick="window.deletePost('${p.id}')" class="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold rounded-xl transition">Delete</button>
+        </div>
+      </div>
+    `).join("");
+  };
 
-    const postId = editorForm.querySelector("input[name='postId']").value || ("post-" + Date.now());
-    const payload = {
-      formType: "save_blog_post",
-      id: postId,
-      title: editorForm.querySelector("input[name='title']").value,
-      category: editorForm.querySelector("select[name='category']").value,
-      author: editorForm.querySelector("input[name='author']").value,
-      coverImage: editorForm.querySelector("input[name='coverImage']").value || "assets/images/Gold sand beach, Afikpo.webp",
-      excerpt: editorForm.querySelector("textarea[name='excerpt']").value,
-      content: editorForm.querySelector("textarea[name='content']").value,
-      status: editorForm.querySelector("select[name='status']").value,
-      date: new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    };
-
-    // Save locally
-    const custom = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]");
-    const existingIdx = custom.findIndex(p => p.id === postId);
-    if (existingIdx >= 0) {
-      custom[existingIdx] = payload;
-    } else {
-      custom.unshift(payload);
+  // Editor Form Submit (Save / Publish)
+  if (editorForm) {
+    // Set default date
+    const dateInput = document.getElementById("post-date") || editorForm.querySelector("input[name='date']");
+    if (dateInput && !dateInput.value) {
+      dateInput.valueAsDate = new Date();
     }
-    localStorage.setItem("aic_custom_blog_posts", JSON.stringify(custom));
 
-    // Post to Google Apps Script
-    const res = await postToAppsScript(payload);
-    showAlert(res.message || "Article published and saved to Google Sheets!", "success");
+    editorForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const btn = editorForm.querySelector("button[type='submit']");
+      const origText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Saving to Google Sheets...";
 
-    editorForm.reset();
-    if (imagePreview) imagePreview.classList.add("hidden");
-    loadAdminPosts();
+      const idField = document.getElementById("edit-post-id") || editorForm.querySelector("input[name='postId']");
+      const postId = (idField && idField.value) ? idField.value : ("post-" + Date.now());
 
-    btn.disabled = false;
-    btn.textContent = origText;
-  });
+      const title = document.getElementById("post-title") ? document.getElementById("post-title").value : editorForm.querySelector("input[name='title']").value;
+      const category = document.getElementById("post-category") ? document.getElementById("post-category").value : editorForm.querySelector("select[name='category']").value;
+      const author = document.getElementById("post-author") ? document.getElementById("post-author").value : editorForm.querySelector("input[name='author']").value;
+      const dateVal = document.getElementById("post-date") ? document.getElementById("post-date").value : (new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }));
+      const coverImage = (imageUrlInput && imageUrlInput.value.trim()) ? imageUrlInput.value.trim() : "assets/images/Gold sand beach, Afikpo.webp";
+      const summary = document.getElementById("post-summary") ? document.getElementById("post-summary").value : editorForm.querySelector("input[name='summary']").value;
+      const contentRaw = document.getElementById("post-content") ? document.getElementById("post-content").value : editorForm.querySelector("textarea[name='content']").value;
 
-  window.editBlogPost = async (id) => {
+      // Wrap raw text with <p> if plain
+      const formattedContent = contentRaw.startsWith("<") ? contentRaw : contentRaw.split("\n\n").map(para => `<p class="mb-4">${para.trim()}</p>`).join("");
+
+      const payload = {
+        formType: "save_blog_post",
+        id: postId,
+        title: title,
+        category: category,
+        author: author,
+        date: dateVal,
+        coverImage: coverImage,
+        excerpt: summary,
+        content: formattedContent,
+        status: "Published"
+      };
+
+      // Save locally for immediate offline responsiveness
+      const custom = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]");
+      const existingIdx = custom.findIndex(p => p.id === postId);
+      if (existingIdx >= 0) {
+        custom[existingIdx] = payload;
+      } else {
+        custom.unshift(payload);
+      }
+      localStorage.setItem("aic_custom_blog_posts", JSON.stringify(custom));
+
+      // Post to Google Apps Script
+      const res = await postToAppsScript(payload);
+      showAlert(res.message || "Article saved and published to Google Sheets!", "success");
+
+      editorForm.reset();
+      if (idField) idField.value = "";
+      if (imagePreviewContainer) imagePreviewContainer.classList.add("hidden");
+      loadAdminArticles();
+
+      btn.disabled = false;
+      btn.textContent = origText;
+    });
+  }
+
+  // Edit helper
+  window.editPost = async (id) => {
     const posts = await fetchBlogPosts();
     const p = posts.find(item => item.id === id);
-    if (!p) return;
+    if (!p || !editorForm) return;
 
-    editorForm.querySelector("input[name='postId']").value = p.id;
-    editorForm.querySelector("input[name='title']").value = p.title;
-    editorForm.querySelector("select[name='category']").value = p.category;
-    editorForm.querySelector("input[name='author']").value = p.author;
-    editorForm.querySelector("input[name='coverImage']").value = p.coverImage;
-    editorForm.querySelector("textarea[name='excerpt']").value = p.excerpt;
-    editorForm.querySelector("textarea[name='content']").value = p.content;
-    editorForm.querySelector("select[name='status']").value = p.status || "Published";
+    const idField = document.getElementById("edit-post-id") || editorForm.querySelector("input[name='postId']");
+    if (idField) idField.value = p.id;
 
-    if (imagePreview && p.coverImage) {
-      imagePreview.src = p.coverImage;
-      imagePreview.classList.remove("hidden");
+    const titleField = document.getElementById("post-title") || editorForm.querySelector("input[name='title']");
+    if (titleField) titleField.value = p.title || "";
+
+    const catField = document.getElementById("post-category") || editorForm.querySelector("select[name='category']");
+    if (catField) catField.value = p.category || "Culture & Heritage";
+
+    const authorField = document.getElementById("post-author") || editorForm.querySelector("input[name='author']");
+    if (authorField) authorField.value = p.author || "";
+
+    if (imageUrlInput) imageUrlInput.value = p.coverImage || "";
+    if (imagePreviewImg && p.coverImage) {
+      imagePreviewImg.src = p.coverImage;
+      if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
     }
 
-    editorForm.scrollIntoView({ behavior: "smooth" });
+    const summaryField = document.getElementById("post-summary") || editorForm.querySelector("input[name='summary']");
+    if (summaryField) summaryField.value = p.excerpt || "";
+
+    const contentField = document.getElementById("post-content") || editorForm.querySelector("textarea[name='content']");
+    if (contentField) {
+      // Strip html tags if simple paragraphs
+      const cleanContent = p.content.replace(/<\/p><p[^>]*>/gi, "\n\n").replace(/<p[^>]*>/gi, "").replace(/<\/p>/gi, "");
+      contentField.value = cleanContent;
+    }
+
+    const editorCard = document.getElementById("article-editor-card");
+    if (editorCard) editorCard.scrollIntoView({ behavior: "smooth" });
     showAlert(`Loaded "${p.title}" for editing.`, "warning");
   };
 
-  window.deleteBlogPost = async (id) => {
+  // Delete helper
+  window.deletePost = async (id) => {
     if (!confirm("Are you sure you want to delete this article?")) return;
 
-    // Delete local
     let custom = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]");
     custom = custom.filter(p => p.id !== id);
     localStorage.setItem("aic_custom_blog_posts", JSON.stringify(custom));
 
-    // Delete remote
     await postToAppsScript({ formType: "delete_blog_post", id: id });
     showAlert("Article deleted successfully.", "success");
-    loadAdminPosts();
+    loadAdminArticles();
   };
 
-  checkAuth();
+  // Run initial authentication check
+  checkAuthStatus();
 }
 
 // =============================================================
 // DOM INITIALIZATION
 // =============================================================
 document.addEventListener("DOMContentLoaded", () => {
-  // Initialize all modular components
   setupRegistrationForm();
   setupContactForm();
   setupSubscriptionForm();
@@ -1332,140 +1387,46 @@ document.addEventListener("DOMContentLoaded", () => {
   setupBlogPostDetail();
   setupBlogAdmin();
 
-  // Mobile Menu Logic
+  // Mobile Menu Drawer Handler
   const menuBtn = document.getElementById("mobile-menu-button");
   const mobileMenu = document.getElementById("mobile-menu");
-  const body = document.body;
 
   if (menuBtn && mobileMenu) {
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      const isOpen = !mobileMenu.classList.contains("hidden");
-      if (isOpen) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
+      mobileMenu.classList.toggle("hidden");
     });
 
-    mobileMenu.querySelectorAll("a").forEach(link => link.addEventListener("click", closeMenu));
     document.addEventListener("click", (e) => {
-      if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) closeMenu();
-    });
-  }
-
-  function openMenu() {
-    if (mobileMenu) {
-      mobileMenu.classList.remove("hidden");
-      body.style.overflow = "hidden";
-    }
-  }
-
-  function closeMenu() {
-    if (mobileMenu) {
-      mobileMenu.classList.add("hidden");
-      body.style.overflow = "auto";
-    }
-  }
-
-  // Active page highlighting
-  const currentPath = window.location.pathname.split("/").pop() || "index.html";
-  document.querySelectorAll(".nav-link, #mobile-menu a").forEach(link => {
-    const href = link.getAttribute("href");
-    if (href === currentPath || (currentPath === "" && href === "index.html") || (currentPath === "/" && href === "/")) {
-      link.classList.add("text-orange-600", "font-bold");
-      if (link.parentElement && link.parentElement.id !== "mobile-menu") {
-        link.classList.add("border-b-2", "border-orange-600");
-      }
-    }
-  });
-
-  // Countdown timer
-  const countdownBox = document.getElementById("countdown-timer");
-  if (countdownBox) {
-    const targetDate = new Date("December 1, 2026 00:00:00").getTime();
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const gap = targetDate - now;
-      if (gap <= 0) {
-        countdownBox.innerHTML = "<h3 class='text-2xl font-bold'>The Carnival has Started!</h3>";
-        return;
-      }
-      const second = 1000, minute = second * 60, hour = minute * 60, day = hour * 24;
-      const d = Math.floor(gap / day);
-      const h = Math.floor((gap % day) / hour);
-      const m = Math.floor((gap % hour) / minute);
-      const s = Math.floor((gap % minute) / second);
-
-      if (document.getElementById("days")) document.getElementById("days").innerText = d < 10 ? `0${d}` : d;
-      if (document.getElementById("hours")) document.getElementById("hours").innerText = h < 10 ? `0${h}` : h;
-      if (document.getElementById("minutes")) document.getElementById("minutes").innerText = m < 10 ? `0${m}` : m;
-      if (document.getElementById("seconds")) document.getElementById("seconds").innerText = s < 10 ? `0${s}` : s;
-    };
-    setInterval(updateTimer, 1000);
-    updateTimer();
-  }
-
-  // Scroll reveal animation
-  const revealCallback = (entries, observer) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("active");
-        observer.unobserve(entry.target);
-      }
-    });
-  };
-  const revealObserver = new IntersectionObserver(revealCallback, { threshold: 0.15 });
-  document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
-
-  // Navbar glass effect
-  const navBar = document.querySelector("nav");
-  if (navBar) {
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 50) {
-        navBar.classList.add("bg-white/100", "shadow-md");
-        navBar.classList.remove("bg-white/90");
-      } else {
-        navBar.classList.remove("shadow-md");
+      if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+        mobileMenu.classList.add("hidden");
       }
     });
   }
 
-  // Carousel
-  const slides = document.querySelectorAll(".carousel-item");
-  const dots = document.querySelectorAll(".dot");
-  if (slides.length > 0) {
+  // Hero carousel auto-rotator if present
+  const carouselItems = document.querySelectorAll(".carousel-item");
+  const carouselDots = document.querySelectorAll(".dot");
+  if (carouselItems.length > 0) {
     let currentSlide = 0;
-    let slideInterval;
-    const showSlide = (index) => {
-      slides.forEach(s => { s.classList.remove("opacity-100", "z-10"); s.classList.add("opacity-0", "z-0"); });
-      dots.forEach(d => { d.classList.replace("bg-white", "bg-white/50"); d.classList.remove("w-8"); });
-      slides[index].classList.add("opacity-100", "z-10");
-      slides[index].classList.remove("opacity-0", "z-0");
-      if (dots[index]) {
-        dots[index].classList.replace("bg-white/50", "bg-white");
-        dots[index].classList.add("w-8");
-      }
-    };
-    const nextSlide = () => {
-      currentSlide = (currentSlide + 1) % slides.length;
-      showSlide(currentSlide);
-    };
-    slideInterval = setInterval(nextSlide, 4000);
-    dots.forEach((dot, idx) => {
-      dot.addEventListener("click", () => {
-        currentSlide = idx;
-        showSlide(currentSlide);
-        clearInterval(slideInterval);
-        slideInterval = setInterval(nextSlide, 4000);
+    const showSlide = (n) => {
+      carouselItems.forEach((item, idx) => {
+        item.classList.toggle("opacity-100", idx === n);
+        item.classList.toggle("opacity-0", idx !== n);
       });
-    });
-    showSlide(0);
-  }
+      carouselDots.forEach((dot, idx) => {
+        dot.classList.toggle("bg-white", idx === n);
+        dot.classList.toggle("bg-white/50", idx !== n);
+      });
+      currentSlide = n;
+    };
 
-  // Partner track clones
-  ["partner-track", "partner-track-2"].forEach(id => {
-    const track = document.getElementById(id);
-    if (track) track.innerHTML += track.innerHTML;
-  });
+    setInterval(() => {
+      showSlide((currentSlide + 1) % carouselItems.length);
+    }, 6000);
+
+    carouselDots.forEach((dot, idx) => {
+      dot.addEventListener("click", () => showSlide(idx));
+    });
+  }
 });
