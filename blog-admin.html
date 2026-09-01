@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="assets/images/Afikpo_logo-removebg.png" />
+    <title>Blog Editorial CMS Admin | Afikpo International Carnival 2026</title>
+    <meta name="description" content="Frontend Content Management System for creating, editing, and publishing news and cultural stories for AIC 2026." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="bg-gray-100 text-gray-900 font-sans selection:bg-orange-100 min-h-screen">
+    <!-- Navigation Bar -->
+    <nav class="bg-gray-900 text-white border-b border-gray-800 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <a href="index.html">
+            <img src="assets/images/Afikpo_logo-removebg.png" alt="Logo" class="h-10 brightness-200" />
+          </a>
+          <span class="text-xs font-bold bg-orange-600 px-3 py-1 rounded-full uppercase tracking-wider">Editorial CMS</span>
+        </div>
+        <div class="flex items-center gap-4 text-xs font-semibold">
+          <a href="blog.html" class="text-gray-300 hover:text-white flex items-center gap-1">
+            <span>←</span> View Public Blog
+          </a>
+          <button id="admin-logout-btn" class="hidden bg-gray-800 hover:bg-gray-700 text-red-400 px-4 py-2 rounded-xl transition">
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Authentication Gate -->
+    <section id="admin-auth-section" class="py-20 px-4 max-w-md mx-auto">
+      <div class="bg-white rounded-3xl p-8 md:p-10 shadow-2xl border border-gray-200 text-center">
+        <div class="w-16 h-16 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl">
+          🔒
+        </div>
+        <h2 class="text-2xl font-black text-gray-900 mb-2">Editorial CMS Login</h2>
+        <p class="text-xs text-gray-500 mb-6">Enter the administrative PIN to create, edit, or delete articles and imagery.</p>
+
+        <form id="admin-login-form" class="space-y-4">
+          <input type="password" id="admin-pin-input" placeholder="Enter PIN (Default: afikpo2026)" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-center text-lg font-bold tracking-widest focus:ring-2 focus:ring-orange-600 outline-none" />
+          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-orange-200 text-sm">
+            Unlock Editor
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Admin CMS Dashboard (Hidden by default until authenticated) -->
+    <main id="admin-dashboard-section" class="hidden py-12 px-4 max-w-6xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-3xl font-black text-gray-900">Articles & Stories Manager</h1>
+          <p class="text-xs md:text-sm text-gray-500 mt-1">Changes are saved to Google Sheets and reflected instantly on the website.</p>
+        </div>
+        <button id="new-article-btn" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-full text-xs transition shadow-lg shadow-orange-200 flex items-center gap-2">
+          <span>+ Create New Article</span>
+        </button>
+      </div>
+
+      <!-- Editor Card -->
+      <div id="article-editor-card" class="bg-white rounded-3xl p-8 md:p-10 shadow-xl border border-gray-200 mb-12">
+        <div class="border-b border-gray-100 pb-4 mb-6 flex items-center justify-between">
+          <h2 id="editor-title-heading" class="text-xl font-bold text-gray-900">Write / Edit Article</h2>
+          <span class="text-xs text-gray-400 font-semibold">Real-time Preview Enabled</span>
+        </div>
+
+        <form id="blog-editor-form" class="space-y-6">
+          <input type="hidden" id="edit-post-id" name="postId" value="" />
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Article Headline / Title</label>
+              <input type="text" id="post-title" name="title" placeholder="e.g. Eze Lúgúlú: The Ancestral Mask of Ehugbo" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-bold focus:ring-2 focus:ring-orange-600 outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Category</label>
+              <select id="post-category" name="category" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Culture & Heritage">Culture & Heritage</option>
+                <option value="Tourism & Travel">Tourism & Travel</option>
+                <option value="Festival News">Festival News</option>
+                <option value="Art & Tradition">Art & Tradition</option>
+                <option value="Music & Concerts">Music & Concerts</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Author Name & Title</label>
+              <input type="text" id="post-author" name="author" placeholder="e.g. Afikpo Heritage Secretariat" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Publication Date</label>
+              <input type="date" id="post-date" name="date" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
+            </div>
+          </div>
+
+          <!-- Image URL and File Upload option -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Cover Image URL (Web or Unsplash Link)</label>
+              <input type="text" id="post-image-url" name="imageUrl" placeholder="https://images.unsplash.com/... or assets/images/..." class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Or Upload Image File from Device</label>
+              <input type="file" id="post-image-file" accept="image/*" class="w-full p-3 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:ring-2 focus:ring-orange-600 outline-none" />
+            </div>
+          </div>
+
+          <!-- Image Preview Thumbnail -->
+          <div id="image-preview-container" class="hidden relative h-48 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
+            <img id="image-preview-img" src="" alt="Preview" class="w-full h-full object-cover" />
+            <span class="absolute bottom-2 left-2 bg-black/70 text-white text-[10px] px-3 py-1 rounded-md">Image Preview</span>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Short Summary / Excerpt (1-2 sentences)</label>
+            <input type="text" id="post-summary" name="summary" placeholder="Brief summary shown on blog feed cards..." required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Full Story / Article Content</label>
+            <textarea id="post-content" name="content" rows="8" placeholder="Write full article here. Paragraph breaks will be formatted automatically..." required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none leading-relaxed"></textarea>
+          </div>
+
+          <div class="flex items-center gap-4 pt-4 border-t border-gray-100">
+            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-8 py-3.5 rounded-xl transition shadow-lg shadow-orange-200 text-sm">
+              Publish / Save to Google Sheets
+            </button>
+            <button type="button" id="cancel-edit-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-6 py-3.5 rounded-xl transition text-sm">
+              Cancel / Reset
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Published Articles List Table -->
+      <div class="bg-white rounded-3xl p-8 shadow-xl border border-gray-200">
+        <h2 class="text-xl font-bold text-gray-900 mb-6">Current Live Articles</h2>
+        <div id="admin-articles-list" class="space-y-4">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+    </main>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
+

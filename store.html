@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="assets/images/Afikpo_logo-removebg.png" />
+    <title>Official Carnival Store & Accessories | Afikpo International Carnival 2026</title>
+    <meta name="description" content="Shop official Afikpo Carnival 2026 merchandise: branded caps, festival t-shirts, authentic Igbo royal beads, hand fans, and souvenir crafts." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="bg-gray-50 text-gray-900 font-sans selection:bg-orange-100">
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+      <div class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+        <a href="index.html" class="hover:opacity-80 transition">
+          <img src="assets/images/Afikpo_logo-removebg.png" alt="AIC Logo" class="h-14 md:h-16 w-auto" />
+        </a>
+
+        <div class="hidden xl:flex items-center space-x-7">
+          <a href="index.html" class="nav-link">Home</a>
+          <a href="about.html" class="nav-link">About</a>
+          <a href="why-afikpo.html" class="nav-link">Why Afikpo</a>
+          <a href="events.html" class="nav-link">Event Highlights</a>
+          <a href="tickets.html" class="nav-link">Tickets</a>
+          <a href="store.html" class="nav-link text-orange-600 font-bold">Shop Merch</a>
+          <a href="pageant-voting.html" class="nav-link">Vote Queen</a>
+          <a href="accommodation.html" class="nav-link">Hotels</a>
+          <a href="tour-guide.html" class="nav-link">Tours</a>
+          <a href="gallery.html" class="nav-link">Gallery</a>
+          <a href="blog.html" class="nav-link">News & Blog</a>
+          <a href="contact.html" class="nav-link">Contact</a>
+          <a href="registration.html" class="bg-orange-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-200 text-sm">Register</a>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Cart Toggle Button -->
+          <button id="open-cart-btn" class="relative p-2.5 rounded-full bg-orange-50 text-orange-600 hover:bg-orange-100 transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span id="cart-count-badge" class="hidden absolute -top-1 -right-1 bg-orange-600 text-white font-black text-[10px] w-5 h-5 rounded-full flex items-center justify-center shadow-md">0</span>
+          </button>
+
+          <button id="mobile-menu-button" class="xl:hidden p-2 text-gray-600 focus:outline-none">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobile-menu" class="hidden xl:hidden bg-white fixed inset-x-0 top-20 h-screen p-6 flex flex-col space-y-3 shadow-2xl text-center overflow-y-auto">
+        <a href="index.html" class="text-lg py-2 border-b">Home</a>
+        <a href="about.html" class="text-lg py-2 border-b">About</a>
+        <a href="why-afikpo.html" class="text-lg py-2 border-b">Why Afikpo</a>
+        <a href="events.html" class="text-lg py-2 border-b">Event Highlights</a>
+        <a href="tickets.html" class="text-lg py-2 border-b">Buy Tickets</a>
+        <a href="store.html" class="text-lg py-2 border-b text-orange-600 font-bold">Carnival Shop</a>
+        <a href="pageant-voting.html" class="text-lg py-2 border-b">Vote Queen</a>
+        <a href="pageant-registration.html" class="text-lg py-2 border-b">Pageant Registration</a>
+        <a href="accommodation.html" class="text-lg py-2 border-b">Hotels & Stay</a>
+        <a href="tour-guide.html" class="text-lg py-2 border-b">Tour Guides</a>
+        <a href="media-upload.html" class="text-lg py-2 border-b">Upload Media</a>
+        <a href="vendor-registration.html" class="text-lg py-2 border-b">Register as Vendor</a>
+        <a href="gallery.html" class="text-lg py-2 border-b">Gallery</a>
+        <a href="partners.html" class="text-lg py-2 border-b">Partners</a>
+        <a href="blog.html" class="text-lg py-2 border-b">Blog & News</a>
+        <a href="contact.html" class="text-lg py-2 border-b">Contact</a>
+        <a href="registration.html" class="text-lg py-3 text-orange-600 font-black">Register Now</a>
+      </div>
+    </nav>
+
+    <!-- Header Banner -->
+    <header class="relative h-[44vh] flex items-center justify-center overflow-hidden pt-20">
+      <div class="absolute inset-0 bg-black/60 z-10"></div>
+      <img src="assets/images/Handwoven textiles at the Art & Craft exhibition.webp" class="absolute inset-0 w-full h-full object-cover" alt="Merchandise Crafts" />
+      <div class="relative z-20 text-center px-4 max-w-4xl">
+        <span class="inline-block bg-orange-600 text-white font-extrabold text-xs px-4 py-1.5 rounded-full uppercase tracking-widest mb-3 shadow-lg">Official Merchandise & Cultural Wear</span>
+        <h1 class="text-4xl md:text-6xl font-black text-white mb-4 drop-shadow-2xl">Carnival Store & Accessories</h1>
+        <p class="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto">Wear your pride! Get premium embroidered caps, festival jerseys, handcrafted royal beads, and handmade Afikpo souvenirs.</p>
+      </div>
+    </header>
+
+    <!-- Store Products Section -->
+    <section class="py-16 px-4 max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+        <div>
+          <h2 class="text-3xl font-black text-gray-900">Featured Festival Collection</h2>
+          <p class="text-xs md:text-sm text-gray-500 mt-1">Pickup at Carnival Village or choose nationwide delivery</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="window.openCartDrawer()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-full text-sm flex items-center gap-2 shadow-lg shadow-orange-200">
+            <span>View Shopping Bag</span>
+            <span>🛒</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- Product 1: Caps -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-orange-50">
+              <img src="assets/images/Afikpo_logo-removebg.png" alt="AIC Official Embroidered Cap" class="w-full h-full object-contain p-6 group-hover:scale-105 transition duration-300" />
+              <span class="absolute top-4 left-4 bg-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Official Merch</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Embroidered Snapback Cap</h3>
+            <p class="text-xs text-gray-500 mb-4">High-density embroidered logo on premium cotton twill. Adjustable snapback.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Color Variant</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
+                <option value="Carnival Orange">Carnival Orange</option>
+                <option value="Midnight Black">Midnight Black</option>
+                <option value="Pure White">Pure White</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦5,000</strong>
+            </div>
+            <button data-id="cap-01" data-name="AIC Embroidered Snapback Cap" data-price="5000" data-image="assets/images/Afikpo_logo-removebg.png" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 2: Festival T-Shirt / Polo -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-100">
+              <img src="assets/images/Afikpo image 1.webp" alt="AIC 2026 Commemorative T-Shirt" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              <span class="absolute top-4 left-4 bg-gray-900 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Bestseller</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC 2026 Commemorative T-Shirt</h3>
+            <p class="text-xs text-gray-500 mb-4">100% breathable combed cotton with vibrant cultural maiden edition artwork.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Size</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
+                <option value="Size Medium (M)">Size Medium (M)</option>
+                <option value="Size Large (L)">Size Large (L)</option>
+                <option value="Size X-Large (XL)">Size X-Large (XL)</option>
+                <option value="Size 2XL (XXL)">Size 2XL (XXL)</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦8,500</strong>
+            </div>
+            <button data-id="shirt-01" data-name="AIC 2026 Commemorative T-Shirt" data-price="8500" data-image="assets/images/Afikpo image 1.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 3: Royal Coral & Igbo Beads -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-red-50">
+              <img src="assets/images/Nkwa Umuagbógó cultural dance competition.jpeg" alt="Royal Igbo Coral Bead Set" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              <span class="absolute top-4 left-4 bg-red-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Handcrafted</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">Authentic Royal Igbo Coral Beads</h3>
+            <p class="text-xs text-gray-500 mb-4">Exquisite handcrafted ceremonial coral bead necklace and matching royal wristlet.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Bead Type</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
+                <option value="Royal Coral Red">Royal Coral Red (Ceremonial)</option>
+                <option value="Afikpo Terracotta Earth Beads">Afikpo Terracotta Earth Beads</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦12,000</strong>
+            </div>
+            <button data-id="beads-01" data-name="Authentic Royal Igbo Coral Beads" data-price="12000" data-image="assets/images/Nkwa Umuagbógó cultural dance competition.jpeg" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 4: Beaded Wristbands -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-yellow-50">
+              <img src="assets/images/Afikpo (ikpó) cultural display.jpeg" alt="Afikpo Beaded Wristband" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              <span class="absolute top-4 left-4 bg-yellow-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Tribal</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">Afikpo Tribal Wristbands (Set of 2)</h3>
+            <p class="text-xs text-gray-500 mb-4">Traditional woven elastic bead wristbands in Igbo & Afikpo ceremonial colorways.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Style</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
+                <option value="Classic Orange & Black">Classic Orange & Black</option>
+                <option value="Traditional Multi-Color">Traditional Multi-Color</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦3,500</strong>
+            </div>
+            <button data-id="wrist-01" data-name="Afikpo Tribal Wristbands (Set of 2)" data-price="3500" data-image="assets/images/Afikpo (ikpó) cultural display.jpeg" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 5: Handwoven Hand Fan -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-green-50">
+              <img src="assets/images/Nkwawite cultural dance.jpeg" alt="Cultural Hand Fan" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              <span class="absolute top-4 left-4 bg-green-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Eco-Craft</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">Handwoven Cultural Hand Fan</h3>
+            <p class="text-xs text-gray-500 mb-4">Handwoven palm-frond and leather-trimmed festival cooling fan with tribal patterns.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Pattern</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
+                <option value="Ikpó Masquerade Pattern">Ikpó Masquerade Pattern</option>
+                <option value="Golden Beach Sunset">Golden Beach Sunset</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦2,500</strong>
+            </div>
+            <button data-id="fan-01" data-name="Handwoven Cultural Hand Fan" data-price="2500" data-image="assets/images/Nkwawite cultural dance.jpeg" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 6: Masquerade Miniature Mask -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-orange-50">
+              <img src="assets/images/Local artisans displaying carved Afikpo masks..webp" alt="Carved Afikpo Mask Miniature" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+              <span class="absolute top-4 left-4 bg-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Collector's Edition</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">Handcarved Afikpo Miniature Mask</h3>
+            <p class="text-xs text-gray-500 mb-4">Sculpted from sacred Iroko wood by master artisans of Ehugbo. Comes with display stand.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Mask Style</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
+                <option value="Eze Lúgúlú Crown Mask">Eze Lúgúlú Crown Mask</option>
+                <option value="Ikpó Ceremonial Face Mask">Ikpó Ceremonial Face Mask</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦15,000</strong>
+            </div>
+            <button data-id="mask-01" data-name="Handcarved Afikpo Miniature Mask" data-price="15000" data-image="assets/images/Local artisans displaying carved Afikpo masks..webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Shopping Cart Drawer (Slide Over) -->
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-between border-l border-gray-200">
+      <!-- Drawer Header -->
+      <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <h3 class="text-xl font-black text-gray-900">Your Shopping Bag</h3>
+          <span class="text-xs text-orange-600 font-bold bg-orange-50 px-2 py-0.5 rounded-full">AIC Store</span>
+        </div>
+        <button id="close-cart-btn" class="p-2 text-gray-400 hover:text-gray-800 text-2xl font-bold">×</button>
+      </div>
+
+      <!-- Cart Items List -->
+      <div id="cart-items-list" class="p-6 flex-1 overflow-y-auto space-y-2">
+        <!-- Injected via JavaScript -->
+      </div>
+
+      <!-- Checkout Form & Totals -->
+      <div class="p-6 bg-gray-50 border-t border-gray-200">
+        <div class="flex justify-between items-center mb-4">
+          <span class="text-sm font-bold text-gray-600">Subtotal</span>
+          <span id="cart-subtotal" class="text-2xl font-black text-gray-900">₦0</span>
+        </div>
+
+        <form id="merchandise-checkout-form" class="space-y-3">
+          <input type="text" name="customerName" placeholder="Your Full Name" required class="w-full p-3 rounded-xl bg-white border border-gray-200 text-xs focus:ring-2 focus:ring-orange-600 outline-none" />
+          <div class="grid grid-cols-2 gap-2">
+            <input type="email" name="email" placeholder="Email Address" required class="w-full p-3 rounded-xl bg-white border border-gray-200 text-xs focus:ring-2 focus:ring-orange-600 outline-none" />
+            <input type="tel" name="phone" placeholder="Phone (+234...)" required class="w-full p-3 rounded-xl bg-white border border-gray-200 text-xs focus:ring-2 focus:ring-orange-600 outline-none" />
+          </div>
+          <input type="text" name="deliveryAddress" placeholder="Delivery Address / City" required class="w-full p-3 rounded-xl bg-white border border-gray-200 text-xs focus:ring-2 focus:ring-orange-600 outline-none" />
+          <select name="deliveryMethod" class="w-full p-3 rounded-xl bg-white border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+            <option value="Carnival Village Pickup (Free)">Carnival Village Pickup (Free)</option>
+            <option value="Nationwide Home Delivery">Nationwide Courier Delivery</option>
+            <option value="International Shipping">International Shipping</option>
+          </select>
+          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg text-sm">
+            Place Merchandise Order
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16 px-4">
+      <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div class="space-y-4">
+          <img src="assets/images/Afikpo_logo-removebg.png" alt="Logo" class="h-14 brightness-200" />
+          <p class="text-xs text-gray-400 leading-relaxed">Where Culture Meets the World. Maiden edition celebrating Afikpo's heritage, nature, and masquerade pageantry in December 2026.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-orange-500 uppercase mb-4">Quick Portals</h4>
+          <ul class="space-y-2 text-xs text-gray-400">
+            <li><a href="tickets.html" class="hover:text-white">Buy Tickets</a></li>
+            <li><a href="store.html" class="hover:text-white">Carnival Store</a></li>
+            <li><a href="pageant-voting.html" class="hover:text-white">Vote Queen</a></li>
+            <li><a href="accommodation.html" class="hover:text-white">Reserve Hotels</a></li>
+            <li><a href="tour-guide.html" class="hover:text-white">Tour Guides</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-orange-500 uppercase mb-4">Participate</h4>
+          <ul class="space-y-2 text-xs text-gray-400">
+            <li><a href="registration.html" class="hover:text-white">Performer Registration</a></li>
+            <li><a href="vendor-registration.html" class="hover:text-white">Vendor Application</a></li>
+            <li><a href="pageant-registration.html" class="hover:text-white">Pageant Registration</a></li>
+            <li><a href="media-upload.html" class="hover:text-white">Submit Media / Docs</a></li>
+            <li><a href="blog-admin.html" class="hover:text-white">Blog Admin CMS</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-orange-500 uppercase mb-4">Stay Connected</h4>
+          <form id="newsletter-form" class="space-y-2">
+            <input type="email" placeholder="Your email..." class="w-full p-3 rounded-xl bg-gray-800 text-white text-xs border border-gray-700 outline-none" required />
+            <button type="submit" class="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold text-xs hover:bg-orange-700 transition">Subscribe</button>
+          </form>
+        </div>
+      </div>
+      <div class="max-w-7xl mx-auto border-t border-gray-800 pt-8 text-center text-xs text-gray-500">
+        &copy; 2026 Afikpo Carnival & Resorts Ltd. All rights reserved.
+      </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
+
