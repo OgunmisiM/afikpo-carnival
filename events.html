@@ -24,14 +24,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body class="bg-gray-50 text-gray-900 font-sans">
+  <body class="bg-gray-50 text-gray-900 font-sans selection:bg-orange-100">
     <nav
       class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100"
     >
       <div
         class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center"
       >
-        <a href="/" class="hover:opacity-80 transition">
+        <a href="index.html" class="hover:opacity-80 transition">
           <img
             src="assets/images/Afikpo_logo-removebg.png"
             alt="AIC Logo"
@@ -39,19 +39,23 @@
           />
         </a>
 
-        <div class="hidden xl:flex items-center space-x-8">
-          <a href="/" class="nav-link">Home</a>
+        <div class="hidden xl:flex items-center space-x-7">
+          <a href="index.html" class="nav-link">Home</a>
           <a href="about.html" class="nav-link">About</a>
           <a href="why-afikpo.html" class="nav-link">Why Afikpo</a>
-          <a href="events.html" class="nav-link">Event Highlights</a>
+          <a href="events.html" class="nav-link text-orange-600 font-bold">Event Highlights</a>
+          <a href="tickets.html" class="nav-link">Tickets</a>
+          <a href="store.html" class="nav-link">Shop Merch</a>
+          <a href="pageant-voting.html" class="nav-link">Vote Queen</a>
+          <a href="accommodation.html" class="nav-link">Hotels</a>
+          <a href="tour-guide.html" class="nav-link">Tours</a>
           <a href="gallery.html" class="nav-link">Gallery</a>
-          <a href="partners.html" class="nav-link">Partners</a>
-          <a href="https://blog.afikpocarnival.com" class="nav-link" target="_blank" rel="noopener">News</a>
+          <a href="blog.html" class="nav-link">News & Blog</a>
           <a href="contact.html" class="nav-link">Contact</a>
           <a
             href="registration.html"
-            class="bg-orange-600 text-white px-7 py-3 rounded-full font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-200 scale-95 hover:scale-100"
-            >Register Now</a
+            class="bg-orange-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-200 text-sm"
+            >Register</a
           >
         </div>
 
@@ -77,101 +81,116 @@
 
       <div
         id="mobile-menu"
-        class="hidden xl:hidden bg-white fixed inset-x-0 top-20 h-screen p-6 flex flex-col space-y-4 shadow-2xl text-center"
+        class="hidden xl:hidden bg-white fixed inset-x-0 top-20 h-screen p-6 flex flex-col space-y-3 shadow-2xl text-center overflow-y-auto"
       >
-        <a href="/" class="text-xl py-3 border-b">Home</a>
-        <a href="about.html" class="text-xl py-3 border-b">About</a>
-        <a href="why-afikpo.html" class="text-xl py-3 border-b">Why Afikpo</a>
-
-        <a href="events.html" class="text-xl py-3 border-b">Event Highlights</a>
-        <a href="gallery.html" class="text-xl py-3 border-b">Gallery</a>
-        <a href="partners.html" class="text-xl py-3 border-b">Partners</a>
-        <a href="https://blog.afikpocarnival.com" class="text-xl py-3 border-b" target="_blank" rel="noopener">News</a>
-        <a href="contact.html" class="text-xl py-3 border-b">Contact</a>
-        <a href="registration.html" class="text-xl py-3 text-orange-600"
+        <a href="index.html" class="text-lg py-2 border-b">Home</a>
+        <a href="about.html" class="text-lg py-2 border-b">About</a>
+        <a href="why-afikpo.html" class="text-lg py-2 border-b">Why Afikpo</a>
+        <a href="events.html" class="text-lg py-2 border-b text-orange-600 font-bold">Event Highlights</a>
+        <a href="tickets.html" class="text-lg py-2 border-b">Buy Tickets</a>
+        <a href="store.html" class="text-lg py-2 border-b">Carnival Shop</a>
+        <a href="pageant-voting.html" class="text-lg py-2 border-b">Vote Queen</a>
+        <a href="pageant-registration.html" class="text-lg py-2 border-b">Pageant Registration</a>
+        <a href="accommodation.html" class="text-lg py-2 border-b">Hotels & Stay</a>
+        <a href="tour-guide.html" class="text-lg py-2 border-b">Tour Guides</a>
+        <a href="media-upload.html" class="text-lg py-2 border-b">Upload Media</a>
+        <a href="vendor-registration.html" class="text-lg py-2 border-b">Register as Vendor</a>
+        <a href="gallery.html" class="text-lg py-2 border-b">Gallery</a>
+        <a href="partners.html" class="text-lg py-2 border-b">Partners</a>
+        <a href="blog.html" class="text-lg py-2 border-b">Blog & News</a>
+        <a href="contact.html" class="text-lg py-2 border-b">Contact</a>
+        <a href="registration.html" class="text-lg py-3 text-orange-600 font-black"
           >Register Now</a
         >
       </div>
     </nav>
 
     <header
-      class="relative h-[60vh] flex items-center justify-center overflow-hidden"
+      class="relative h-[55vh] flex items-center justify-center overflow-hidden pt-20"
     >
       <div class="absolute inset-0 bg-black/60 z-10"></div>
       <img
-        src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&q=80"
+        src="assets/images/AIC music.webp"
         class="absolute inset-0 w-full h-full object-cover"
         alt="Festival lights and crowd"
       />
       <div class="relative z-20 text-center px-4 max-w-4xl">
         <h1
-          class="text-4xl md:text-6xl font-extrabold text-white mb-6 drop-shadow-lg"
+          class="text-4xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg"
         >
           Festival Programs
         </h1>
         <p class="text-xl md:text-2xl text-gray-200">
-          Celebrate color, sound, and the spirit of Ehugbo.
+          Celebrate color, sound, and the spirit of Ehugbo in December 2026.
         </p>
       </div>
     </header>
 
     <section class="py-20 px-4 max-w-7xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray">
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
           <h3 class="text-2xl font-bold mb-4 text-orange-600">
             Beauty Pageantry
           </h3>
           <p class="text-gray-700 leading-relaxed mb-4">
-            Beauty Pageantry will produce Miss Afikpo Carnival 2026 and Face of Afikpo International Carnival (FAIC) 2026
+            Beauty Pageantry will produce Miss Afikpo Carnival 2026 and Face of Afikpo International Carnival (FAIC) 2026.
           </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >Miss Afikpo Carnival</span
-          >
-        </div><div class="bg-white p-8 rounded-3xl shadow-sm border border-gray">
+          <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+            <a href="pageant-voting.html" class="text-xs font-bold text-orange-600 hover:underline">Vote Contestants →</a>
+            <a href="pageant-registration.html" class="text-xs font-bold text-gray-500 hover:text-gray-900">Apply →</a>
+          </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
           <h3 class="text-2xl font-bold mb-4 text-orange-600">
             Boat Regatta
           </h3>
           <p class="text-gray-700 leading-relaxed mb-4">
-           Price tagged boat competition for fishing communities and fishermen within Afikpo.
+           Prize-tagged boat competition and traditional canoe races for fishing communities across Afikpo river basins.
           </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >Strength in the Current</span
-          >
-        </div><div class="bg-white p-8 rounded-3xl shadow-sm border border-gray">
+          <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+            <span class="text-xs font-bold text-gray-400 uppercase">Strength in the Current</span>
+            <a href="tour-guide.html" class="text-xs font-bold text-orange-600 hover:underline">Book River Tour →</a>
+          </div>
+        </div>
+
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
           <h3 class="text-2xl font-bold mb-4 text-orange-600">
             Street Carnival
           </h3>
           <p class="text-gray-700 leading-relaxed mb-4">
-            Vibrant processions featuring rhythmic music and costumed dancers.
+            Vibrant street processions featuring rhythmic music, colorful floats, and costumed troupes across Afikpo.
           </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >The Grand Afikpo Procession </span
-          >
+          <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+            <span class="text-xs font-bold text-gray-400 uppercase">Grand Procession</span>
+            <a href="tickets.html" class="text-xs font-bold text-orange-600 hover:underline">Get Passes →</a>
+          </div>
         </div>
-        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray">
+
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group">
           <h3 class="text-2xl font-bold mb-4 text-orange-600">
             Cultural Parade
           </h3>
           <p class="text-gray-700 leading-relaxed mb-4">
-            A colorful procession of ancestral masquerades and floats
-            celebrating the myths and crafts of Ehugbo.
+            A colorful procession of ancestral masquerades (Eze Lúgúlú, Ikpó) and age-grade troupes celebrating Ehugbo history.
           </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >Tradition & Pageantry</span
-          >
+          <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+            <span class="text-xs font-bold text-gray-400 uppercase">Tradition & Pageantry</span>
+            <a href="registration.html" class="text-xs font-bold text-orange-600 hover:underline">Join Troupe →</a>
+          </div>
         </div>
 
         <div
           class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group"
         >
-          <h3 class="text-2xl font-bold mb-4 text-orange-600">Music & Dance</h3>
+          <h3 class="text-2xl font-bold mb-4 text-orange-600">Music & Concerts</h3>
           <p class="text-gray-700 leading-relaxed mb-4">
-            Live experiences ranging from energetic Afrobeats to classical folk
-            ensembles on intimate and large stages.
+            Live musical concerts ranging from energetic African Afrobeats headliners to classical indigenous folk ensembles.
           </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >Live Performance</span
-          >
+          <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+            <span class="text-xs font-bold text-gray-400 uppercase">Live Performance</span>
+            <a href="tickets.html" class="text-xs font-bold text-orange-600 hover:underline">VIP Passes →</a>
+          </div>
         </div>
 
         <div
@@ -181,12 +200,12 @@
             Art & Craft Exhibition
           </h3>
           <p class="text-gray-700 leading-relaxed mb-4">
-            Explore curated stalls and live demonstrations celebrating
-            indigenous craftsmanship and contemporary arts.
+            Explore curated stalls and live woodcarving demonstrations celebrating indigenous Afikpo craftsmanship and textiles.
           </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >Creative Arts</span
-          >
+          <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+            <span class="text-xs font-bold text-gray-400 uppercase">Creative Arts</span>
+            <a href="store.html" class="text-xs font-bold text-orange-600 hover:underline">Shop Crafts →</a>
+          </div>
         </div>
 
         <div
@@ -196,80 +215,83 @@
             Tourism & Food Fair
           </h3>
           <p class="text-gray-700 leading-relaxed mb-4">
-            Taste local specialties and discover curated tour packages to Golden
-            Sand Beach and Ozizza.
+            Taste local specialties like Ofe Achara, fresh river fish, and discover curated tour packages to Unwana Golden Sand Beach.
           </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >Hospitality</span
-          >
+          <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+            <span class="text-xs font-bold text-gray-400 uppercase">Hospitality</span>
+            <a href="accommodation.html" class="text-xs font-bold text-orange-600 hover:underline">Reserve Stay →</a>
+          </div>
         </div>
 
         <div
           class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group"
         >
           <h3 class="text-2xl font-bold mb-4 text-orange-600">
-            Carnival Queen Pageant
+            Traditional Wrestling (Mgba)
           </h3>
           <p class="text-gray-700 leading-relaxed mb-4">
-            Celebrating women who embody cultural knowledge, leadership, and
-            community advocacy.
+            Historic age-grade wrestling tournament accompanied by the thunderous beat of Alawiyó drums in village squares.
           </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >Leadership</span
-          >
+          <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+            <span class="text-xs font-bold text-gray-400 uppercase">Honor & Strength</span>
+            <a href="tour-guide.html" class="text-xs font-bold text-orange-600 hover:underline">Tour Arenas →</a>
+          </div>
         </div>
 
         <div
           class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group"
         >
           <h3 class="text-2xl font-bold mb-4 text-orange-600">
-            Youth Empowerment
+            Vendor Trade Expo
           </h3>
           <p class="text-gray-700 leading-relaxed mb-4">
-            Mentorship sessions and skills workshops designed for young
-            creatives and entrepreneurs.
+            Commercial trade booths and culinary stalls catering to over 50,000 festival participants and tourists.
           </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >Future Leaders</span
-          >
-        </div>
-
-        <div
-          class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl transition group lg:col-span-3"
-        >
-          <h3 class="text-2xl font-bold mb-4 text-orange-600">
-            Community Outreach
-          </h3>
-          <p
-            class="text-gray-700 leading-relaxed mb-4 text-center max-w-3xl mx-auto"
-          >
-            In partnership with the Humanitarian Hub for Community Impact Affinity (CIA), AIC conducts outreach
-            focused on health, education, and cultural preservation to ensure a
-            positive social footprint.
-          </p>
-          <span class="text-sm font-bold text-gray-400 uppercase"
-            >Collaboration</span
-          >
+          <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+            <span class="text-xs font-bold text-gray-400 uppercase">Commercial Fair</span>
+            <a href="vendor-registration.html" class="text-xs font-bold text-orange-600 hover:underline">Book Booth →</a>
+          </div>
         </div>
       </div>
     </section>
 
+    <!-- Footer -->
     <footer class="bg-gray-900 text-white py-16 px-4">
-      <div class="max-w-4xl mx-auto text-center">
-        <img
-          class="h-12 mx-auto mb-6 grayscale brightness-200"
-          src="assets/images/Afikpo_logo-removebg.png"
-          alt="Logo"
-        />
-        <div class="flex justify-center space-x-6 mb-8 text-gray-400">
-          <a href="#" class="hover:text-orange-500 transition">Facebook</a>
-          <a href="#" class="hover:text-orange-500 transition">Instagram</a>
-          <a href="#" class="hover:text-orange-500 transition">YouTube</a>
-          <a href="#" class="hover:text-orange-500 transition">X (Twitter)</a>
+      <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div class="space-y-4">
+          <img src="assets/images/Afikpo_logo-removebg.png" alt="Logo" class="h-14 brightness-200" />
+          <p class="text-xs text-gray-400 leading-relaxed">Where Culture Meets the World. Maiden edition celebrating Afikpo's heritage, nature, and masquerade pageantry in December 2026.</p>
         </div>
-        <p class="text-gray-500 text-sm border-t border-gray-800 pt-8">
-          &copy; 2026 Afikpo Carnival & Resorts Ltd. All rights reserved.
-        </p>
+        <div>
+          <h4 class="font-bold text-sm text-orange-500 uppercase mb-4">Quick Portals</h4>
+          <ul class="space-y-2 text-xs text-gray-400">
+            <li><a href="tickets.html" class="hover:text-white">Buy Tickets</a></li>
+            <li><a href="store.html" class="hover:text-white">Carnival Store</a></li>
+            <li><a href="pageant-voting.html" class="hover:text-white">Vote Queen</a></li>
+            <li><a href="accommodation.html" class="hover:text-white">Reserve Hotels</a></li>
+            <li><a href="tour-guide.html" class="hover:text-white">Tour Guides</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-orange-500 uppercase mb-4">Participate</h4>
+          <ul class="space-y-2 text-xs text-gray-400">
+            <li><a href="registration.html" class="hover:text-white">Performer Registration</a></li>
+            <li><a href="vendor-registration.html" class="hover:text-white">Vendor Application</a></li>
+            <li><a href="pageant-registration.html" class="hover:text-white">Pageant Registration</a></li>
+            <li><a href="media-upload.html" class="hover:text-white">Submit Media / Docs</a></li>
+            <li><a href="blog-admin.html" class="hover:text-white">Blog Admin CMS</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-orange-500 uppercase mb-4">Stay Connected</h4>
+          <form id="newsletter-form" class="space-y-2">
+            <input type="email" placeholder="Your email..." class="w-full p-3 rounded-xl bg-gray-800 text-white text-xs border border-gray-700 outline-none" required />
+            <button type="submit" class="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold text-xs hover:bg-orange-700 transition">Subscribe</button>
+          </form>
+        </div>
+      </div>
+      <div class="max-w-7xl mx-auto border-t border-gray-800 pt-8 text-center text-xs text-gray-500">
+        &copy; 2026 Afikpo Carnival & Resorts Ltd. All rights reserved.
       </div>
     </footer>
 

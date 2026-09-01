@@ -9,31 +9,30 @@
       href="assets/images/Afikpo_logo-removebg.png"
     />
     <title>Registration | Afikpo International Carnival 2026</title>
-    <meta name="description" content="Join the maiden edition of the Afikpo International Carnival. Register as a performer, vendor, volunteer, or tourist for December 2026." />
+    <meta name="description" content="Join the maiden edition of the Afikpo International Carnival. Register as a performer, cultural troupe, volunteer, or delegate for December 2026." />
     <meta name="keywords" content="Register Afikpo Carnival, Carnival Registration, Performer Registration, Vendor Registration, Volunteer, Tourist Registration" />
     <meta name="author" content="Afikpo Carnival & Resorts Ltd" />
     <meta property="og:title" content="Register for Afikpo International Carnival 2026" />
-    <meta property="og:description" content="Register now for the Afikpo International Carnival 2026. Join as a performer, vendor, volunteer, or tourist." />
+    <meta property="og:description" content="Register now for the Afikpo International Carnival 2026. Join as a performer, cultural troupe, volunteer, or tourist." />
     <meta property="og:image" content="https://afikpocarnival.com/assets/images/Afikpo_logo-removebg.png" />
     <meta property="og:url" content="https://afikpocarnival.com/registration.html" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Register for Afikpo International Carnival 2026" />
-    <meta name="twitter:description" content="Join us at the maiden edition of Afikpo International Carnival. Register as performer, vendor, volunteer or tourist." />
+    <meta name="twitter:description" content="Join us at the maiden edition of Afikpo International Carnival. Register as performer, troupe, or delegate." />
     <link rel="canonical" href="https://afikpocarnival.com/registration.html" />
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body class="bg-gray-50 text-gray-900 font-sans">
+  <body class="bg-gray-50 text-gray-900 font-sans selection:bg-orange-100">
     <nav
       class="fixed w-full z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100"
     >
       <div
         class="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center"
       >
-        <a href="/" class="hover:opacity-80 transition">
+        <a href="index.html" class="hover:opacity-80 transition">
           <img
             src="assets/images/Afikpo_logo-removebg.png"
             alt="AIC Logo"
@@ -41,19 +40,23 @@
           />
         </a>
 
-        <div class="hidden xl:flex items-center space-x-8">
-          <a href="/" class="nav-link">Home</a>
+        <div class="hidden xl:flex items-center space-x-7">
+          <a href="index.html" class="nav-link">Home</a>
           <a href="about.html" class="nav-link">About</a>
           <a href="why-afikpo.html" class="nav-link">Why Afikpo</a>
           <a href="events.html" class="nav-link">Event Highlights</a>
+          <a href="tickets.html" class="nav-link">Tickets</a>
+          <a href="store.html" class="nav-link">Shop Merch</a>
+          <a href="pageant-voting.html" class="nav-link">Vote Queen</a>
+          <a href="accommodation.html" class="nav-link">Hotels</a>
+          <a href="tour-guide.html" class="nav-link">Tours</a>
           <a href="gallery.html" class="nav-link">Gallery</a>
-          <a href="partners.html" class="nav-link">Partners</a>
-          <a href="https://blog.afikpocarnival.com" class="nav-link" target="_blank" rel="noopener">News</a>
+          <a href="blog.html" class="nav-link">News & Blog</a>
           <a href="contact.html" class="nav-link">Contact</a>
           <a
             href="registration.html"
-            class="bg-orange-600 text-white px-7 py-3 rounded-full font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-200 scale-95 hover:scale-100"
-            >Register Now</a
+            class="bg-orange-600 text-white px-6 py-2.5 rounded-full font-bold hover:bg-orange-700 transition shadow-lg shadow-orange-200 text-sm"
+            >Register</a
           >
         </div>
 
@@ -79,29 +82,36 @@
 
       <div
         id="mobile-menu"
-        class="hidden xl:hidden bg-white fixed inset-x-0 top-20 h-screen p-6 flex flex-col space-y-4 shadow-2xl text-center"
+        class="hidden xl:hidden bg-white fixed inset-x-0 top-20 h-screen p-6 flex flex-col space-y-3 shadow-2xl text-center overflow-y-auto"
       >
-        <a href="/" class="text-xl py-3 border-b">Home</a>
-        <a href="about.html" class="text-xl py-3 border-b">About</a>
-        <a href="why-afikpo.html" class="text-xl py-3 border-b">Why Afikpo</a>
-
-        <a href="events.html" class="text-xl py-3 border-b">Event Highlights</a>
-        <a href="gallery.html" class="text-xl py-3 border-b">Gallery</a>
-        <a href="partners.html" class="text-xl py-3 border-b">Partners</a>
-        <a href="https://blog.afikpocarnival.com" class="text-xl py-3 border-b" target="_blank" rel="noopener">News</a>
-        <a href="contact.html" class="text-xl py-3 border-b">Contact</a>
-        <a href="registration.html" class="text-xl py-3 text-orange-600"
+        <a href="index.html" class="text-lg py-2 border-b">Home</a>
+        <a href="about.html" class="text-lg py-2 border-b">About</a>
+        <a href="why-afikpo.html" class="text-lg py-2 border-b">Why Afikpo</a>
+        <a href="events.html" class="text-lg py-2 border-b">Event Highlights</a>
+        <a href="tickets.html" class="text-lg py-2 border-b">Buy Tickets</a>
+        <a href="store.html" class="text-lg py-2 border-b">Carnival Shop</a>
+        <a href="pageant-voting.html" class="text-lg py-2 border-b">Vote Queen</a>
+        <a href="pageant-registration.html" class="text-lg py-2 border-b">Pageant Registration</a>
+        <a href="accommodation.html" class="text-lg py-2 border-b">Hotels & Stay</a>
+        <a href="tour-guide.html" class="text-lg py-2 border-b">Tour Guides</a>
+        <a href="media-upload.html" class="text-lg py-2 border-b">Upload Media</a>
+        <a href="vendor-registration.html" class="text-lg py-2 border-b">Register as Vendor</a>
+        <a href="gallery.html" class="text-lg py-2 border-b">Gallery</a>
+        <a href="partners.html" class="text-lg py-2 border-b">Partners</a>
+        <a href="blog.html" class="text-lg py-2 border-b">Blog & News</a>
+        <a href="contact.html" class="text-lg py-2 border-b">Contact</a>
+        <a href="registration.html" class="text-lg py-3 text-orange-600 font-black"
           >Register Now</a
         >
       </div>
     </nav>
 
     <header
-      class="relative h-[40vh] flex items-center justify-center overflow-hidden"
+      class="relative h-[48vh] flex items-center justify-center overflow-hidden pt-20"
     >
       <div class="absolute inset-0 bg-black/60 z-10"></div>
       <img
-        src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80"
+        src="assets/images/Afikpo dancers and masquerades at sunset along the Ozizza River.webp"
         class="absolute inset-0 w-full h-full object-cover"
         alt="Join the celebration"
       />
@@ -112,45 +122,71 @@
           Join AIC 2026
         </h1>
         <p class="text-xl md:text-2xl text-gray-200">
-          Register now for the maiden edition
+          General Participant, Troupe & Delegate Registration
         </p>
       </div>
     </header>
 
-    <section class="py-20 px-4 max-w-4xl mx-auto">
+    <!-- Specialized Shortcuts Banner -->
+    <section class="max-w-4xl mx-auto px-4 -mt-10 relative z-30">
+      <div class="bg-white rounded-3xl p-6 shadow-xl border border-gray-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+        <a href="vendor-registration.html" class="p-4 rounded-2xl bg-orange-50 hover:bg-orange-100 transition">
+          <span class="text-xl block mb-1">🎪</span>
+          <strong class="text-xs text-orange-700 font-bold block">Are you a Vendor?</strong>
+          <span class="text-[11px] text-gray-500">Apply for a trade stall</span>
+        </a>
+        <a href="pageant-registration.html" class="p-4 rounded-2xl bg-purple-50 hover:bg-purple-100 transition">
+          <span class="text-xl block mb-1">👑</span>
+          <strong class="text-xs text-purple-700 font-bold block">Queen Contestant?</strong>
+          <span class="text-[11px] text-gray-500">Register for the Pageant</span>
+        </a>
+        <a href="tickets.html" class="p-4 rounded-2xl bg-green-50 hover:bg-green-100 transition">
+          <span class="text-xl block mb-1">🎟️</span>
+          <strong class="text-xs text-green-700 font-bold block">Festival Spectator?</strong>
+          <span class="text-[11px] text-gray-500">Buy Carnival Passes</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="py-16 px-4 max-w-4xl mx-auto">
       <div
         class="bg-white p-8 md:p-12 rounded-3xl shadow-lg border border-gray-100"
       >
+        <div class="border-b border-gray-100 pb-6 mb-8">
+          <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">Performer & Delegate Portal</span>
+          <h3 class="text-2xl md:text-3xl font-black text-gray-900 mt-1">General Participant Registration</h3>
+          <p class="text-xs md:text-sm text-gray-500 mt-1">Register your cultural troupe, music band, volunteer team, or visiting cultural delegation.</p>
+        </div>
+
         <form class="space-y-6" id="registration-form">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-bold mb-2"
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2"
                 >Participant Category</label
               >
               <select
                 name="category"
-                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none"
                 required
               >
                 <option value="">Select Category</option>
                 <option value="Cultural Troupes & Masquerades">Cultural Troupes & Masquerades</option>
                 <option value="Musicians & Performers">Musicians & Performers</option>
                 <option value="Exhibitors (Artisans & Designers)">Exhibitors (Artisans & Designers)</option>
-                <option value="Vendors (Food & Retail)">Vendors (Food & Retail)</option>
-                <option value="Sponsors & Corporate Partners">Sponsors & Corporate Partners</option>
                 <option value="Volunteers">Volunteers</option>
-                <option value="Tourists & Delegates">Tourists & Delegates</option>
+                <option value="Tourists & Cultural Delegates">Tourists & Cultural Delegates</option>
+                <option value="Sponsors & Corporate Partners">Sponsors & Corporate Partners</option>
               </select>
             </div>
             <div>
-              <label class="block text-sm font-bold mb-2"
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2"
                 >Organisation / Troupe Name</label
               >
               <input
                 type="text"
                 name="organisationName"
-                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
-                placeholder="Name"
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none"
+                placeholder="Troupe or Group Name"
                 required
               />
             </div>
@@ -158,23 +194,23 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-bold mb-2"
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2"
                 >Lead Contact Name</label
               >
               <input
                 type="text"
                 name="leadName"
-                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
-                placeholder="Full Name"
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none"
+                placeholder="Full Contact Name"
                 required
               />
             </div>
             <div>
-              <label class="block text-sm font-bold mb-2">Email</label>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Email Address</label>
               <input
-                type="text"
+                type="email"
                 name="email"
-                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none"
                 placeholder="Email Address"
                 required
               />
@@ -183,64 +219,58 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label class="block text-sm font-bold mb-2"
-                >Phone (with country code)</label
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2"
+                >Phone / WhatsApp</label
               >
               <input
                 type="tel"
                 name="phone"
-                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none"
                 placeholder="+234..."
                 required
               />
             </div>
             <div>
-              <label class="block text-sm font-bold mb-2"
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2"
                 >Country / State</label
               >
               <input
                 type="text"
                 name="country"
-                class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
-                placeholder="Location"
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none"
+                placeholder="State or Country"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-bold mb-2"
-              >Short Bio or Description (250 words max)</label
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-2"
+              >Short Bio or Performance Description (250 words max)</label
             >
             <textarea
               rows="4"
               name="bio"
-              class="w-full p-4 rounded-xl bg-gray-50 border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-orange-600 transition"
-              placeholder="Tell us about yourself or your troupe..."
+              class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none leading-relaxed"
+              placeholder="Tell us about your troupe, dance style, or participation intent..."
             ></textarea>
           </div>
 
           <div class="p-6 bg-orange-50 rounded-2xl border border-orange-100">
-            <h4 class="font-bold text-orange-600 mb-2 text-sm uppercase">
+            <h4 class="font-bold text-orange-600 mb-2 text-xs uppercase">
               Terms & Conditions Summary
             </h4>
-            <ul class="text-xs text-gray-600 space-y-2">
+            <ul class="text-xs text-gray-600 space-y-1.5 mb-4">
               <li>
-                • Participants must adhere to the festival schedule and code of
-                conduct.
+                • Participants must adhere to the festival schedule and code of conduct.
               </li>
               <li>
-                • All performances must be culturally appropriate and respectful
-                of local customs.
-              </li>
-              <li>
-                • Vendors are responsible for permits, hygiene, and local law
-                compliance.
+                • All performances must be culturally appropriate and respectful of local customs.
               </li>
             </ul>
-            <div class="mt-4 flex items-center gap-2">
-              <input type="checkbox" id="terms" name="terms" required />
-              <label for="terms" class="text-sm text-gray-700 font-bold"
+            <div class="flex items-center gap-2">
+              <input type="checkbox" id="terms" name="terms" required class="w-4 h-4 text-orange-600 rounded" />
+              <label for="terms" class="text-xs text-gray-700 font-bold"
                 >I agree to the full Terms & Conditions</label
               >
             </div>
@@ -248,7 +278,7 @@
 
           <button
             type="submit"
-            class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition shadow-lg"
+            class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold hover:bg-orange-700 transition shadow-lg text-base"
           >
             Submit Registration
           </button>
@@ -256,22 +286,43 @@
       </div>
     </section>
 
+    <!-- Footer -->
     <footer class="bg-gray-900 text-white py-16 px-4">
-      <div class="max-w-4xl mx-auto text-center">
-        <img
-          class="h-12 mx-auto mb-6 grayscale brightness-200"
-          src="assets/images/Afikpo_logo-removebg.png"
-          alt="Logo"
-        />
-        <div class="flex justify-center space-x-6 mb-8 text-gray-400">
-          <a href="#" class="hover:text-orange-500 transition">Facebook</a>
-          <a href="#" class="hover:text-orange-500 transition">Instagram</a>
-          <a href="#" class="hover:text-orange-500 transition">YouTube</a>
-          <a href="#" class="hover:text-orange-500 transition">X (Twitter)</a>
+      <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div class="space-y-4">
+          <img src="assets/images/Afikpo_logo-removebg.png" alt="Logo" class="h-14 brightness-200" />
+          <p class="text-xs text-gray-400 leading-relaxed">Where Culture Meets the World. Maiden edition celebrating Afikpo's heritage, nature, and masquerade pageantry in December 2026.</p>
         </div>
-        <p class="text-gray-500 text-sm border-t border-gray-800 pt-8">
-          &copy; 2026 Afikpo Carnival & Resorts Ltd. All rights reserved.
-        </p>
+        <div>
+          <h4 class="font-bold text-sm text-orange-500 uppercase mb-4">Quick Portals</h4>
+          <ul class="space-y-2 text-xs text-gray-400">
+            <li><a href="tickets.html" class="hover:text-white">Buy Tickets</a></li>
+            <li><a href="store.html" class="hover:text-white">Carnival Store</a></li>
+            <li><a href="pageant-voting.html" class="hover:text-white">Vote Queen</a></li>
+            <li><a href="accommodation.html" class="hover:text-white">Reserve Hotels</a></li>
+            <li><a href="tour-guide.html" class="hover:text-white">Tour Guides</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-orange-500 uppercase mb-4">Participate</h4>
+          <ul class="space-y-2 text-xs text-gray-400">
+            <li><a href="registration.html" class="hover:text-white">Performer Registration</a></li>
+            <li><a href="vendor-registration.html" class="hover:text-white">Vendor Application</a></li>
+            <li><a href="pageant-registration.html" class="hover:text-white">Pageant Registration</a></li>
+            <li><a href="media-upload.html" class="hover:text-white">Submit Media / Docs</a></li>
+            <li><a href="blog-admin.html" class="hover:text-white">Blog Admin CMS</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-orange-500 uppercase mb-4">Stay Connected</h4>
+          <form id="newsletter-form" class="space-y-2">
+            <input type="email" placeholder="Your email..." class="w-full p-3 rounded-xl bg-gray-800 text-white text-xs border border-gray-700 outline-none" required />
+            <button type="submit" class="w-full bg-orange-600 text-white py-2.5 rounded-xl font-bold text-xs hover:bg-orange-700 transition">Subscribe</button>
+          </form>
+        </div>
+      </div>
+      <div class="max-w-7xl mx-auto border-t border-gray-800 pt-8 text-center text-xs text-gray-500">
+        &copy; 2026 Afikpo Carnival & Resorts Ltd. All rights reserved.
       </div>
     </footer>
 
