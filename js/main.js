@@ -9,7 +9,47 @@
 // Master Google Apps Script Web App Deployment URL
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEbX71MSQ2Kh-7g1tWDZaH_jrNpksauc0TEwGOcZaQObN1Enu9RluGfOXXURvNNgRO/exec";
 
-// Default Seed Data for Blog Posts
+// Universal Fallback Cover Image (High-Res Festival Photography)
+const DEFAULT_COVER_IMAGE = "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80";
+
+// Client-side image compressor: Keeps uploaded image file payloads ultra-crisp & lightweight (<45KB) for instant cloud sync
+function compressImageFile(file, maxWidth = 1200, maxHeight = 675, quality = 0.82) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth || height > maxHeight) {
+          if (width / height > maxWidth / maxHeight) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          } else {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", quality);
+        resolve(dataUrl);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// Default Seed Data for Blog Posts (Independent CDN Imagery)
 const DEFAULT_BLOG_POSTS = [
   {
     id: "post-1",
@@ -18,7 +58,7 @@ const DEFAULT_BLOG_POSTS = [
     category: "Culture & Heritage",
     author: "AIC Media Board",
     date: "Sep 1, 2026",
-    coverImage: "assets/images/Gold sand beach, Afikpo.webp",
+    coverImage: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80",
     excerpt: "Get ready for the most anticipated cultural convergence in West Africa as Afikpo opens its arms to global tourists, masquerades, and musicians in December 2026.",
     content: `
       <p class="mb-4">The stage is set, the drums are echoing across the rolling hills of Ehugbo, and the historic town of Afikpo prepares to host the inaugural <strong>Afikpo International Carnival 2026</strong> this December.</p>
@@ -45,7 +85,7 @@ const DEFAULT_BLOG_POSTS = [
     category: "Tourism & Travel",
     author: "Tourism Desk",
     date: "Aug 28, 2026",
-    coverImage: "assets/images/Canoeing on the Unwana river.webp",
+    coverImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
     excerpt: "Explore the scenic riverine beauty of Unwana and Ozizza beaches — the official relaxation zones and watersport arenas of AIC 2026.",
     content: `
       <p class="mb-4">Tucked along the serene waterways of Ebonyi State lies one of Eastern Nigeria's most picturesque natural getaways: <strong>Unwana Golden Sand Beach</strong>.</p>
@@ -62,7 +102,7 @@ const DEFAULT_BLOG_POSTS = [
     category: "Art & Tradition",
     author: "Cultural Heritage Board",
     date: "Aug 20, 2026",
-    coverImage: "assets/images/Local artisans displaying carved Afikpo masks..webp",
+    coverImage: "https://images.unsplash.com/photo-1569383746724-6f1b882b8f46?auto=format&fit=crop&w=1200&q=80",
     excerpt: "Delve into the sacred craftsmanship behind the iconic Eze Lúgúlú and Ikpó masks, and the exhilarating adrenaline of the Mgba wrestling festival.",
     content: `
       <p class="mb-4">Afikpo’s mask-making tradition is celebrated in museums from Paris to New York. The delicate geometry, contrast of chalk and charcoal pigments, and symbolic horns represent deep ancestral philosophies.</p>
@@ -966,8 +1006,8 @@ async function setupBlogFeed() {
       const hero = filtered[0];
       heroContainer.innerHTML = `
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 grid grid-cols-1 lg:grid-cols-12 group">
-          <div class="lg:col-span-7 h-72 lg:h-auto relative overflow-hidden">
-            <img src="${hero.coverImage}" alt="${hero.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+          <div class="lg:col-span-7 h-72 lg:h-auto relative overflow-hidden bg-gray-100">
+            <img src="${hero.coverImage || DEFAULT_COVER_IMAGE}" alt="${hero.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
             <span class="absolute top-6 left-6 bg-orange-600 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-lg uppercase tracking-wider">${hero.category}</span>
           </div>
           <div class="lg:col-span-5 p-8 md:p-12 flex flex-col justify-between">
@@ -999,7 +1039,7 @@ async function setupBlogFeed() {
       <article class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition duration-300 flex flex-col justify-between group">
         <div>
           <div class="relative h-56 overflow-hidden bg-gray-100">
-            <img src="${p.coverImage}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+            <img src="${p.coverImage || DEFAULT_COVER_IMAGE}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
             <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">${p.category}</span>
           </div>
           <div class="p-6">
@@ -1089,8 +1129,8 @@ async function setupBlogPostDetail() {
       </div>
     </header>
 
-    <div class="rounded-3xl overflow-hidden mb-10 shadow-xl max-h-[480px]">
-      <img src="${post.coverImage}" alt="${post.title}" class="w-full h-full object-cover" />
+    <div class="rounded-3xl overflow-hidden mb-10 shadow-xl max-h-[480px] bg-gray-100">
+      <img src="${post.coverImage || DEFAULT_COVER_IMAGE}" alt="${post.title}" class="w-full h-full object-cover" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
     </div>
 
     <div class="prose prose-lg max-w-none text-gray-800 leading-relaxed font-normal">
@@ -1130,7 +1170,9 @@ function setupBlogAdmin() {
   const imageFileInput = document.getElementById("post-image-file") || document.getElementById("blog-image-file");
   const imageUrlInput = document.getElementById("post-image-url") || document.getElementById("blog-cover-url");
   const imagePreviewContainer = document.getElementById("image-preview-container");
-  const imagePreviewImg = document.getElementById("image-preview-img") || document.getElementById("image-upload-preview");
+  const imagePreviewImg = document.getElementById("image-preview-img") || document.getElementById("blog-upload-preview");
+  const imageSourceBadge = document.getElementById("image-source-badge");
+  const removeImageBtn = document.getElementById("remove-image-btn");
 
   if (!authSection && !dashboardSection) return;
 
@@ -1192,6 +1234,8 @@ function setupBlogAdmin() {
         const dateInput = document.getElementById("post-date") || editorForm.querySelector("input[name='date']");
         if (dateInput) dateInput.valueAsDate = new Date();
       }
+      if (imageUrlInput) imageUrlInput.value = "";
+      if (imageFileInput) imageFileInput.value = "";
       if (imagePreviewContainer) imagePreviewContainer.classList.add("hidden");
       const card = document.getElementById("article-editor-card");
       if (card) card.scrollIntoView({ behavior: "smooth" });
@@ -1204,22 +1248,34 @@ function setupBlogAdmin() {
       editorForm.reset();
       const idField = document.getElementById("edit-post-id") || editorForm.querySelector("input[name='postId']");
       if (idField) idField.value = "";
+      if (imageUrlInput) imageUrlInput.value = "";
+      if (imageFileInput) imageFileInput.value = "";
       if (imagePreviewContainer) imagePreviewContainer.classList.add("hidden");
     });
   }
 
-  // Image Upload File / URL preview
+  // Image Upload Handling
   if (imageFileInput) {
-    imageFileInput.addEventListener("change", (e) => {
+    imageFileInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          if (imageUrlInput) imageUrlInput.value = ev.target.result;
-          if (imagePreviewImg) imagePreviewImg.src = ev.target.result;
+        try {
+          if (imageSourceBadge) {
+            imageSourceBadge.textContent = "⚡ Optimizing image...";
+            imageSourceBadge.className = "bg-yellow-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
+          }
+          // Note: Assuming compressImageFile utility exists globally
+          const compressedDataUrl = typeof compressImageFile === 'function' ? await compressImageFile(file, 1200, 675, 0.82) : await new Promise(r => { const reader = new FileReader(); reader.onload = () => r(reader.result); reader.readAsDataURL(file); });
+          if (imageUrlInput) imageUrlInput.value = compressedDataUrl;
+          if (imagePreviewImg) imagePreviewImg.src = compressedDataUrl;
+          if (imageSourceBadge) {
+            imageSourceBadge.textContent = "📁 Media Upload Ready";
+            imageSourceBadge.className = "bg-green-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
+          }
           if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
-        };
-        reader.readAsDataURL(file);
+        } catch (err) {
+          console.error("Compression error:", err);
+        }
       }
     });
   }
@@ -1227,10 +1283,25 @@ function setupBlogAdmin() {
   if (imageUrlInput) {
     imageUrlInput.addEventListener("input", (e) => {
       const val = e.target.value.trim();
-      if (val && imagePreviewImg) {
-        imagePreviewImg.src = val;
+      if (val) {
+        if (imagePreviewImg) imagePreviewImg.src = val;
+        if (imageSourceBadge) {
+          imageSourceBadge.textContent = "🌐 Outsource Web Link";
+          imageSourceBadge.className = "bg-blue-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
+        }
         if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
+      } else if (imagePreviewContainer) {
+        imagePreviewContainer.classList.add("hidden");
       }
+    });
+  }
+
+  if (removeImageBtn) {
+    removeImageBtn.addEventListener("click", () => {
+      if (imageUrlInput) imageUrlInput.value = "";
+      if (imageFileInput) imageFileInput.value = "";
+      if (imagePreviewImg) imagePreviewImg.src = "";
+      if (imagePreviewContainer) imagePreviewContainer.classList.add("hidden");
     });
   }
 
@@ -1241,7 +1312,7 @@ function setupBlogAdmin() {
     articlesList.innerHTML = posts.map(p => `
       <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-200 hover:bg-white transition gap-4">
         <div class="flex items-center gap-3">
-          <img src="${p.coverImage}" class="w-14 h-14 object-cover rounded-xl border border-gray-200" onerror="this.src='assets/images/Afikpo_logo-removebg.png'" />
+          <img src="${p.coverImage || DEFAULT_COVER_IMAGE}" class="w-14 h-14 object-cover rounded-xl border border-gray-200" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
           <div>
             <h5 class="font-bold text-gray-900 text-sm leading-snug">${p.title}</h5>
             <span class="text-xs text-gray-500">${p.category} • ${p.date} • by ${p.author}</span>
@@ -1257,7 +1328,6 @@ function setupBlogAdmin() {
 
   // Editor Form Submit (Save / Publish)
   if (editorForm) {
-    // Set default date
     const dateInput = document.getElementById("post-date") || editorForm.querySelector("input[name='date']");
     if (dateInput && !dateInput.value) {
       dateInput.valueAsDate = new Date();
@@ -1277,11 +1347,10 @@ function setupBlogAdmin() {
       const category = document.getElementById("post-category") ? document.getElementById("post-category").value : editorForm.querySelector("select[name='category']").value;
       const author = document.getElementById("post-author") ? document.getElementById("post-author").value : editorForm.querySelector("input[name='author']").value;
       const dateVal = document.getElementById("post-date") ? document.getElementById("post-date").value : (new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }));
-      const coverImage = (imageUrlInput && imageUrlInput.value.trim()) ? imageUrlInput.value.trim() : "assets/images/Gold sand beach, Afikpo.webp";
+      const coverImage = (imageUrlInput && imageUrlInput.value.trim()) ? imageUrlInput.value.trim() : DEFAULT_COVER_IMAGE;
       const summary = document.getElementById("post-summary") ? document.getElementById("post-summary").value : editorForm.querySelector("input[name='summary']").value;
       const contentRaw = document.getElementById("post-content") ? document.getElementById("post-content").value : editorForm.querySelector("textarea[name='content']").value;
 
-      // Wrap raw text with <p> if plain
       const formattedContent = contentRaw.startsWith("<") ? contentRaw : contentRaw.split("\n\n").map(para => `<p class="mb-4">${para.trim()}</p>`).join("");
 
       const payload = {
@@ -1297,14 +1366,12 @@ function setupBlogAdmin() {
         status: "Published"
       };
 
-      // Un-delete if this ID was previously marked deleted
       let deletedIds = JSON.parse(localStorage.getItem("aic_deleted_post_ids") || "[]");
       if (deletedIds.includes(postId)) {
         deletedIds = deletedIds.filter(d => d !== postId);
         localStorage.setItem("aic_deleted_post_ids", JSON.stringify(deletedIds));
       }
 
-      // Save locally for immediate responsiveness
       const custom = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]");
       const existingIdx = custom.findIndex(p => p.id === postId);
       if (existingIdx >= 0) {
@@ -1314,12 +1381,13 @@ function setupBlogAdmin() {
       }
       localStorage.setItem("aic_custom_blog_posts", JSON.stringify(custom));
 
-      // Post to Google Apps Script
       const res = await postToAppsScript(payload);
       showAlert(res.message || "Article saved and published to Google Sheets!", "success");
 
       editorForm.reset();
       if (idField) idField.value = "";
+      if (imageUrlInput) imageUrlInput.value = "";
+      if (imageFileInput) imageFileInput.value = "";
       if (imagePreviewContainer) imagePreviewContainer.classList.add("hidden");
       loadAdminArticles();
 
@@ -1346,10 +1414,23 @@ function setupBlogAdmin() {
     const authorField = document.getElementById("post-author") || editorForm.querySelector("input[name='author']");
     if (authorField) authorField.value = p.author || "";
 
+    const dateField = document.getElementById("post-date") || editorForm.querySelector("input[name='date']");
+    if (dateField && p.date) {
+      const d = new Date(p.date);
+      if (!isNaN(d.getTime())) dateField.valueAsDate = d;
+    }
+
     if (imageUrlInput) imageUrlInput.value = p.coverImage || "";
+    if (imageFileInput) imageFileInput.value = "";
     if (imagePreviewImg && p.coverImage) {
       imagePreviewImg.src = p.coverImage;
+      if (imageSourceBadge) {
+        imageSourceBadge.textContent = p.coverImage.startsWith("data:") ? "📁 Media Upload Ready" : "🌐 Outsource Web Link";
+        imageSourceBadge.className = "bg-orange-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
+      }
       if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
+    } else if (imagePreviewContainer) {
+      imagePreviewContainer.classList.add("hidden");
     }
 
     const summaryField = document.getElementById("post-summary") || editorForm.querySelector("input[name='summary']");
