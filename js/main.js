@@ -909,21 +909,30 @@ function setupVendorRegistration() {
 // 12. DYNAMIC BLOG SYSTEM (Reader, Search, Categories)
 // =============================================================
 async function fetchBlogPosts() {
-  const localPosts = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]");
-  let allPosts = [...localPosts, ...DEFAULT_BLOG_POSTS];
+  const deletedIds = new Set(JSON.parse(localStorage.getItem("aic_deleted_post_ids") || "[]"));
+  const localPosts = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]").filter(p => !deletedIds.has(p.id));
+  const activeDefaults = DEFAULT_BLOG_POSTS.filter(p => !deletedIds.has(p.id));
+
+  let allPosts = [...localPosts, ...activeDefaults];
 
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=get_blog_posts`);
     const data = await res.json();
-    if (data.status === "success" && data.posts && data.posts.length > 0) {
-      const remoteIds = new Set(data.posts.map(p => p.id));
-      allPosts = [...data.posts, ...localPosts.filter(p => !remoteIds.has(p.id))];
+    if (data.status === "success" && Array.isArray(data.posts)) {
+      const remotePosts = data.posts.filter(p => !deletedIds.has(p.id));
+      const remoteIds = new Set(remotePosts.map(p => p.id));
+      
+      if (remotePosts.length > 0) {
+        allPosts = [...remotePosts, ...localPosts.filter(p => !remoteIds.has(p.id))];
+      } else {
+        allPosts = [...localPosts, ...activeDefaults];
+      }
     }
   } catch (err) {
     console.log("Using cached/seed blog posts feed:", err);
   }
 
-  return allPosts;
+  return allPosts.filter(p => !deletedIds.has(p.id));
 }
 
 async function setupBlogFeed() {
@@ -1288,7 +1297,14 @@ function setupBlogAdmin() {
         status: "Published"
       };
 
-      // Save locally for immediate offline responsiveness
+      // Un-delete if this ID was previously marked deleted
+      let deletedIds = JSON.parse(localStorage.getItem("aic_deleted_post_ids") || "[]");
+      if (deletedIds.includes(postId)) {
+        deletedIds = deletedIds.filter(d => d !== postId);
+        localStorage.setItem("aic_deleted_post_ids", JSON.stringify(deletedIds));
+      }
+
+      // Save locally for immediate responsiveness
       const custom = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]");
       const existingIdx = custom.findIndex(p => p.id === postId);
       if (existingIdx >= 0) {
@@ -1355,12 +1371,21 @@ function setupBlogAdmin() {
   window.deletePost = async (id) => {
     if (!confirm("Are you sure you want to delete this article?")) return;
 
+    // 1. Permanently track deleted ID so it cannot be revived by seed lists
+    let deletedIds = JSON.parse(localStorage.getItem("aic_deleted_post_ids") || "[]");
+    if (!deletedIds.includes(id)) {
+      deletedIds.push(id);
+      localStorage.setItem("aic_deleted_post_ids", JSON.stringify(deletedIds));
+    }
+
+    // 2. Remove from local custom list
     let custom = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]");
     custom = custom.filter(p => p.id !== id);
     localStorage.setItem("aic_custom_blog_posts", JSON.stringify(custom));
 
+    // 3. Delete from Google Apps Script cloud database
     await postToAppsScript({ formType: "delete_blog_post", id: id });
-    showAlert("Article deleted successfully.", "success");
+    showAlert("Article deleted permanently.", "success");
     loadAdminArticles();
   };
 

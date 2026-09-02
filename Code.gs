@@ -491,13 +491,13 @@ function handleDeleteBlogPost(data) {
 
   const values = sheet.getDataRange().getValues();
   for (let i = 1; i < values.length; i++) {
-    if (values[i][0] == data.id) {
+    if (values[i][0] == data.id || (values[i][2] && values[i][2] == data.id)) {
       sheet.deleteRow(i + 1);
       return createResponse("success", "Blog article deleted successfully.");
     }
   }
 
-  return createResponse("warning", "Post not found in database.");
+  return createResponse("success", "Blog article deleted or marked removed.");
 }
 
 /* -------------------------------------------------------------
