@@ -452,6 +452,7 @@ function handleSaveBlogPost(data) {
   const postId = data.id || ("post-" + Date.now());
   const postSlug = data.slug || data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const postDate = data.date || new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const coverImage = data.coverImage || "assets/images/Gold sand beach, Afikpo.webp";
   const coverImage = data.coverImage || "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80";
   const excerpt = data.excerpt || (data.content.substring(0, 160) + "...");
   const status = data.status || "Published";
