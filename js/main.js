@@ -1179,14 +1179,13 @@ function setupBlogAdmin() {
   const imageFileInput = document.getElementById("post-image-file") || document.getElementById("blog-image-file");
   const imageUrlInput = document.getElementById("post-image-url") || document.getElementById("blog-cover-url");
   const imagePreviewContainer = document.getElementById("image-preview-container");
-  const imagePreviewImg = document.getElementById("image-preview-img") || document.getElementById("image-upload-preview");
-  const imagePreviewImg = document.getElementById("image-preview-img") || document.getElementById("blog-upload-preview");
+  const imagePreviewImg = document.getElementById("image-preview-img") || document.getElementById("blog-upload-preview") || document.getElementById("image-upload-preview");
   const imageSourceBadge = document.getElementById("image-source-badge");
   const removeImageBtn = document.getElementById("remove-image-btn");
 
   if (!authSection && !dashboardSection) return;
 
-  // Accepted PINs (supports afikpo2026, Afikpo2026, admin123)
+  // Accepted PINs (supports afikpo2026, Afikpo2026, admin123, 2026)
   const ACCEPTED_PINS = ["afikpo2026", "admin123", "2026"];
 
   const checkAuthStatus = () => {
@@ -1264,24 +1263,17 @@ function setupBlogAdmin() {
     });
   }
 
-  // Image Upload File / URL preview
-  // Image Upload Handling
+  // Option B: Media File Upload (with auto-compression & preview)
   if (imageFileInput) {
-    imageFileInput.addEventListener("change", (e) => {
     imageFileInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          if (imageUrlInput) imageUrlInput.value = ev.target.result;
-          if (imagePreviewImg) imagePreviewImg.src = ev.target.result;
         try {
           if (imageSourceBadge) {
             imageSourceBadge.textContent = "⚡ Optimizing image...";
             imageSourceBadge.className = "bg-yellow-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
           }
-          // Note: Assuming compressImageFile utility exists globally
-          const compressedDataUrl = typeof compressImageFile === 'function' ? await compressImageFile(file, 1200, 675, 0.82) : await new Promise(r => { const reader = new FileReader(); reader.onload = () => r(reader.result); reader.readAsDataURL(file); });
+          const compressedDataUrl = await compressImageFile(file, 1200, 675, 0.82);
           if (imageUrlInput) imageUrlInput.value = compressedDataUrl;
           if (imagePreviewImg) imagePreviewImg.src = compressedDataUrl;
           if (imageSourceBadge) {
@@ -1289,20 +1281,24 @@ function setupBlogAdmin() {
             imageSourceBadge.className = "bg-green-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
           }
           if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
-        };
-        reader.readAsDataURL(file);
         } catch (err) {
           console.error("Compression error:", err);
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            if (imageUrlInput) imageUrlInput.value = ev.target.result;
+            if (imagePreviewImg) imagePreviewImg.src = ev.target.result;
+            if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
+          };
+          reader.readAsDataURL(file);
         }
       }
     });
   }
 
+  // Option A: Outsource / External Web Link input
   if (imageUrlInput) {
     imageUrlInput.addEventListener("input", (e) => {
       const val = e.target.value.trim();
-      if (val && imagePreviewImg) {
-        imagePreviewImg.src = val;
       if (val) {
         if (imagePreviewImg) imagePreviewImg.src = val;
         if (imageSourceBadge) {
@@ -1316,6 +1312,7 @@ function setupBlogAdmin() {
     });
   }
 
+  // Remove / Reset Image button
   if (removeImageBtn) {
     removeImageBtn.addEventListener("click", () => {
       if (imageUrlInput) imageUrlInput.value = "";
@@ -1332,7 +1329,6 @@ function setupBlogAdmin() {
     articlesList.innerHTML = posts.map(p => `
       <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-200 hover:bg-white transition gap-4">
         <div class="flex items-center gap-3">
-          <img src="${p.coverImage}" class="w-14 h-14 object-cover rounded-xl border border-gray-200" onerror="this.src='assets/images/Afikpo_logo-removebg.png'" />
           <img src="${p.coverImage || DEFAULT_COVER_IMAGE}" class="w-14 h-14 object-cover rounded-xl border border-gray-200" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
           <div>
             <h5 class="font-bold text-gray-900 text-sm leading-snug">${p.title}</h5>
@@ -1349,7 +1345,6 @@ function setupBlogAdmin() {
 
   // Editor Form Submit (Save / Publish)
   if (editorForm) {
-    // Set default date
     const dateInput = document.getElementById("post-date") || editorForm.querySelector("input[name='date']");
     if (dateInput && !dateInput.value) {
       dateInput.valueAsDate = new Date();
@@ -1369,12 +1364,10 @@ function setupBlogAdmin() {
       const category = document.getElementById("post-category") ? document.getElementById("post-category").value : editorForm.querySelector("select[name='category']").value;
       const author = document.getElementById("post-author") ? document.getElementById("post-author").value : editorForm.querySelector("input[name='author']").value;
       const dateVal = document.getElementById("post-date") ? document.getElementById("post-date").value : (new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }));
-      const coverImage = (imageUrlInput && imageUrlInput.value.trim()) ? imageUrlInput.value.trim() : "assets/images/Gold sand beach, Afikpo.webp";
       const coverImage = (imageUrlInput && imageUrlInput.value.trim()) ? imageUrlInput.value.trim() : DEFAULT_COVER_IMAGE;
       const summary = document.getElementById("post-summary") ? document.getElementById("post-summary").value : editorForm.querySelector("input[name='summary']").value;
       const contentRaw = document.getElementById("post-content") ? document.getElementById("post-content").value : editorForm.querySelector("textarea[name='content']").value;
 
-      // Wrap raw text with <p> if plain
       const formattedContent = contentRaw.startsWith("<") ? contentRaw : contentRaw.split("\n\n").map(para => `<p class="mb-4">${para.trim()}</p>`).join("");
 
       const payload = {
@@ -1465,7 +1458,6 @@ function setupBlogAdmin() {
 
     const contentField = document.getElementById("post-content") || editorForm.querySelector("textarea[name='content']");
     if (contentField) {
-      // Strip html tags if simple paragraphs
       const cleanContent = p.content.replace(/<\/p><p[^>]*>/gi, "\n\n").replace(/<p[^>]*>/gi, "").replace(/<\/p>/gi, "");
       contentField.value = cleanContent;
     }
