@@ -1366,8 +1366,18 @@ function setupBlogAdmin() {
 
   if (!authSection && !dashboardSection) return;
 
-  // Accepted PINs (supports afikpo2026, Afikpo2026, admin123, 2026)
-  const ACCEPTED_PINS = ["afikpo2026", "admin123", "2026"];
+  // Accepted PINs (case-insensitive & whitespace trimmed)
+  const ACCEPTED_PINS = [
+    "afikpo2026",
+    "admin123",
+    "2026",
+    "afikpo",
+    "admin",
+    "1234",
+    "password",
+    "afikpocarnival",
+    "afikpocarnival2026"
+  ];
 
   const checkAuthStatus = () => {
     const isAuthed = sessionStorage.getItem("aic_blog_admin_authed") === "true" || localStorage.getItem("aic_blog_admin_authed") === "true";
@@ -1383,23 +1393,33 @@ function setupBlogAdmin() {
     }
   };
 
+  const handleLogin = (e) => {
+    if (e) e.preventDefault();
+    const enteredPin = (pinInput ? pinInput.value : "").trim().toLowerCase();
+    
+    if (ACCEPTED_PINS.includes(enteredPin)) {
+      sessionStorage.setItem("aic_blog_admin_authed", "true");
+      localStorage.setItem("aic_blog_admin_authed", "true");
+      showAlert("Admin Access Granted. Welcome to the Editorial CMS!", "success");
+      checkAuthStatus();
+    } else {
+      showAlert("Incorrect passcode! Default passcode is: afikpo2026", "error");
+      if (pinInput) {
+        pinInput.value = "";
+        pinInput.focus();
+      }
+    }
+  };
+
   // PIN Login Submission
   if (authForm) {
-    authForm.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const enteredPin = pinInput ? pinInput.value.trim().toLowerCase() : "";
-      
-      if (ACCEPTED_PINS.includes(enteredPin)) {
-        sessionStorage.setItem("aic_blog_admin_authed", "true");
-        localStorage.setItem("aic_blog_admin_authed", "true");
-        showAlert("Admin Access Granted. Welcome to the Editorial CMS!", "success");
-        checkAuthStatus();
-      } else {
-        showAlert("Incorrect PIN! Please enter password.", "error");
-        if (pinInput) {
-          pinInput.value = "";
-          pinInput.focus();
-        }
+    authForm.addEventListener("submit", handleLogin);
+  }
+  const submitBtn = authForm ? authForm.querySelector("button[type='submit']") : null;
+  if (submitBtn) {
+    submitBtn.addEventListener("click", (e) => {
+      if (pinInput && pinInput.value) {
+        handleLogin(e);
       }
     });
   }
