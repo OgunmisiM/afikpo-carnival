@@ -50,7 +50,7 @@ function compressImageFile(file, maxWidth = 1200, maxHeight = 675, quality = 0.8
   });
 }
 
-// Default Seed Data for Blog Posts (Independent CDN Imagery)
+// Default Seed Data for Blog Posts (3 Prehardcoded, Fully Editable Posts)
 const DEFAULT_BLOG_POSTS = [
   {
     id: "post-1",
@@ -59,7 +59,6 @@ const DEFAULT_BLOG_POSTS = [
     category: "Culture & Heritage",
     author: "AIC Media Board",
     date: "Sep 1, 2026",
-    coverImage: "assets/images/Gold sand beach, Afikpo.webp",
     coverImage: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80",
     excerpt: "Get ready for the most anticipated cultural convergence in West Africa as Afikpo opens its arms to global tourists, masquerades, and musicians in December 2026.",
     content: `
@@ -87,7 +86,6 @@ const DEFAULT_BLOG_POSTS = [
     category: "Tourism & Travel",
     author: "Tourism Desk",
     date: "Aug 28, 2026",
-    coverImage: "assets/images/Canoeing on the Unwana river.webp",
     coverImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
     excerpt: "Explore the scenic riverine beauty of Unwana and Ozizza beaches — the official relaxation zones and watersport arenas of AIC 2026.",
     content: `
@@ -105,7 +103,6 @@ const DEFAULT_BLOG_POSTS = [
     category: "Art & Tradition",
     author: "Cultural Heritage Board",
     date: "Aug 20, 2026",
-    coverImage: "assets/images/Local artisans displaying carved Afikpo masks..webp",
     coverImage: "https://images.unsplash.com/photo-1569383746724-6f1b882b8f46?auto=format&fit=crop&w=1200&q=80",
     excerpt: "Delve into the sacred craftsmanship behind the iconic Eze Lúgúlú and Ikpó masks, and the exhilarating adrenaline of the Mgba wrestling festival.",
     content: `
@@ -955,28 +952,38 @@ function setupVendorRegistration() {
 async function fetchBlogPosts() {
   const deletedIds = new Set(JSON.parse(localStorage.getItem("aic_deleted_post_ids") || "[]"));
   const localPosts = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]").filter(p => !deletedIds.has(p.id));
-  const activeDefaults = DEFAULT_BLOG_POSTS.filter(p => !deletedIds.has(p.id));
 
-  let allPosts = [...localPosts, ...activeDefaults];
+  // Map starting with the 3 prehardcoded default posts
+  const postsMap = new Map();
+  DEFAULT_BLOG_POSTS.forEach(p => {
+    if (!deletedIds.has(p.id)) {
+      postsMap.set(p.id, p);
+    }
+  });
 
+  // Override default posts with locally edited versions and add new user posts
+  localPosts.forEach(p => {
+    if (!deletedIds.has(p.id)) {
+      postsMap.set(p.id, p);
+    }
+  });
+
+  // Sync with cloud Google Apps Script posts
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=get_blog_posts`);
     const data = await res.json();
     if (data.status === "success" && Array.isArray(data.posts)) {
-      const remotePosts = data.posts.filter(p => !deletedIds.has(p.id));
-      const remoteIds = new Set(remotePosts.map(p => p.id));
-      
-      if (remotePosts.length > 0) {
-        allPosts = [...remotePosts, ...localPosts.filter(p => !remoteIds.has(p.id))];
-      } else {
-        allPosts = [...localPosts, ...activeDefaults];
-      }
+      data.posts.forEach(p => {
+        if (!deletedIds.has(p.id)) {
+          postsMap.set(p.id, p);
+        }
+      });
     }
   } catch (err) {
-    console.log("Using cached/seed blog posts feed:", err);
+    console.log("Using cached/local blog posts feed:", err);
   }
 
-  return allPosts.filter(p => !deletedIds.has(p.id));
+  return Array.from(postsMap.values()).filter(p => !deletedIds.has(p.id));
 }
 
 async function setupBlogFeed() {
@@ -1010,6 +1017,8 @@ async function setupBlogFeed() {
       const hero = filtered[0];
       heroContainer.innerHTML = `
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 grid grid-cols-1 lg:grid-cols-12 group">
+          <div class="lg:col-span-7 h-72 lg:h-auto relative overflow-hidden">
+            <img src="${hero.coverImage}" alt="${hero.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
           <div class="lg:col-span-7 h-72 lg:h-auto relative overflow-hidden bg-gray-100">
             <img src="${hero.coverImage || DEFAULT_COVER_IMAGE}" alt="${hero.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
             <span class="absolute top-6 left-6 bg-orange-600 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-lg uppercase tracking-wider">${hero.category}</span>
@@ -1043,6 +1052,7 @@ async function setupBlogFeed() {
       <article class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition duration-300 flex flex-col justify-between group">
         <div>
           <div class="relative h-56 overflow-hidden bg-gray-100">
+            <img src="${p.coverImage}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
             <img src="${p.coverImage || DEFAULT_COVER_IMAGE}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
             <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">${p.category}</span>
           </div>
@@ -1133,6 +1143,8 @@ async function setupBlogPostDetail() {
       </div>
     </header>
 
+    <div class="rounded-3xl overflow-hidden mb-10 shadow-xl max-h-[480px]">
+      <img src="${post.coverImage}" alt="${post.title}" class="w-full h-full object-cover" />
     <div class="rounded-3xl overflow-hidden mb-10 shadow-xl max-h-[480px] bg-gray-100">
       <img src="${post.coverImage || DEFAULT_COVER_IMAGE}" alt="${post.title}" class="w-full h-full object-cover" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
     </div>
@@ -1209,7 +1221,7 @@ function setupBlogAdmin() {
         showAlert("Admin Access Granted. Welcome to the Editorial CMS!", "success");
         checkAuthStatus();
       } else {
-        showAlert("Incorrect PIN! Please enter 'afikpo2026'.", "error");
+        showAlert("Incorrect PIN! Please enter password.", "error");
         if (pinInput) {
           pinInput.value = "";
           pinInput.focus();
@@ -1276,14 +1288,12 @@ function setupBlogAdmin() {
             imageSourceBadge.textContent = "📁 Device File Ready";
             imageSourceBadge.className = "bg-green-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
           }
-          if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
         } catch (err) {
           console.error("Compression error:", err);
           const reader = new FileReader();
           reader.onload = (ev) => {
             if (imageUrlInput) imageUrlInput.value = ev.target.result;
             if (imagePreviewImg) imagePreviewImg.src = ev.target.result;
-            if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
             if (imageSourceBadge) {
               imageSourceBadge.textContent = "📁 Device File Ready";
               imageSourceBadge.className = "bg-green-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
@@ -1448,8 +1458,8 @@ function setupBlogAdmin() {
     if (imagePreviewImg && p.coverImage) {
       imagePreviewImg.src = p.coverImage;
       if (imageSourceBadge) {
-        imageSourceBadge.textContent = p.coverImage.startsWith("data:") ? "📁 Media Upload Ready" : "🌐 Outsource Web Link";
-        imageSourceBadge.className = "bg-orange-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
+        imageSourceBadge.textContent = p.coverImage.startsWith("data:") ? "📁 Device File Ready" : "🌐 Web URL Ready";
+        imageSourceBadge.className = p.coverImage.startsWith("data:") ? "bg-green-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow" : "bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow";
       }
       if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
     } else if (imagePreviewContainer) {
