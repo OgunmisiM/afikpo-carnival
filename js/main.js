@@ -1010,8 +1010,6 @@ async function setupBlogFeed() {
       const hero = filtered[0];
       heroContainer.innerHTML = `
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 grid grid-cols-1 lg:grid-cols-12 group">
-          <div class="lg:col-span-7 h-72 lg:h-auto relative overflow-hidden">
-            <img src="${hero.coverImage}" alt="${hero.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
           <div class="lg:col-span-7 h-72 lg:h-auto relative overflow-hidden bg-gray-100">
             <img src="${hero.coverImage || DEFAULT_COVER_IMAGE}" alt="${hero.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
             <span class="absolute top-6 left-6 bg-orange-600 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-lg uppercase tracking-wider">${hero.category}</span>
@@ -1045,7 +1043,6 @@ async function setupBlogFeed() {
       <article class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition duration-300 flex flex-col justify-between group">
         <div>
           <div class="relative h-56 overflow-hidden bg-gray-100">
-            <img src="${p.coverImage}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
             <img src="${p.coverImage || DEFAULT_COVER_IMAGE}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
             <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">${p.category}</span>
           </div>
@@ -1136,8 +1133,6 @@ async function setupBlogPostDetail() {
       </div>
     </header>
 
-    <div class="rounded-3xl overflow-hidden mb-10 shadow-xl max-h-[480px]">
-      <img src="${post.coverImage}" alt="${post.title}" class="w-full h-full object-cover" />
     <div class="rounded-3xl overflow-hidden mb-10 shadow-xl max-h-[480px] bg-gray-100">
       <img src="${post.coverImage || DEFAULT_COVER_IMAGE}" alt="${post.title}" class="w-full h-full object-cover" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
     </div>
@@ -1281,12 +1276,14 @@ function setupBlogAdmin() {
             imageSourceBadge.textContent = "📁 Device File Ready";
             imageSourceBadge.className = "bg-green-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
           }
+          if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
         } catch (err) {
           console.error("Compression error:", err);
           const reader = new FileReader();
           reader.onload = (ev) => {
             if (imageUrlInput) imageUrlInput.value = ev.target.result;
             if (imagePreviewImg) imagePreviewImg.src = ev.target.result;
+            if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
             if (imageSourceBadge) {
               imageSourceBadge.textContent = "📁 Device File Ready";
               imageSourceBadge.className = "bg-green-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
