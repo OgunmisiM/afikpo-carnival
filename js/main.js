@@ -1268,6 +1268,7 @@ function setupBlogAdmin() {
     imageFileInput.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (file) {
+        if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
         try {
           if (imageSourceBadge) {
             imageSourceBadge.textContent = "⚡ Optimizing image...";
@@ -1277,17 +1278,19 @@ function setupBlogAdmin() {
           if (imageUrlInput) imageUrlInput.value = compressedDataUrl;
           if (imagePreviewImg) imagePreviewImg.src = compressedDataUrl;
           if (imageSourceBadge) {
-            imageSourceBadge.textContent = "📁 Media Upload Ready";
+            imageSourceBadge.textContent = "📁 Device File Ready";
             imageSourceBadge.className = "bg-green-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
           }
-          if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
         } catch (err) {
           console.error("Compression error:", err);
           const reader = new FileReader();
           reader.onload = (ev) => {
             if (imageUrlInput) imageUrlInput.value = ev.target.result;
             if (imagePreviewImg) imagePreviewImg.src = ev.target.result;
-            if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
+            if (imageSourceBadge) {
+              imageSourceBadge.textContent = "📁 Device File Ready";
+              imageSourceBadge.className = "bg-green-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
+            }
           };
           reader.readAsDataURL(file);
         }
@@ -1295,21 +1298,24 @@ function setupBlogAdmin() {
     });
   }
 
-  // Option A: Outsource / External Web Link input
+  // Option A: Outsource / External Web Link input (real-time preview on input, change, and paste)
   if (imageUrlInput) {
-    imageUrlInput.addEventListener("input", (e) => {
-      const val = e.target.value.trim();
+    const handleUrlPreview = () => {
+      const val = imageUrlInput.value.trim();
       if (val) {
         if (imagePreviewImg) imagePreviewImg.src = val;
         if (imageSourceBadge) {
-          imageSourceBadge.textContent = "🌐 Outsource Web Link";
-          imageSourceBadge.className = "bg-blue-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
+          imageSourceBadge.textContent = val.startsWith("data:") ? "📁 Device File Ready" : "🌐 Web URL Ready";
+          imageSourceBadge.className = val.startsWith("data:") ? "bg-green-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow" : "bg-blue-600 text-white text-[11px] font-bold px-3 py-1 rounded-full shadow";
         }
         if (imagePreviewContainer) imagePreviewContainer.classList.remove("hidden");
       } else if (imagePreviewContainer) {
         imagePreviewContainer.classList.add("hidden");
       }
-    });
+    };
+    imageUrlInput.addEventListener("input", handleUrlPreview);
+    imageUrlInput.addEventListener("change", handleUrlPreview);
+    imageUrlInput.addEventListener("paste", () => setTimeout(handleUrlPreview, 50));
   }
 
   // Remove / Reset Image button
