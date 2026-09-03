@@ -986,6 +986,14 @@ async function fetchBlogPosts() {
   return Array.from(postsMap.values()).filter(p => !deletedIds.has(p.id));
 }
 
+// Reading Time Calculator helper
+function calculateReadingTime(text) {
+  const wordsPerMinute = 200;
+  const wordCount = (text || "").replace(/<[^>]*>/g, " ").trim().split(/\s+/).filter(Boolean).length;
+  const minutes = Math.ceil(wordCount / wordsPerMinute);
+  return `${minutes || 1} min read`;
+}
+
 async function setupBlogFeed() {
   const container = document.getElementById("blog-posts-grid");
   const heroContainer = document.getElementById("featured-post-container") || document.getElementById("blog-hero-section");
@@ -1002,43 +1010,68 @@ async function setupBlogFeed() {
     if (query.trim()) {
       filtered = filtered.filter(p => 
         (p.title && p.title.toLowerCase().includes(query.toLowerCase())) || 
-        (p.excerpt && p.excerpt.toLowerCase().includes(query.toLowerCase()))
+        (p.excerpt && p.excerpt.toLowerCase().includes(query.toLowerCase())) ||
+        (p.author && p.author.toLowerCase().includes(query.toLowerCase()))
       );
     }
 
     if (filtered.length === 0) {
-      container.innerHTML = `<div class="col-span-3 text-center py-16 text-gray-400"><p class="text-xl">No articles found in this category.</p></div>`;
+      container.innerHTML = `
+        <div class="col-span-full text-center py-20 bg-white rounded-3xl border border-gray-200 p-8 shadow-sm">
+          <span class="text-4xl mb-3 block">🔍</span>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">No Articles Found</h3>
+          <p class="text-xs text-gray-500 max-w-md mx-auto mb-6">We couldn't find any articles matching your search or category filter. Try clearing your search.</p>
+          <button onclick="document.getElementById('blog-search-input').value=''; document.querySelector('.blog-cat-btn[data-category=\\'All\\']').click();" class="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold px-6 py-2.5 rounded-full transition shadow-md">
+            Reset Filters
+          </button>
+        </div>
+      `;
       if (heroContainer) heroContainer.innerHTML = "";
       return;
     }
 
-    // Render Featured / Hero
+    // Render Featured / Hero Post
     if (heroContainer && !query && currentCategory === "All" && filtered[0]) {
       const hero = filtered[0];
+      const readTime = calculateReadingTime(hero.content);
       heroContainer.innerHTML = `
-        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 grid grid-cols-1 lg:grid-cols-12 group">
-          <div class="lg:col-span-7 h-72 lg:h-auto relative overflow-hidden">
-            <img src="${hero.coverImage}" alt="${hero.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-          <div class="lg:col-span-7 h-72 lg:h-auto relative overflow-hidden bg-gray-100">
-            <img src="${hero.coverImage || DEFAULT_COVER_IMAGE}" alt="${hero.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
-            <span class="absolute top-6 left-6 bg-orange-600 text-white font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-lg uppercase tracking-wider">${hero.category}</span>
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200 grid grid-cols-1 lg:grid-cols-12 group transition hover:shadow-2xl">
+          <div class="lg:col-span-7 h-72 sm:h-80 lg:h-auto relative overflow-hidden bg-gray-100">
+            <a href="blog-post.html?id=${hero.id}" class="block w-full h-full">
+              <img 
+                src="${hero.coverImage || DEFAULT_COVER_IMAGE}" 
+                alt="${hero.title}" 
+                class="w-full h-full object-cover group-hover:scale-105 transition duration-700 ease-out" 
+                onerror="this.src='${DEFAULT_COVER_IMAGE}'" 
+              />
+            </a>
+            <span class="absolute top-6 left-6 bg-orange-600 text-white font-black text-xs px-4 py-1.5 rounded-full shadow-lg uppercase tracking-wider">
+              ${hero.category}
+            </span>
           </div>
           <div class="lg:col-span-5 p-8 md:p-12 flex flex-col justify-between">
             <div>
-              <div class="flex items-center gap-3 text-xs text-gray-500 mb-3">
-                <span>✍️ ${hero.author}</span>
+              <div class="flex items-center gap-3 text-xs text-gray-500 mb-4 flex-wrap">
+                <span class="font-bold text-gray-800">✍️ ${hero.author}</span>
                 <span>•</span>
                 <span>📅 ${hero.date}</span>
+                <span>•</span>
+                <span class="text-orange-600 font-bold bg-orange-50 px-2.5 py-0.5 rounded-md">⏱️ ${readTime}</span>
               </div>
-              <h2 class="text-2xl md:text-3xl font-black text-gray-900 mb-4 group-hover:text-orange-600 transition leading-tight">
+              <h2 class="text-2xl sm:text-3xl font-black text-gray-900 mb-4 group-hover:text-orange-600 transition leading-tight">
                 <a href="blog-post.html?id=${hero.id}">${hero.title}</a>
               </h2>
-              <p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-6">${hero.excerpt}</p>
+              <p class="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-6">
+                ${hero.excerpt}
+              </p>
             </div>
-            <a href="blog-post.html?id=${hero.id}" class="inline-flex items-center gap-2 text-orange-600 font-extrabold text-sm hover:translate-x-2 transition duration-300">
-              <span>Read Full Story</span>
-              <span>→</span>
-            </a>
+            <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+              <a href="blog-post.html?id=${hero.id}" class="inline-flex items-center gap-2 text-orange-600 font-extrabold text-sm hover:translate-x-2 transition duration-300">
+                <span>Read Full Story</span>
+                <span>→</span>
+              </a>
+              <span class="text-xs font-semibold text-gray-400">Featured Story ⭐</span>
+            </div>
           </div>
         </div>
       `;
@@ -1048,35 +1081,48 @@ async function setupBlogFeed() {
 
     const cardPosts = (heroContainer && !query && currentCategory === "All") ? filtered.slice(1) : filtered;
 
-    container.innerHTML = cardPosts.map(p => `
-      <article class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition duration-300 flex flex-col justify-between group">
-        <div>
-          <div class="relative h-56 overflow-hidden bg-gray-100">
-            <img src="${p.coverImage}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-            <img src="${p.coverImage || DEFAULT_COVER_IMAGE}" alt="${p.title}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
-            <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider">${p.category}</span>
-          </div>
-          <div class="p-6">
-            <div class="flex items-center gap-2 text-xs text-gray-400 mb-2">
-              <span>${p.author}</span>
-              <span>•</span>
-              <span>${p.date}</span>
+    container.innerHTML = cardPosts.map(p => {
+      const readTime = calculateReadingTime(p.content);
+      return `
+        <article class="bg-white rounded-3xl shadow-lg border border-gray-200 overflow-hidden hover:shadow-2xl transition duration-300 flex flex-col justify-between group">
+          <div>
+            <div class="relative h-56 overflow-hidden bg-gray-100">
+              <a href="blog-post.html?id=${p.id}" class="block w-full h-full">
+                <img 
+                  src="${p.coverImage || DEFAULT_COVER_IMAGE}" 
+                  alt="${p.title}" 
+                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                  onerror="this.src='${DEFAULT_COVER_IMAGE}'" 
+                />
+              </a>
+              <span class="absolute top-4 left-4 bg-orange-600 text-white text-xs font-black px-3.5 py-1 rounded-full uppercase tracking-wider shadow-md">
+                ${p.category}
+              </span>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-3 group-hover:text-orange-600 transition leading-snug">
-              <a href="blog-post.html?id=${p.id}">${p.title}</a>
-            </h3>
-            <p class="text-xs text-gray-600 leading-relaxed line-clamp-3">${p.excerpt}</p>
+            <div class="p-6 sm:p-7">
+              <div class="flex items-center gap-2 text-xs text-gray-400 mb-3 flex-wrap">
+                <span class="font-semibold text-gray-600">${p.author}</span>
+                <span>•</span>
+                <span>${p.date}</span>
+              </div>
+              <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-3 group-hover:text-orange-600 transition leading-snug">
+                <a href="blog-post.html?id=${p.id}">${p.title}</a>
+              </h3>
+              <p class="text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-3">
+                ${p.excerpt}
+              </p>
+            </div>
           </div>
-        </div>
-        <div class="p-6 pt-0 border-t border-gray-50 flex items-center justify-between">
-          <a href="blog-post.html?id=${p.id}" class="text-xs font-extrabold text-orange-600 hover:text-orange-700 flex items-center gap-1">
-            <span>Read Article</span>
-            <span>→</span>
-          </a>
-          <span class="text-[11px] text-gray-400 font-medium">3 min read</span>
-        </div>
-      </article>
-    `).join("");
+          <div class="p-6 sm:p-7 pt-0 border-t border-gray-100 flex items-center justify-between">
+            <a href="blog-post.html?id=${p.id}" class="text-xs font-extrabold text-orange-600 hover:text-orange-700 flex items-center gap-1.5 group-hover:translate-x-1 transition duration-200">
+              <span>Read Article</span>
+              <span>→</span>
+            </a>
+            <span class="text-[11px] text-gray-400 font-semibold bg-gray-50 px-2 py-1 rounded-md">⏱️ ${readTime}</span>
+          </div>
+        </article>
+      `;
+    }).join("");
   };
 
   render();
@@ -1089,13 +1135,13 @@ async function setupBlogFeed() {
   document.querySelectorAll(".blog-cat-btn, .category-filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".blog-cat-btn, .category-filter-btn").forEach(b => {
-        b.classList.remove("bg-orange-600", "text-white");
+        b.classList.remove("bg-orange-600", "text-white", "shadow-sm");
         b.classList.add("bg-white", "text-gray-700");
       });
-      btn.classList.add("bg-orange-600", "text-white");
+      btn.classList.add("bg-orange-600", "text-white", "shadow-sm");
       btn.classList.remove("bg-white", "text-gray-700");
       currentCategory = btn.getAttribute("data-category") || "All";
-      render();
+      render(searchInput ? searchInput.value : "");
     });
   });
 }
@@ -1114,44 +1160,172 @@ async function setupBlogPostDetail() {
   const post = posts.find(p => p.id === postId || p.slug === postId) || posts[0];
 
   if (!post) {
-    container.innerHTML = `<div class="text-center py-20"><h2 class="text-2xl font-bold text-gray-900">Article not found</h2><a href="blog.html" class="text-orange-600 font-bold mt-4 inline-block">Return to Blog</a></div>`;
+    container.innerHTML = `
+      <div class="text-center py-20 bg-white rounded-3xl p-10 border border-gray-200 shadow-sm">
+        <span class="text-5xl mb-4 block">📰</span>
+        <h2 class="text-2xl font-black text-gray-900 mb-2">Article Not Found</h2>
+        <p class="text-xs text-gray-500 mb-6">The story you are looking for may have been moved or removed.</p>
+        <a href="blog.html" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-full text-xs transition shadow-md shadow-orange-200 inline-block">
+          ← Return to All Stories
+        </a>
+      </div>
+    `;
     return;
   }
 
+  // Set document and meta title
   const titleEl = document.getElementById("blog-meta-title");
   if (titleEl) titleEl.textContent = `${post.title} | Afikpo International Carnival 2026`;
   document.title = `${post.title} | Afikpo International Carnival 2026`;
 
+  // Calculate reading time
+  const readingTime = calculateReadingTime(post.content);
+
+  // Other related posts (excluding current one)
+  const relatedPosts = posts.filter(p => p.id !== post.id && p.status !== "Draft").slice(0, 3);
+
   container.innerHTML = `
-    <header class="mb-10">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="bg-orange-100 text-orange-600 font-extrabold text-xs px-3.5 py-1 rounded-full uppercase tracking-wide">${post.category}</span>
+    <!-- Top Breadcrumb -->
+    <nav class="flex items-center gap-2 text-xs font-semibold text-gray-400 mb-6 flex-wrap">
+      <a href="index.html" class="hover:text-orange-600 transition">Home</a>
+      <span>/</span>
+      <a href="blog.html" class="hover:text-orange-600 transition">News & Stories</a>
+      <span>/</span>
+      <span class="text-orange-600 font-bold">${post.category || 'Culture'}</span>
+    </nav>
+
+    <!-- Post Header -->
+    <header class="mb-8">
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
+        <span class="bg-orange-100 text-orange-700 font-extrabold text-xs px-3.5 py-1.5 rounded-full uppercase tracking-wider shadow-sm">
+          ${post.category}
+        </span>
         <span class="text-xs text-gray-400">•</span>
         <span class="text-xs text-gray-500 font-medium">📅 ${post.date}</span>
+        <span class="text-xs text-gray-400">•</span>
+        <span class="text-xs text-orange-600 font-bold bg-orange-50 px-2.5 py-1 rounded-md">⏱️ ${readingTime}</span>
       </div>
-      <h1 class="text-3xl md:text-5xl font-black text-gray-900 mb-6 leading-tight">${post.title}</h1>
-      <div class="flex items-center justify-between border-y border-gray-100 py-4">
+
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 mb-6 leading-tight tracking-tight">
+        ${post.title}
+      </h1>
+
+      <!-- Author Byline & Quick Share Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-y border-gray-100 py-4 mb-8">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-full bg-orange-600 text-white font-black flex items-center justify-center text-sm shadow-md">
+          <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 text-white font-black flex items-center justify-center text-lg shadow-md">
             ${post.author ? post.author.charAt(0) : 'A'}
           </div>
           <div>
-            <h5 class="text-sm font-bold text-gray-900 leading-none">${post.author}</h5>
-            <span class="text-xs text-gray-400">AIC Editorial Board</span>
+            <h5 class="text-sm font-extrabold text-gray-900 leading-snug">${post.author || 'Afikpo Media Desk'}</h5>
+            <span class="text-xs text-gray-400 font-medium">AIC Editorial Board • Verified Author</span>
           </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mr-1 hidden sm:inline">Share:</span>
+          <button onclick="window.sharePost('whatsapp')" class="p-2.5 px-3.5 bg-green-50 hover:bg-green-100 text-green-600 rounded-xl font-bold text-xs transition flex items-center gap-1.5 shadow-sm" title="Share on WhatsApp">
+            <span>💬 WhatsApp</span>
+          </button>
+          <button onclick="window.sharePost('x')" class="p-2.5 px-3.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl font-bold text-xs transition flex items-center gap-1.5 shadow-sm" title="Share on X">
+            <span>𝕏 Post</span>
+          </button>
+          <button onclick="window.sharePost('copy')" class="p-2.5 px-3.5 bg-orange-50 hover:bg-orange-100 text-orange-600 rounded-xl font-bold text-xs transition flex items-center gap-1.5 shadow-sm" title="Copy Article Link">
+            <span>🔗 Copy Link</span>
+          </button>
         </div>
       </div>
     </header>
 
-    <div class="rounded-3xl overflow-hidden mb-10 shadow-xl max-h-[480px]">
-      <img src="${post.coverImage}" alt="${post.title}" class="w-full h-full object-cover" />
-    <div class="rounded-3xl overflow-hidden mb-10 shadow-xl max-h-[480px] bg-gray-100">
-      <img src="${post.coverImage || DEFAULT_COVER_IMAGE}" alt="${post.title}" class="w-full h-full object-cover" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
+    <!-- Cover Image (Fully Closed & Cleanly Rendered) -->
+    <div class="rounded-3xl overflow-hidden mb-10 shadow-xl bg-gray-100 border border-gray-200">
+      <img 
+        src="${post.coverImage || DEFAULT_COVER_IMAGE}" 
+        alt="${post.title}" 
+        class="w-full h-auto max-h-[520px] object-cover" 
+        onerror="this.src='${DEFAULT_COVER_IMAGE}'" 
+      />
     </div>
 
-    <div class="prose prose-lg max-w-none text-gray-800 leading-relaxed font-normal">
-      ${post.content}
+    <!-- Article Content Body -->
+    <div class="bg-white rounded-3xl p-6 sm:p-10 md:p-12 shadow-sm border border-gray-200 mb-12">
+      <div class="prose-article text-gray-800 leading-relaxed font-normal">
+        ${post.content}
+      </div>
     </div>
+
+    <!-- Author Profile Bio Box -->
+    <div class="bg-orange-50/70 border border-orange-100 rounded-3xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5 mb-14 shadow-sm">
+      <div class="w-16 h-16 rounded-2xl bg-orange-600 text-white font-black flex items-center justify-center text-2xl shadow-lg flex-shrink-0">
+        ${post.author ? post.author.charAt(0) : 'A'}
+      </div>
+      <div>
+        <div class="flex items-center gap-2 mb-1">
+          <h4 class="text-base font-extrabold text-gray-900">${post.author || 'AIC Editorial Board'}</h4>
+          <span class="bg-orange-200 text-orange-800 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Editorial Contributor</span>
+        </div>
+        <p class="text-xs text-gray-600 leading-relaxed">
+          Reporting on the rich cultural heritage, tourism landmarks, masquerade traditions, and community festivals of Ehugbo for the Afikpo International Carnival 2026.
+        </p>
+      </div>
+    </div>
+
+    <!-- Related Articles Section -->
+    ${relatedPosts.length > 0 ? `
+      <div class="border-t border-gray-200 pt-12">
+        <div class="flex items-center justify-between mb-8 flex-wrap gap-2">
+          <div>
+            <h3 class="text-2xl font-black text-gray-900">More Stories from AIC 2026</h3>
+            <p class="text-xs text-gray-400 mt-1">Continue exploring culture, travel, and festival highlights.</p>
+          </div>
+          <a href="blog.html" class="text-xs font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1">
+            <span>View All Stories</span>
+            <span>→</span>
+          </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          ${relatedPosts.map(r => {
+            const relReadTime = calculateReadingTime(r.content);
+            return `
+              <article class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-xl transition duration-300 flex flex-col justify-between group">
+                <div>
+                  <div class="relative h-44 overflow-hidden bg-gray-100">
+                    <a href="blog-post.html?id=${r.id}" class="block w-full h-full">
+                      <img 
+                        src="${r.coverImage || DEFAULT_COVER_IMAGE}" 
+                        alt="${r.title}" 
+                        class="w-full h-full object-cover group-hover:scale-105 transition duration-500" 
+                        onerror="this.src='${DEFAULT_COVER_IMAGE}'" 
+                      />
+                    </a>
+                    <span class="absolute top-3 left-3 bg-orange-600 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider">
+                      ${r.category}
+                    </span>
+                  </div>
+                  <div class="p-5">
+                    <div class="flex items-center gap-2 text-[11px] text-gray-400 mb-2">
+                      <span>📅 ${r.date}</span>
+                      <span>•</span>
+                      <span>⏱️ ${relReadTime}</span>
+                    </div>
+                    <h4 class="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition leading-snug line-clamp-2">
+                      <a href="blog-post.html?id=${r.id}">${r.title}</a>
+                    </h4>
+                  </div>
+                </div>
+                <div class="p-5 pt-0">
+                  <a href="blog-post.html?id=${r.id}" class="text-xs font-extrabold text-orange-600 hover:text-orange-700 flex items-center gap-1">
+                    <span>Read Article</span>
+                    <span>→</span>
+                  </a>
+                </div>
+              </article>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    ` : ''}
   `;
 }
 
