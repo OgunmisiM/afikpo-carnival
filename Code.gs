@@ -791,3 +791,33 @@ function createJsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
 }
+
+/**
+ * Test function to verify Google Drive folder creation and permissions.
+ * You can select and RUN this function directly inside the Google Apps Script editor.
+ * It automatically initializes the dedicated 'AIC_Festival_Gallery_Uploads' folder in Google Drive.
+ */
+function testDriveAndGallerySetup() {
+  const folderName = "AIC_Festival_Gallery_Uploads";
+  const folders = DriveApp.getFoldersByName(folderName);
+  const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+
+  Logger.log("✅ Google Drive Folder Ready: " + folder.getName() + " (ID: " + folder.getId() + ")");
+  Logger.log("📁 Drive Folder URL: " + folder.getUrl());
+
+  // Verify and initialize GalleryItems sheet
+  const gallerySheet = getSheetByName(CONFIG.gallerySheet, [
+    "ID", "Title", "Category", "MediaType", "MediaUrl", "CreatorName", "Date", "Description", "Status", "Timestamp"
+  ]);
+  Logger.log("📊 GalleryItems sheet ready: " + gallerySheet.getName());
+
+  // Verify and initialize MediaSubmissions sheet
+  const mediaSheet = getSheetByName(CONFIG.mediaSheet, [
+    "Timestamp", "Creator Name / Studio", "Email", "Phone", "Media Title",
+    "Category", "Media Link (YouTube/Drive/Vimeo)", "Description & Cultural Notes"
+  ]);
+  Logger.log("📊 MediaSubmissions sheet ready: " + mediaSheet.getName());
+
+  Logger.log("🚀 SUCCESS! Dedicated Google Drive folder and Sheets are active and ready for live uploads.");
+  return "SUCCESS: Folder URL is " + folder.getUrl();
+}
