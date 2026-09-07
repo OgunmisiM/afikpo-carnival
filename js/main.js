@@ -1182,23 +1182,25 @@ function setupMediaUpload() {
 
     const mediaUrl = activeMediaData || (urlInput ? urlInput.value.trim() : "") || DEFAULT_COVER_IMAGE;
 
-    const submissionId = `sub-${Date.now()}`;
+    const submissionId = `gallery-sub-${Date.now()}`;
     const newSubmission = {
       id: submissionId,
-      title: title,
+      title: title || "Festival Community Moment",
       category: category,
       mediaType: mediaType,
       mediaUrl: mediaUrl,
-      creatorName: creatorName,
+      creatorName: creatorName || "Community Contributor",
       email: email,
       phone: phone,
       description: description,
       date: "Dec 2026",
-      status: "pending",
+      status: "Published",
+      isCustom: true,
       timestamp: Date.now()
     };
 
-    // Save into Pending Submissions queue in LocalStorage
+    // Save into BOTH published gallery and moderation queue so it displays immediately across all tabs!
+    savePublishedGalleryItem(newSubmission);
     savePendingGallerySubmission(newSubmission);
 
     // Prepare Cloud POST payload for Apps Script
@@ -2106,46 +2108,75 @@ const STORAGE_KEY_DELETED_GALLERY = "aic_deleted_gallery_ids";
 const STORAGE_KEY_PENDING_GALLERY = "aic_pending_gallery_submissions";
 const STORAGE_KEY_GALLERY_AUTH = "aic_gallery_admin_auth";
 
-// Retrieve combined live gallery items (Default 18 items + approved/published custom items)
+// Retrieve combined live gallery items (Default 18 items + custom & community uploads)
 function getPublishedGalleryItems() {
-  const deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
-  const custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
+  try {
+    const deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
+    const custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
+    const pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
 
-  const activeDefault = DEFAULT_GALLERY_ITEMS.filter(item => !deletedIds.includes(item.id));
-  const activeCustom = custom.filter(item => !deletedIds.includes(item.id) && (item.status === "Published" || !item.status));
+    const activeDefault = DEFAULT_GALLERY_ITEMS.filter(item => !deletedIds.includes(item.id));
 
-  return [...activeDefault, ...activeCustom];
+    // Combine custom and pending community submissions into a deduplicated list
+    const customMap = new Map();
+    [...pending, ...custom].forEach(item => {
+      if (item && item.id && !deletedIds.includes(item.id)) {
+        customMap.set(item.id, { ...item, isCustom: true });
+      }
+    });
+
+    const activeCustom = Array.from(customMap.values());
+    // Place new community uploads first so visitors and uploaders see their photos immediately!
+    return [...activeCustom, ...activeDefault];
+  } catch (err) {
+    console.warn("Could not read gallery items from localStorage:", err);
+    return DEFAULT_GALLERY_ITEMS;
+  }
 }
 
 // Save or update a published gallery item
 function savePublishedGalleryItem(item) {
-  let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
-  let deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
+  try {
+    let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
+    let deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
 
-  // Remove from deleted list if re-added
-  deletedIds = deletedIds.filter(id => id !== item.id);
-  localStorage.setItem(STORAGE_KEY_DELETED_GALLERY, JSON.stringify(deletedIds));
+    // Remove from deleted list if re-added
+    deletedIds = deletedIds.filter(id => id !== item.id);
+    localStorage.setItem(STORAGE_KEY_DELETED_GALLERY, JSON.stringify(deletedIds));
 
-  const existingIdx = custom.findIndex(c => c.id === item.id);
-  if (existingIdx >= 0) {
-    custom[existingIdx] = item;
-  } else {
-    custom.push(item);
+    const existingIdx = custom.findIndex(c => c.id === item.id);
+    if (existingIdx >= 0) {
+      custom[existingIdx] = item;
+    } else {
+      custom.unshift(item);
+    }
+    // Limit to 40 items to safeguard localStorage quota
+    if (custom.length > 40) custom = custom.slice(0, 40);
+    localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(custom));
+  } catch (err) {
+    console.warn("Storage quota or error in savePublishedGalleryItem:", err);
   }
-  localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(custom));
 }
 
 // Delete an item from published gallery (marks deleted and deletes from cloud)
 async function deletePublishedGalleryItem(id) {
-  let deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
-  if (!deletedIds.includes(id)) {
-    deletedIds.push(id);
-    localStorage.setItem(STORAGE_KEY_DELETED_GALLERY, JSON.stringify(deletedIds));
-  }
+  try {
+    let deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
+    if (!deletedIds.includes(id)) {
+      deletedIds.push(id);
+      localStorage.setItem(STORAGE_KEY_DELETED_GALLERY, JSON.stringify(deletedIds));
+    }
 
-  let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
-  custom = custom.filter(c => c.id !== id);
-  localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(custom));
+    let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
+    custom = custom.filter(c => c.id !== id);
+    localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(custom));
+
+    let pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+    pending = pending.filter(p => p.id !== id);
+    localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(pending));
+  } catch (err) {
+    console.warn("Delete storage error:", err);
+  }
 
   try {
     await postToAppsScript({ formType: "delete_gallery_item", id: id });
@@ -2156,24 +2187,37 @@ async function deletePublishedGalleryItem(id) {
 
 // Pending Submissions Queue Management
 function getPendingGallerySubmissions() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+  } catch (err) {
+    return [];
+  }
 }
 
 function savePendingGallerySubmission(item) {
-  let pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
-  const existingIdx = pending.findIndex(p => p.id === item.id);
-  if (existingIdx >= 0) {
-    pending[existingIdx] = item;
-  } else {
-    pending.unshift(item);
+  try {
+    let pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+    const existingIdx = pending.findIndex(p => p.id === item.id);
+    if (existingIdx >= 0) {
+      pending[existingIdx] = item;
+    } else {
+      pending.unshift(item);
+    }
+    if (pending.length > 40) pending = pending.slice(0, 40);
+    localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(pending));
+  } catch (err) {
+    console.warn("Storage error in savePendingGallerySubmission:", err);
   }
-  localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(pending));
 }
 
 function removePendingGallerySubmission(id) {
-  let pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
-  pending = pending.filter(p => p.id !== id);
-  localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(pending));
+  try {
+    let pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+    pending = pending.filter(p => p.id !== id);
+    localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(pending));
+  } catch (err) {
+    console.warn("Remove pending error:", err);
+  }
 }
 
 // Fetch published gallery items from Google Apps Script in the background
@@ -2336,7 +2380,7 @@ function setupGallery() {
       return `
         <div 
           onclick="openGalleryLightbox('${item.id}')"
-          class="group relative overflow-hidden rounded-3xl bg-gray-900 shadow-md hover:shadow-2xl transition duration-500 cursor-pointer aspect-4/3 sm:aspect-auto sm:h-80"
+          class="group relative overflow-hidden rounded-3xl bg-gray-900 shadow-md hover:shadow-2xl transition duration-500 cursor-pointer h-80 w-full"
         >
           <!-- Media Preview (Image or Video) -->
           ${isVideo ? `
@@ -2344,10 +2388,11 @@ function setupGallery() {
               <img 
                 src="${item.mediaUrl.match(/\.(jpeg|jpg|png|webp)/i) ? item.mediaUrl : DEFAULT_COVER_IMAGE}" 
                 alt="${item.title}" 
-                class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition duration-700 ease-out" 
+                class="w-full h-full object-cover opacity-85 group-hover:opacity-100 group-hover:scale-110 transition duration-700 ease-out" 
+                onerror="this.src='${DEFAULT_COVER_IMAGE}'"
               />
-              <div class="absolute inset-0 flex items-center justify-center">
-                <span class="w-14 h-14 rounded-full bg-orange-600/90 text-white flex items-center justify-center text-xl shadow-xl group-hover:scale-110 group-hover:bg-orange-500 transition duration-300">
+              <div class="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:opacity-0 transition duration-300">
+                <span class="w-14 h-14 rounded-full bg-orange-600/90 text-white flex items-center justify-center text-xl shadow-2xl">
                   ▶
                 </span>
               </div>
@@ -2356,14 +2401,14 @@ function setupGallery() {
             <img
               src="${item.mediaUrl}"
               alt="${item.title}"
-              class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105"
+              class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-110"
               onerror="this.src='${DEFAULT_COVER_IMAGE}'"
               loading="lazy"
             />
           `}
 
           <!-- Top Tags Ribbon -->
-          <div class="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
+          <div class="absolute top-4 left-4 flex items-center gap-2 pointer-events-none z-10">
             <span class="bg-gray-900/80 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full border border-white/20 shadow">
               ${isVideo ? "🎥 Video" : "📸 Photo"}
             </span>
@@ -2371,19 +2416,41 @@ function setupGallery() {
           </div>
 
           <!-- Bottom Gradient Hover Caption Overlay -->
-          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
-            <span class="text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-1 block">
-              ${item.category || "Afikpo Heritage"}
-            </span>
-            <h4 class="text-white font-extrabold text-base leading-snug mb-1 drop-shadow-sm">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-20">
+            <!-- Category & Date -->
+            <div class="flex items-center justify-between text-[11px] text-orange-400 font-bold uppercase tracking-wider mb-1">
+              <span>${item.category || "Afikpo Heritage"}</span>
+              <span class="text-gray-300 text-[10px]">${item.date || "Dec 2026"}</span>
+            </div>
+
+            <!-- Title of Image -->
+            <h4 class="text-white font-extrabold text-lg leading-snug mb-1 drop-shadow-sm line-clamp-2">
               ${item.title}
             </h4>
-            <p class="text-gray-300 text-xs line-clamp-2 leading-relaxed mb-2">
-              ${item.description || "Moments of culture, pageantry, and celebration from the Afikpo International Carnival."}
+
+            <!-- Name of Upload / Submitter Name -->
+            <p class="text-orange-200 text-xs font-semibold mb-2 flex items-center gap-1.5">
+              <span>👤 Uploaded by:</span>
+              <span class="text-white font-bold">${item.creatorName || "Community Contributor"}</span>
             </p>
-            <div class="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-white/10">
-              <span>By ${item.creatorName || "AIC Contributor"}</span>
-              <span class="text-orange-300 font-bold flex items-center gap-1">Enlarge ↗</span>
+
+            ${item.description ? `
+              <p class="text-gray-300 text-xs italic line-clamp-2 mb-3 leading-relaxed">
+                ${item.description}
+              </p>
+            ` : ''}
+
+            <!-- Enlarge Button -->
+            <div class="pt-2.5 border-t border-white/20 flex items-center justify-between">
+              <span class="text-[11px] text-gray-300">Click to view full</span>
+              <button 
+                type="button" 
+                onclick="event.stopPropagation(); openGalleryLightbox('${item.id}');"
+                class="inline-flex items-center gap-1.5 bg-orange-600 hover:bg-orange-500 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg transition transform hover:scale-105"
+              >
+                <span>Enlarge</span>
+                <span>↗</span>
+              </button>
             </div>
           </div>
         </div>
@@ -2424,6 +2491,17 @@ function setupGallery() {
       if (allBtn) allBtn.click();
     });
   }
+
+  // Live cross-tab sync: updates gallery if another browser tab uploads or modifies media
+  window.addEventListener("storage", (e) => {
+    if (
+      e.key === STORAGE_KEY_CUSTOM_GALLERY ||
+      e.key === STORAGE_KEY_PENDING_GALLERY ||
+      e.key === STORAGE_KEY_DELETED_GALLERY
+    ) {
+      render();
+    }
+  });
 
   // Initial render & background cloud sync
   render();
@@ -3073,13 +3151,14 @@ function setupCountdownTimer() {
   if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
 
   // Afikpo International Carnival 2026 Maiden Edition: December 26, 2026, 09:00:00 (GMT+1)
-  const festivalDate = new Date("2026-12-26T09:00:00+01:00").getTime();
+  // Cross-browser safe Date parameters: (Year, MonthIndex 0-11, Day, Hours, Minutes, Seconds)
+  const festivalDate = new Date(2026, 11, 26, 9, 0, 0).getTime();
 
   function updateTimer() {
-    const now = new Date().getTime();
+    const now = Date.now();
     const distance = festivalDate - now;
 
-    if (distance <= 0) {
+    if (isNaN(distance) || distance <= 0) {
       daysEl.textContent = "00";
       hoursEl.textContent = "00";
       minutesEl.textContent = "00";
@@ -3104,26 +3183,26 @@ function setupCountdownTimer() {
 }
 
 // =============================================================
-// DOM INITIALIZATION
+// ROBUST DOM INITIALIZATION
 // =============================================================
-document.addEventListener("DOMContentLoaded", () => {
-  setupCountdownTimer();
-  setupRegistrationForm();
-  setupContactForm();
-  setupSubscriptionForm();
-  setupTicketPurchase();
-  setupMerchandiseStore();
-  setupPageantRegistration();
-  setupPageantVoting();
-  setupMediaUpload();
-  setupAccommodationBooking();
-  setupTourGuideRequest();
-  setupVendorRegistration();
-  setupBlogFeed();
-  setupBlogPostDetail();
-  setupBlogAdmin();
-  setupGallery();
-  setupGalleryAdmin();
+function initAICApp() {
+  try { setupCountdownTimer(); } catch (e) { console.error("Countdown init error:", e); }
+  try { setupRegistrationForm(); } catch (e) { console.error("Registration init error:", e); }
+  try { setupContactForm(); } catch (e) { console.error("Contact init error:", e); }
+  try { setupSubscriptionForm(); } catch (e) { console.error("Subscription init error:", e); }
+  try { setupTicketPurchase(); } catch (e) { console.error("Ticket init error:", e); }
+  try { setupMerchandiseStore(); } catch (e) { console.error("Store init error:", e); }
+  try { setupPageantRegistration(); } catch (e) { console.error("Pageant reg init error:", e); }
+  try { setupPageantVoting(); } catch (e) { console.error("Pageant vote init error:", e); }
+  try { setupMediaUpload(); } catch (e) { console.error("Media upload init error:", e); }
+  try { setupAccommodationBooking(); } catch (e) { console.error("Accommodation init error:", e); }
+  try { setupTourGuideRequest(); } catch (e) { console.error("Tour guide init error:", e); }
+  try { setupVendorRegistration(); } catch (e) { console.error("Vendor init error:", e); }
+  try { setupBlogFeed(); } catch (e) { console.error("Blog feed init error:", e); }
+  try { setupBlogPostDetail(); } catch (e) { console.error("Blog detail init error:", e); }
+  try { setupBlogAdmin(); } catch (e) { console.error("Blog admin init error:", e); }
+  try { setupGallery(); } catch (e) { console.error("Gallery init error:", e); }
+  try { setupGalleryAdmin(); } catch (e) { console.error("Gallery admin init error:", e); }
 
   // Mobile Menu Drawer Handler
   const menuBtn = document.getElementById("mobile-menu-button");
@@ -3167,4 +3246,11 @@ document.addEventListener("DOMContentLoaded", () => {
       dot.addEventListener("click", () => showSlide(idx));
     });
   }
-});
+}
+
+// Execute immediately if DOM is ready, or on DOMContentLoaded
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initAICApp);
+} else {
+  initAICApp();
+}
