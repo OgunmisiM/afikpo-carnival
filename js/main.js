@@ -114,6 +114,226 @@ const DEFAULT_BLOG_POSTS = [
   }
 ];
 
+// Default 18 Authentic Visual Gallery Items for Afikpo International Carnival 2026
+const DEFAULT_GALLERY_ITEMS = [
+  {
+    id: "gallery-1",
+    title: "Golden Sand Beach Along Riverfront",
+    category: "Nature, Rivers & Beaches",
+    mediaType: "image",
+    mediaUrl: "assets/images/Gold sand beach, Afikpo.webp",
+    creatorName: "AIC Media Board",
+    date: "Dec 2026",
+    description: "Scenic golden sand beach along the pristine riverfront in Afikpo, a peaceful haven for beachside gatherings, festivals, and tourism relaxation.",
+    status: "Published",
+    timestamp: 1700000001000
+  },
+  {
+    id: "gallery-2",
+    title: "Afikpo (Ikpó) Cultural Masquerade Display",
+    category: "Cultural Masquerades & Rites",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo (ikpó) cultural display.jpeg",
+    creatorName: "Ehugbo Heritage Society",
+    date: "Dec 2026",
+    description: "The iconic Ikpó masquerade exhibition displaying traditional woven fiber attire and centuries of ceremonial mastery.",
+    status: "Published",
+    timestamp: 1700000002000
+  },
+  {
+    id: "gallery-3",
+    title: "Traditional Wrestling Match (Mgba)",
+    category: "Traditional Wrestling (Mgba)",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo Traditional Wrestling Competitio.jpeg",
+    creatorName: "AIC Sports Council",
+    date: "Dec 2026",
+    description: "High-intensity traditional wrestling championship (Mgba) displaying strength, agility, and sportsmanship.",
+    status: "Published",
+    timestamp: 1700000003000
+  },
+  {
+    id: "gallery-4",
+    title: "Dancers & Masquerades at Sunset on Ozizza River",
+    category: "Nature, Rivers & Beaches",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo dancers and masquerades at sunset along the Ozizza River.webp",
+    creatorName: "Ozizza Tourism Circuit",
+    date: "Dec 2026",
+    description: "Spectacular sunset gathering of traditional performers and masquerades along the tranquil banks of the Ozizza River.",
+    status: "Published",
+    timestamp: 1700000004000
+  },
+  {
+    id: "gallery-5",
+    title: "Masquerade Display (Eze Lúgúlú and Ikpó)",
+    category: "Cultural Masquerades & Rites",
+    mediaType: "image",
+    mediaUrl: "assets/images/Masquerade display (Eze lúgúlú and ikpó).jpeg",
+    creatorName: "AIC Cultural Archives",
+    date: "Dec 2026",
+    description: "The majestic Eze Lúgúlú towering masquerade alongside ceremonial Ikpó escorts during the grand festival procession.",
+    status: "Published",
+    timestamp: 1700000005000
+  },
+  {
+    id: "gallery-6",
+    title: "Canoeing Along Unwana River Waterways",
+    category: "Nature, Rivers & Beaches",
+    mediaType: "image",
+    mediaUrl: "assets/images/Canoeing on the Unwana river.webp",
+    creatorName: "Unwana Beach Explorers",
+    date: "Dec 2026",
+    description: "Traditional wooden canoeing across the serene, reflective waters of the historic Unwana river basin.",
+    status: "Published",
+    timestamp: 1700000006000
+  },
+  {
+    id: "gallery-7",
+    title: "Artisans Displaying Handcrafted Afikpo Masks",
+    category: "Art & Tradition",
+    mediaType: "image",
+    mediaUrl: "assets/images/Local artisans displaying carved Afikpo masks..webp",
+    creatorName: "Ehugbo Craft Guild",
+    date: "Dec 2026",
+    description: "Master woodcarvers showcasing internationally acclaimed Afikpo masks recognized in museums worldwide.",
+    status: "Published",
+    timestamp: 1700000007000
+  },
+  {
+    id: "gallery-8",
+    title: "Nkwa Umuagbógó Maiden Dance Festival",
+    category: "Concerts & Dance Performances",
+    mediaType: "image",
+    mediaUrl: "assets/images/Nkwa Umuagbógó cultural dance competition.jpeg",
+    creatorName: "AIC Performing Troupe",
+    date: "Dec 2026",
+    description: "The world-famous Nkwa Umuagbógó maiden dance troupe performing intricate rhythmic steps and acrobatics.",
+    status: "Published",
+    timestamp: 1700000008000
+  },
+  {
+    id: "gallery-9",
+    title: "Mainstage Live Concert & Festival Village",
+    category: "Concerts & Dance Performances",
+    mediaType: "image",
+    mediaUrl: "assets/images/AIC music.webp",
+    creatorName: "AIC Entertainment Group",
+    date: "Dec 2026",
+    description: "Electrifying live musical concert and night festival lights uniting thousands of tourists and locals at the mainstage.",
+    status: "Published",
+    timestamp: 1700000009000
+  },
+  {
+    id: "gallery-10",
+    title: "Ceremonial Masquerade Pageantry",
+    category: "Cultural Masquerades & Rites",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo Masqurade display.webp",
+    creatorName: "AIC Heritage Council",
+    date: "Dec 2026",
+    description: "Dignified ceremonial masquerade procession marching through the community square amidst ancestral chants.",
+    status: "Published",
+    timestamp: 1700000010000
+  },
+  {
+    id: "gallery-11",
+    title: "Age Grade Wrestling Tournament",
+    category: "Traditional Wrestling (Mgba)",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo age grade wrestling competition .jpeg",
+    creatorName: "Afikpo Youth Guild",
+    date: "Dec 2026",
+    description: "Youth age grade competitors testing grit, agility, and honor in the revered open-air wrestling arena.",
+    status: "Published",
+    timestamp: 1700000011000
+  },
+  {
+    id: "gallery-12",
+    title: "Echoes of Ehugbo Heritage",
+    category: "Cultural Masquerades & Rites",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo image 1.webp",
+    creatorName: "AIC Documentary Unit",
+    date: "Dec 2026",
+    description: "Capturing the vibrant colors, sacred symbols, and ancestral pride of the Ehugbo cultural lineage.",
+    status: "Published",
+    timestamp: 1700000012000
+  },
+  {
+    id: "gallery-13",
+    title: "Carnival Street Festivities",
+    category: "Community & Festival Moments",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo image 7.webp",
+    creatorName: "AIC Media Crew",
+    date: "Dec 2026",
+    description: "Street-level joy and festive energy welcoming international attendees to the heart of Ebonyi State.",
+    status: "Published",
+    timestamp: 1700000013000
+  },
+  {
+    id: "gallery-14",
+    title: "Master Drummers (Alawiyó) Competition",
+    category: "Concerts & Dance Performances",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo local drummers competition (Alawiyó).jpeg",
+    creatorName: "Alawiyó Ensemble",
+    date: "Dec 2026",
+    description: "Master slit-drummers and percussionists competing in the traditional Alawiyó musical exhibition.",
+    status: "Published",
+    timestamp: 1700000014000
+  },
+  {
+    id: "gallery-15",
+    title: "Wrestling Championship Final Rounds",
+    category: "Traditional Wrestling (Mgba)",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo wrestling competition.jpeg",
+    creatorName: "AIC Sports Council",
+    date: "Dec 2026",
+    description: "Championship bout in the village ring cheered on by elders, village chiefs, and visiting spectators.",
+    status: "Published",
+    timestamp: 1700000015000
+  },
+  {
+    id: "gallery-16",
+    title: "Youth Cultural Drumming Workshop",
+    category: "Art & Tradition",
+    mediaType: "image",
+    mediaUrl: "assets/images/Children learning drumming at a youth workshop..webp",
+    creatorName: "AIC Educational Program",
+    date: "Dec 2026",
+    description: "The next generation preserving heritage: children mastering traditional rhythm patterns in hands-on festival workshops.",
+    status: "Published",
+    timestamp: 1700000016000
+  },
+  {
+    id: "gallery-17",
+    title: "Handwoven Textiles & Crafts Fair",
+    category: "Art & Tradition",
+    mediaType: "image",
+    mediaUrl: "assets/images/Handwoven textiles at the Art & Craft exhibition.webp",
+    creatorName: "Ebonyi Artisan Cooperative",
+    date: "Dec 2026",
+    description: "Intricately woven Akwete and traditional ceremonial fabrics on exhibition at the AIC craft marketplace.",
+    status: "Published",
+    timestamp: 1700000017000
+  },
+  {
+    id: "gallery-18",
+    title: "Nkwawite Traditional Women's Dance",
+    category: "Concerts & Dance Performances",
+    mediaType: "image",
+    mediaUrl: "assets/images/Nkwawite cultural dance.jpeg",
+    creatorName: "Ehugbo Women's Guild",
+    date: "Dec 2026",
+    description: "Graceful and synchronized Nkwawite dance celebration performed by titled women in vibrant ceremonial regalia.",
+    status: "Published",
+    timestamp: 1700000018000
+  }
+];
+
 // Default Contestants for Queen of Afikpo Pageant Voting
 const DEFAULT_CONTESTANTS = [
   {
@@ -796,30 +1016,228 @@ function setupMediaUpload() {
   const form = document.getElementById("media-upload-form");
   if (!form) return;
 
+  const tabBtnFile = document.getElementById("tab-btn-file");
+  const tabBtnUrl = document.getElementById("tab-btn-url");
+  const fileBox = document.getElementById("file-upload-box");
+  const urlBox = document.getElementById("url-upload-box");
+  const fileInput = document.getElementById("media-file-input");
+  const urlInput = document.getElementById("media-url-input");
+  const previewContainer = document.getElementById("media-preview-container");
+  const previewImg = document.getElementById("media-preview-img");
+  const previewVideo = document.getElementById("media-preview-video");
+  const previewInfo = document.getElementById("media-preview-info");
+  const removeBtn = document.getElementById("remove-media-file-btn");
+  const mediaTypeSelect = document.getElementById("media-type");
+
+  let activeMediaData = "";
+  let activeBase64Only = "";
+  let activeFileName = "";
+  let activeMimeType = "";
+
+  // Mode Toggling (Device File vs URL)
+  if (tabBtnFile && tabBtnUrl && fileBox && urlBox) {
+    tabBtnFile.addEventListener("click", () => {
+      fileBox.classList.remove("hidden");
+      urlBox.classList.add("hidden");
+      tabBtnFile.className = "upload-mode-tab flex items-center justify-center gap-2.5 p-3.5 rounded-2xl border-2 border-orange-600 bg-orange-50 text-orange-700 font-bold text-xs transition shadow-sm";
+      tabBtnUrl.className = "upload-mode-tab flex items-center justify-center gap-2.5 p-3.5 rounded-2xl border-2 border-gray-200 bg-white hover:border-gray-300 text-gray-700 font-bold text-xs transition";
+    });
+
+    tabBtnUrl.addEventListener("click", () => {
+      urlBox.classList.remove("hidden");
+      fileBox.classList.add("hidden");
+      tabBtnUrl.className = "upload-mode-tab flex items-center justify-center gap-2.5 p-3.5 rounded-2xl border-2 border-orange-600 bg-orange-50 text-orange-700 font-bold text-xs transition shadow-sm";
+      tabBtnFile.className = "upload-mode-tab flex items-center justify-center gap-2.5 p-3.5 rounded-2xl border-2 border-gray-200 bg-white hover:border-gray-300 text-gray-700 font-bold text-xs transition";
+    });
+  }
+
+  // Clear preview helper
+  const clearPreview = () => {
+    activeMediaData = "";
+    activeBase64Only = "";
+    activeFileName = "";
+    activeMimeType = "";
+    if (fileInput) fileInput.value = "";
+    if (urlInput) urlInput.value = "";
+    if (previewImg) { previewImg.src = ""; previewImg.classList.add("hidden"); }
+    if (previewVideo) { previewVideo.src = ""; previewVideo.classList.add("hidden"); }
+    if (previewContainer) previewContainer.classList.add("hidden");
+  };
+
+  if (removeBtn) {
+    removeBtn.addEventListener("click", clearPreview);
+  }
+
+  // Handle File Input Selection
+  if (fileInput) {
+    fileInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Check max 15MB file size limit
+      const maxSizeBytes = 15 * 1024 * 1024;
+      if (file.size > maxSizeBytes) {
+        showAlert("File exceeds the 15MB size limit. Please select a smaller file.", "error");
+        fileInput.value = "";
+        return;
+      }
+
+      activeFileName = file.name;
+      activeMimeType = file.type || "application/octet-stream";
+      const sizeFormatted = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+      if (file.type.startsWith("image/")) {
+        try {
+          const compressed = await compressImageFile(file, 1400, 900, 0.82);
+          activeMediaData = compressed;
+          activeBase64Only = compressed.split(",")[1] || "";
+
+          if (previewImg && previewVideo && previewContainer && previewInfo) {
+            previewImg.src = compressed;
+            previewImg.classList.remove("hidden");
+            previewVideo.classList.add("hidden");
+            previewInfo.textContent = `📸 ${file.name} (${sizeFormatted})`;
+            previewContainer.classList.remove("hidden");
+          }
+          if (mediaTypeSelect) mediaTypeSelect.value = "image";
+        } catch (err) {
+          console.error("Image read error:", err);
+          showAlert("Could not process the selected image file.", "error");
+        }
+      } else if (file.type.startsWith("video/")) {
+        const objectUrl = URL.createObjectURL(file);
+        activeMediaData = objectUrl;
+
+        // Also read as base64 for background sync if needed
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          const raw = re.target.result;
+          activeBase64Only = raw.split(",")[1] || "";
+        };
+        reader.readAsDataURL(file);
+
+        if (previewImg && previewVideo && previewContainer && previewInfo) {
+          previewVideo.src = objectUrl;
+          previewVideo.classList.remove("hidden");
+          previewImg.classList.add("hidden");
+          previewInfo.textContent = `🎥 ${file.name} (${sizeFormatted})`;
+          previewContainer.classList.remove("hidden");
+        }
+        if (mediaTypeSelect) mediaTypeSelect.value = "video";
+      }
+    });
+  }
+
+  // Handle URL Input Change
+  if (urlInput) {
+    urlInput.addEventListener("input", () => {
+      const url = urlInput.value.trim();
+      if (!url) {
+        if (!fileInput || !fileInput.files.length) clearPreview();
+        return;
+      }
+
+      activeMediaData = url;
+      activeBase64Only = "";
+      activeFileName = "Web Media";
+
+      if (url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) {
+        if (previewImg && previewVideo && previewContainer && previewInfo) {
+          previewImg.src = url;
+          previewImg.classList.remove("hidden");
+          previewVideo.classList.add("hidden");
+          previewInfo.textContent = "🌐 Web Image Link Ready";
+          previewContainer.classList.remove("hidden");
+        }
+        if (mediaTypeSelect) mediaTypeSelect.value = "image";
+      } else {
+        if (previewContainer && previewInfo) {
+          previewInfo.textContent = `🌐 Web Video / Link: ${url.substring(0, 45)}...`;
+          previewContainer.classList.remove("hidden");
+          if (previewImg) previewImg.classList.add("hidden");
+          if (previewVideo) previewVideo.classList.add("hidden");
+        }
+        if (mediaTypeSelect) mediaTypeSelect.value = "video";
+      }
+    });
+  }
+
+  // Form Submission
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = form.querySelector("button[type='submit']");
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "Submitting Media...";
+    const origText = btn ? btn.textContent : "Submit";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Uploading & Submitting...";
+    }
 
-    const payload = {
-      formType: "media_submission",
-      title: form.querySelector("input[name='mediaTitle']") ? form.querySelector("input[name='mediaTitle']").value : "",
-      category: form.querySelector("select[name='category']") ? form.querySelector("select[name='category']").value : "",
-      creatorName: form.querySelector("input[name='creatorName']") ? form.querySelector("input[name='creatorName']").value : "",
-      email: form.querySelector("input[name='email']") ? form.querySelector("input[name='email']").value : "",
-      phone: form.querySelector("input[name='phone']") ? form.querySelector("input[name='phone']").value : "",
-      mediaUrl: form.querySelector("input[name='mediaUrl']") ? form.querySelector("input[name='mediaUrl']").value : "",
-      description: form.querySelector("textarea[name='description']") ? form.querySelector("textarea[name='description']").value : ""
+    const title = form.querySelector("input[name='mediaTitle']") ? form.querySelector("input[name='mediaTitle']").value.trim() : "";
+    const category = form.querySelector("select[name='category']") ? form.querySelector("select[name='category']").value : "Community & Festival Moments";
+    const mediaType = mediaTypeSelect ? mediaTypeSelect.value : "image";
+    const creatorName = form.querySelector("input[name='creatorName']") ? form.querySelector("input[name='creatorName']").value.trim() : "Afikpo Contributor";
+    const email = form.querySelector("input[name='email']") ? form.querySelector("input[name='email']").value.trim() : "";
+    const phone = form.querySelector("input[name='phone']") ? form.querySelector("input[name='phone']").value.trim() : "";
+    const description = form.querySelector("textarea[name='description']") ? form.querySelector("textarea[name='description']").value.trim() : "";
+
+    const mediaUrl = activeMediaData || (urlInput ? urlInput.value.trim() : "") || DEFAULT_COVER_IMAGE;
+
+    const submissionId = `sub-${Date.now()}`;
+    const newSubmission = {
+      id: submissionId,
+      title: title,
+      category: category,
+      mediaType: mediaType,
+      mediaUrl: mediaUrl,
+      creatorName: creatorName,
+      email: email,
+      phone: phone,
+      description: description,
+      date: "Dec 2026",
+      status: "pending",
+      timestamp: Date.now()
     };
 
-    const res = await postToAppsScript(payload);
-    showAlert(res.message || "Media link submitted successfully! Thank you for sharing Afikpo heritage.", "success");
-    form.reset();
+    // Save into Pending Submissions queue in LocalStorage
+    savePendingGallerySubmission(newSubmission);
 
-    btn.disabled = false;
-    btn.textContent = origText;
+    // Prepare Cloud POST payload for Apps Script
+    const payload = {
+      formType: "media_submission",
+      id: submissionId,
+      title: title,
+      category: category,
+      mediaType: mediaType,
+      mediaUrl: (activeBase64Only ? "" : mediaUrl),
+      creatorName: creatorName,
+      email: email,
+      phone: phone,
+      description: description,
+      base64Media: activeBase64Only,
+      fileName: activeFileName || `${title.replace(/\s+/g, "_")}.${mediaType === "video" ? "mp4" : "jpg"}`,
+      mimeType: activeMimeType
+    };
+
+    try {
+      const res = await postToAppsScript(payload);
+      showAlert(
+        "🎉 Media submitted successfully! Your upload is queued for moderation. Once approved by the AIC editorial board, it will go live on the Visual Gallery!",
+        "success"
+      );
+    } catch (err) {
+      showAlert(
+        "Your submission has been queued locally for review! Once reviewed, it will go live on the festival gallery.",
+        "success"
+      );
+    }
+
+    form.reset();
+    clearPreview();
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
   });
 }
 
@@ -1681,6 +2099,969 @@ function setupBlogAdmin() {
 }
 
 // =============================================================
+// VISUAL GALLERY DATA ENGINE & STORAGE HELPERS
+// =============================================================
+const STORAGE_KEY_CUSTOM_GALLERY = "aic_custom_gallery_items";
+const STORAGE_KEY_DELETED_GALLERY = "aic_deleted_gallery_ids";
+const STORAGE_KEY_PENDING_GALLERY = "aic_pending_gallery_submissions";
+const STORAGE_KEY_GALLERY_AUTH = "aic_gallery_admin_auth";
+
+// Retrieve combined live gallery items (Default 18 items + approved/published custom items)
+function getPublishedGalleryItems() {
+  const deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
+  const custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
+
+  const activeDefault = DEFAULT_GALLERY_ITEMS.filter(item => !deletedIds.includes(item.id));
+  const activeCustom = custom.filter(item => !deletedIds.includes(item.id) && (item.status === "Published" || !item.status));
+
+  return [...activeDefault, ...activeCustom];
+}
+
+// Save or update a published gallery item
+function savePublishedGalleryItem(item) {
+  let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
+  let deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
+
+  // Remove from deleted list if re-added
+  deletedIds = deletedIds.filter(id => id !== item.id);
+  localStorage.setItem(STORAGE_KEY_DELETED_GALLERY, JSON.stringify(deletedIds));
+
+  const existingIdx = custom.findIndex(c => c.id === item.id);
+  if (existingIdx >= 0) {
+    custom[existingIdx] = item;
+  } else {
+    custom.push(item);
+  }
+  localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(custom));
+}
+
+// Delete an item from published gallery (marks deleted and deletes from cloud)
+async function deletePublishedGalleryItem(id) {
+  let deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
+  if (!deletedIds.includes(id)) {
+    deletedIds.push(id);
+    localStorage.setItem(STORAGE_KEY_DELETED_GALLERY, JSON.stringify(deletedIds));
+  }
+
+  let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
+  custom = custom.filter(c => c.id !== id);
+  localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(custom));
+
+  try {
+    await postToAppsScript({ formType: "delete_gallery_item", id: id });
+  } catch (err) {
+    console.warn("Could not sync delete with Apps Script:", err);
+  }
+}
+
+// Pending Submissions Queue Management
+function getPendingGallerySubmissions() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+}
+
+function savePendingGallerySubmission(item) {
+  let pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+  const existingIdx = pending.findIndex(p => p.id === item.id);
+  if (existingIdx >= 0) {
+    pending[existingIdx] = item;
+  } else {
+    pending.unshift(item);
+  }
+  localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(pending));
+}
+
+function removePendingGallerySubmission(id) {
+  let pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+  pending = pending.filter(p => p.id !== id);
+  localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(pending));
+}
+
+// Fetch published gallery items from Google Apps Script in the background
+async function fetchRemoteGalleryItems() {
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=get_gallery_items`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.status === "success" && Array.isArray(data.items)) {
+      const deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
+      let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
+
+      data.items.forEach(remoteItem => {
+        if (!deletedIds.includes(remoteItem.id)) {
+          const idx = custom.findIndex(c => c.id === remoteItem.id);
+          if (idx >= 0) {
+            custom[idx] = { ...custom[idx], ...remoteItem };
+          } else {
+            custom.push(remoteItem);
+          }
+        }
+      });
+      localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(custom));
+    }
+  } catch (err) {
+    // Non-blocking fallback to local cache
+  }
+}
+
+// =============================================================
+// 10. PUBLIC VISUAL GALLERY (gallery.html)
+// =============================================================
+function setupGallery() {
+  const container = document.getElementById("gallery-grid-container");
+  if (!container) return;
+
+  const searchInput = document.getElementById("gallery-search-input");
+  const catButtons = document.querySelectorAll(".gallery-cat-btn");
+  const emptyState = document.getElementById("gallery-empty-state");
+  const resetBtn = document.getElementById("gallery-reset-filter-btn");
+  const countAllEl = document.getElementById("count-all");
+
+  // Lightbox elements
+  const lightbox = document.getElementById("gallery-lightbox-modal");
+  const lightboxImg = document.getElementById("lightbox-img");
+  const lightboxVideoContainer = document.getElementById("lightbox-video-container");
+  const lightboxTitle = document.getElementById("lightbox-title");
+  const lightboxDesc = document.getElementById("lightbox-description");
+  const lightboxCat = document.getElementById("lightbox-category");
+  const lightboxCreator = document.getElementById("lightbox-creator");
+  const lightboxCloseBtn = document.getElementById("lightbox-close-btn");
+
+  let currentFilter = "All";
+  let currentSearch = "";
+
+  // Helper: Open Lightbox Viewer
+  window.openGalleryLightbox = (id) => {
+    const items = getPublishedGalleryItems();
+    const item = items.find(i => i.id === id);
+    if (!item || !lightbox) return;
+
+    if (lightboxTitle) lightboxTitle.textContent = item.title;
+    if (lightboxDesc) lightboxDesc.textContent = item.description || "";
+    if (lightboxCat) lightboxCat.textContent = item.category || "Festival Visuals";
+    if (lightboxCreator) lightboxCreator.textContent = `📸 by ${item.creatorName || "AIC Contributor"}`;
+
+    if (item.mediaType === "video") {
+      if (lightboxImg) lightboxImg.classList.add("hidden");
+      if (lightboxVideoContainer) {
+        lightboxVideoContainer.classList.remove("hidden");
+        // Check for YouTube link
+        const ytMatch = item.mediaUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+        if (ytMatch && ytMatch[1]) {
+          lightboxVideoContainer.innerHTML = `
+            <iframe class="w-full h-full min-h-[350px] sm:min-h-[450px] rounded-2xl" src="https://www.youtube-nocookie.com/embed/${ytMatch[1]}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          `;
+        } else {
+          lightboxVideoContainer.innerHTML = `
+            <video src="${item.mediaUrl}" controls autoplay playsinline class="max-h-[65vh] w-auto max-w-full rounded-2xl shadow-2xl"></video>
+          `;
+        }
+      }
+    } else {
+      if (lightboxVideoContainer) {
+        lightboxVideoContainer.innerHTML = "";
+        lightboxVideoContainer.classList.add("hidden");
+      }
+      if (lightboxImg) {
+        lightboxImg.src = item.mediaUrl;
+        lightboxImg.alt = item.title;
+        lightboxImg.classList.remove("hidden");
+      }
+    }
+
+    lightbox.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  };
+
+  // Helper: Close Lightbox
+  const closeLightbox = () => {
+    if (!lightbox) return;
+    lightbox.classList.add("hidden");
+    if (lightboxVideoContainer) lightboxVideoContainer.innerHTML = "";
+    if (lightboxImg) lightboxImg.src = "";
+    document.body.style.overflow = "";
+  };
+
+  if (lightboxCloseBtn) lightboxCloseBtn.addEventListener("click", closeLightbox);
+  if (lightbox) {
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox) closeLightbox();
+    });
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && lightbox && !lightbox.classList.contains("hidden")) {
+      closeLightbox();
+    }
+  });
+
+  // Render Grid Cards
+  const render = () => {
+    const items = getPublishedGalleryItems();
+    if (countAllEl) countAllEl.textContent = items.length;
+
+    let filtered = items;
+
+    // Category / Type filter
+    if (currentFilter !== "All") {
+      if (currentFilter.startsWith("type:")) {
+        const type = currentFilter.replace("type:", "");
+        filtered = filtered.filter(i => (i.mediaType || "image") === type);
+      } else {
+        filtered = filtered.filter(i => i.category && i.category.toLowerCase() === currentFilter.toLowerCase());
+      }
+    }
+
+    // Search query
+    if (currentSearch.trim()) {
+      const q = currentSearch.toLowerCase().trim();
+      filtered = filtered.filter(i => 
+        (i.title && i.title.toLowerCase().includes(q)) ||
+        (i.description && i.description.toLowerCase().includes(q)) ||
+        (i.category && i.category.toLowerCase().includes(q)) ||
+        (i.creatorName && i.creatorName.toLowerCase().includes(q))
+      );
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = "";
+      if (emptyState) emptyState.classList.remove("hidden");
+      return;
+    }
+
+    if (emptyState) emptyState.classList.add("hidden");
+
+    container.innerHTML = filtered.map(item => {
+      const isVideo = item.mediaType === "video";
+      const isCustomBadge = item.isCustom ? `<span class="bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider">Community</span>` : "";
+
+      return `
+        <div 
+          onclick="openGalleryLightbox('${item.id}')"
+          class="group relative overflow-hidden rounded-3xl bg-gray-900 shadow-md hover:shadow-2xl transition duration-500 cursor-pointer aspect-4/3 sm:aspect-auto sm:h-80"
+        >
+          <!-- Media Preview (Image or Video) -->
+          ${isVideo ? `
+            <div class="w-full h-full bg-gray-950 flex items-center justify-center relative overflow-hidden">
+              <img 
+                src="${item.mediaUrl.match(/\.(jpeg|jpg|png|webp)/i) ? item.mediaUrl : DEFAULT_COVER_IMAGE}" 
+                alt="${item.title}" 
+                class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition duration-700 ease-out" 
+              />
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="w-14 h-14 rounded-full bg-orange-600/90 text-white flex items-center justify-center text-xl shadow-xl group-hover:scale-110 group-hover:bg-orange-500 transition duration-300">
+                  ▶
+                </span>
+              </div>
+            </div>
+          ` : `
+            <img
+              src="${item.mediaUrl}"
+              alt="${item.title}"
+              class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105"
+              onerror="this.src='${DEFAULT_COVER_IMAGE}'"
+              loading="lazy"
+            />
+          `}
+
+          <!-- Top Tags Ribbon -->
+          <div class="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
+            <span class="bg-gray-900/80 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full border border-white/20 shadow">
+              ${isVideo ? "🎥 Video" : "📸 Photo"}
+            </span>
+            ${isCustomBadge}
+          </div>
+
+          <!-- Bottom Gradient Hover Caption Overlay -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+            <span class="text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-1 block">
+              ${item.category || "Afikpo Heritage"}
+            </span>
+            <h4 class="text-white font-extrabold text-base leading-snug mb-1 drop-shadow-sm">
+              ${item.title}
+            </h4>
+            <p class="text-gray-300 text-xs line-clamp-2 leading-relaxed mb-2">
+              ${item.description || "Moments of culture, pageantry, and celebration from the Afikpo International Carnival."}
+            </p>
+            <div class="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-white/10">
+              <span>By ${item.creatorName || "AIC Contributor"}</span>
+              <span class="text-orange-300 font-bold flex items-center gap-1">Enlarge ↗</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }).join("");
+  };
+
+  // Category filter clicks
+  catButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      catButtons.forEach(b => {
+        b.classList.remove("active", "bg-orange-600", "text-white");
+        b.classList.add("bg-white", "text-gray-700");
+      });
+      btn.classList.add("active", "bg-orange-600", "text-white");
+      btn.classList.remove("bg-white", "text-gray-700");
+
+      currentFilter = btn.getAttribute("data-filter") || "All";
+      render();
+    });
+  });
+
+  // Search input handler
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      currentSearch = e.target.value;
+      render();
+    });
+  }
+
+  // Reset filters button
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      currentFilter = "All";
+      currentSearch = "";
+      if (searchInput) searchInput.value = "";
+      const allBtn = document.querySelector(".gallery-cat-btn[data-filter='All']");
+      if (allBtn) allBtn.click();
+    });
+  }
+
+  // Initial render & background cloud sync
+  render();
+  fetchRemoteGalleryItems().then(() => render());
+}
+
+// =============================================================
+// 11. GALLERY CMS ADMIN PORTAL (gallery-admin.html)
+// =============================================================
+function setupGalleryAdmin() {
+  const authSection = document.getElementById("gallery-admin-auth-section");
+  const dashboardSection = document.getElementById("gallery-admin-dashboard-section");
+  const loginForm = document.getElementById("gallery-admin-login-form");
+  const pinInput = document.getElementById("gallery-admin-pin-input");
+  const logoutBtn = document.getElementById("gallery-admin-logout-btn");
+
+  if (!authSection || !dashboardSection) return;
+
+  // Tabs
+  const tabNavUpload = document.getElementById("tab-nav-upload");
+  const tabNavPending = document.getElementById("tab-nav-pending");
+  const tabNavManage = document.getElementById("tab-nav-manage");
+  const panelUpload = document.getElementById("admin-panel-upload");
+  const panelPending = document.getElementById("admin-panel-pending");
+  const panelManage = document.getElementById("admin-panel-manage");
+  const addMediaTrigger = document.getElementById("admin-add-media-tab-trigger");
+
+  // Metrics
+  const statTotal = document.getElementById("stat-total-items");
+  const statPhotos = document.getElementById("stat-photo-items");
+  const statVideos = document.getElementById("stat-video-items");
+  const statPending = document.getElementById("stat-pending-items");
+  const pendingBadgeCount = document.getElementById("pending-badge-count");
+
+  // Form elements
+  const form = document.getElementById("admin-gallery-form");
+  const editIdInput = document.getElementById("admin-edit-item-id");
+  const formHeading = document.getElementById("gallery-form-heading");
+  const tabBtnFile = document.getElementById("admin-tab-btn-file");
+  const tabBtnUrl = document.getElementById("admin-tab-btn-url");
+  const fileBox = document.getElementById("admin-file-box");
+  const urlBox = document.getElementById("admin-url-box");
+  const fileInput = document.getElementById("admin-media-file-input");
+  const urlInput = document.getElementById("admin-media-url-input");
+  const previewContainer = document.getElementById("admin-preview-container");
+  const previewImg = document.getElementById("admin-preview-img");
+  const previewVideo = document.getElementById("admin-preview-video");
+  const previewInfo = document.getElementById("admin-preview-info");
+  const previewClearBtn = document.getElementById("admin-preview-clear-btn");
+  const titleInput = document.getElementById("admin-media-title");
+  const typeSelect = document.getElementById("admin-media-type");
+  const catSelect = document.getElementById("admin-media-category");
+  const creatorInput = document.getElementById("admin-media-creator");
+  const dateInput = document.getElementById("admin-media-date");
+  const descInput = document.getElementById("admin-media-description");
+  const submitBtn = document.getElementById("admin-submit-btn");
+  const resetFormBtn = document.getElementById("admin-reset-form-btn");
+
+  // Moderation & Manage lists
+  const pendingList = document.getElementById("admin-pending-list");
+  const refreshPendingBtn = document.getElementById("refresh-pending-btn");
+  const manageList = document.getElementById("admin-live-items-list");
+  const manageSearch = document.getElementById("admin-manage-search");
+  const manageCatFilter = document.getElementById("admin-manage-cat-filter");
+
+  let activeAdminMediaData = "";
+  let activeAdminBase64 = "";
+  let activeAdminFileName = "";
+  let activeAdminMimeType = "";
+
+  // 1. PIN Authentication
+  const checkAuth = () => {
+    const isAuth = sessionStorage.getItem(STORAGE_KEY_GALLERY_AUTH) === "true";
+    if (isAuth) {
+      authSection.classList.add("hidden");
+      dashboardSection.classList.remove("hidden");
+      if (logoutBtn) logoutBtn.classList.remove("hidden");
+      updateMetrics();
+      loadPendingList();
+      loadLiveManageList();
+    } else {
+      authSection.classList.remove("hidden");
+      dashboardSection.classList.add("hidden");
+      if (logoutBtn) logoutBtn.classList.add("hidden");
+    }
+  };
+
+  if (loginForm && pinInput) {
+    loginForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const pin = pinInput.value.trim().toLowerCase();
+      if (pin === "2026" || pin === "afikpo2026") {
+        sessionStorage.setItem(STORAGE_KEY_GALLERY_AUTH, "true");
+        showAlert("Admin authenticated successfully! Welcome to Visual Gallery Manager.", "success");
+        checkAuth();
+      } else {
+        showAlert("Invalid PIN code. Please enter 2026 or afikpo2026.", "error");
+        pinInput.value = "";
+        pinInput.focus();
+      }
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      sessionStorage.removeItem(STORAGE_KEY_GALLERY_AUTH);
+      showAlert("Logged out from Gallery CMS.", "warning");
+      checkAuth();
+    });
+  }
+
+  // 2. Tab Navigation
+  const switchTab = (activeTab) => {
+    [tabNavUpload, tabNavPending, tabNavManage].forEach(t => {
+      if (t) {
+        t.className = "admin-tab-btn bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs px-5 py-2.5 rounded-xl border border-gray-200 transition flex items-center gap-2";
+      }
+    });
+
+    [panelUpload, panelPending, panelManage].forEach(p => {
+      if (p) p.classList.add("hidden");
+    });
+
+    if (activeTab === "upload") {
+      if (tabNavUpload) tabNavUpload.className = "admin-tab-btn active bg-orange-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition flex items-center gap-2";
+      if (panelUpload) panelUpload.classList.remove("hidden");
+    } else if (activeTab === "pending") {
+      if (tabNavPending) tabNavPending.className = "admin-tab-btn active bg-orange-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition flex items-center gap-2";
+      if (panelPending) panelPending.classList.remove("hidden");
+      loadPendingList();
+    } else if (activeTab === "manage") {
+      if (tabNavManage) tabNavManage.className = "admin-tab-btn active bg-orange-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition flex items-center gap-2";
+      if (panelManage) panelManage.classList.remove("hidden");
+      loadLiveManageList();
+    }
+  };
+
+  if (tabNavUpload) tabNavUpload.addEventListener("click", () => switchTab("upload"));
+  if (tabNavPending) tabNavPending.addEventListener("click", () => switchTab("pending"));
+  if (tabNavManage) tabNavManage.addEventListener("click", () => switchTab("manage"));
+  if (addMediaTrigger) addMediaTrigger.addEventListener("click", () => switchTab("upload"));
+
+  // 3. Update Metrics Ribbon
+  const updateMetrics = () => {
+    const items = getPublishedGalleryItems();
+    const pending = getPendingGallerySubmissions();
+
+    const photoCount = items.filter(i => i.mediaType !== "video").length;
+    const videoCount = items.filter(i => i.mediaType === "video").length;
+
+    if (statTotal) statTotal.textContent = items.length;
+    if (statPhotos) statPhotos.textContent = photoCount;
+    if (statVideos) statVideos.textContent = videoCount;
+    if (statPending) statPending.textContent = pending.length;
+
+    if (pendingBadgeCount) {
+      if (pending.length > 0) {
+        pendingBadgeCount.textContent = pending.length;
+        pendingBadgeCount.classList.remove("hidden");
+      } else {
+        pendingBadgeCount.classList.add("hidden");
+      }
+    }
+  };
+
+  // 4. File / URL Mode Switcher in Admin Form
+  if (tabBtnFile && tabBtnUrl && fileBox && urlBox) {
+    tabBtnFile.addEventListener("click", () => {
+      fileBox.classList.remove("hidden");
+      urlBox.classList.add("hidden");
+      tabBtnFile.className = "flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-orange-600 bg-orange-50 text-orange-700 font-bold text-xs transition";
+      tabBtnUrl.className = "flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-gray-300 text-gray-700 font-bold text-xs transition";
+    });
+
+    tabBtnUrl.addEventListener("click", () => {
+      urlBox.classList.remove("hidden");
+      fileBox.classList.add("hidden");
+      tabBtnUrl.className = "flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-orange-600 bg-orange-50 text-orange-700 font-bold text-xs transition";
+      tabBtnFile.className = "flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-gray-300 text-gray-700 font-bold text-xs transition";
+    });
+  }
+
+  // Clear preview helper
+  const clearAdminPreview = () => {
+    activeAdminMediaData = "";
+    activeAdminBase64 = "";
+    activeAdminFileName = "";
+    activeAdminMimeType = "";
+    if (fileInput) fileInput.value = "";
+    if (urlInput) urlInput.value = "";
+    if (previewImg) { previewImg.src = ""; previewImg.classList.add("hidden"); }
+    if (previewVideo) { previewVideo.src = ""; previewVideo.classList.add("hidden"); }
+    if (previewContainer) previewContainer.classList.add("hidden");
+  };
+
+  if (previewClearBtn) previewClearBtn.addEventListener("click", clearAdminPreview);
+
+  // File Picker Change
+  if (fileInput) {
+    fileInput.addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const maxBytes = 15 * 1024 * 1024;
+      if (file.size > maxBytes) {
+        showAlert("Selected file exceeds the 15MB size limit. Please select a smaller media file.", "error");
+        fileInput.value = "";
+        return;
+      }
+
+      activeAdminFileName = file.name;
+      activeAdminMimeType = file.type || "application/octet-stream";
+      const sizeFormatted = (file.size / (1024 * 1024)).toFixed(2) + " MB";
+
+      if (file.type.startsWith("image/")) {
+        try {
+          const compressed = await compressImageFile(file, 1400, 900, 0.85);
+          activeAdminMediaData = compressed;
+          activeAdminBase64 = compressed.split(",")[1] || "";
+
+          if (previewImg && previewVideo && previewContainer && previewInfo) {
+            previewImg.src = compressed;
+            previewImg.classList.remove("hidden");
+            previewVideo.classList.add("hidden");
+            previewInfo.textContent = `📸 ${file.name} (${sizeFormatted})`;
+            previewContainer.classList.remove("hidden");
+          }
+          if (typeSelect) typeSelect.value = "image";
+        } catch (err) {
+          showAlert("Could not process image file.", "error");
+        }
+      } else if (file.type.startsWith("video/")) {
+        const objUrl = URL.createObjectURL(file);
+        activeAdminMediaData = objUrl;
+
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          activeAdminBase64 = (re.target.result || "").split(",")[1] || "";
+        };
+        reader.readAsDataURL(file);
+
+        if (previewImg && previewVideo && previewContainer && previewInfo) {
+          previewVideo.src = objUrl;
+          previewVideo.classList.remove("hidden");
+          previewImg.classList.add("hidden");
+          previewInfo.textContent = `🎥 ${file.name} (${sizeFormatted})`;
+          previewContainer.classList.remove("hidden");
+        }
+        if (typeSelect) typeSelect.value = "video";
+      }
+    });
+  }
+
+  // URL Input Change
+  if (urlInput) {
+    urlInput.addEventListener("input", () => {
+      const url = urlInput.value.trim();
+      if (!url) {
+        if (!fileInput || !fileInput.files.length) clearAdminPreview();
+        return;
+      }
+
+      activeAdminMediaData = url;
+      activeAdminBase64 = "";
+      activeAdminFileName = "Web Media";
+
+      if (url.match(/\.(jpeg|jpg|gif|png|webp)($|\?)/i)) {
+        if (previewImg && previewVideo && previewContainer && previewInfo) {
+          previewImg.src = url;
+          previewImg.classList.remove("hidden");
+          previewVideo.classList.add("hidden");
+          previewInfo.textContent = "🌐 Web Image Link Ready";
+          previewContainer.classList.remove("hidden");
+        }
+        if (typeSelect) typeSelect.value = "image";
+      } else {
+        if (previewContainer && previewInfo) {
+          previewInfo.textContent = `🌐 Web Video Link: ${url.substring(0, 40)}...`;
+          previewContainer.classList.remove("hidden");
+          if (previewImg) previewImg.classList.add("hidden");
+          if (previewVideo) previewVideo.classList.add("hidden");
+        }
+        if (typeSelect) typeSelect.value = "video";
+      }
+    });
+  }
+
+  // Reset Form Helper
+  const resetForm = () => {
+    if (form) form.reset();
+    if (editIdInput) editIdInput.value = "";
+    if (formHeading) formHeading.textContent = "Publish New Photo or Video";
+    if (submitBtn) {
+      submitBtn.innerHTML = `<span>Publish to Visual Gallery</span> <span>🚀</span>`;
+    }
+    clearAdminPreview();
+  };
+
+  if (resetFormBtn) resetFormBtn.addEventListener("click", resetForm);
+
+  // 5. Submit Admin Form (Direct Publish or Update)
+  if (form) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const origText = submitBtn ? submitBtn.innerHTML : "";
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Publishing to Gallery...";
+      }
+
+      const isEdit = editIdInput && editIdInput.value.trim().length > 0;
+      const itemId = isEdit ? editIdInput.value.trim() : `gallery-${Date.now()}`;
+      const title = titleInput.value.trim();
+      const mediaType = typeSelect.value;
+      const category = catSelect.value;
+      const creator = creatorInput.value.trim() || "AIC Media Board";
+      const date = dateInput.value.trim() || "Dec 2026";
+      const desc = descInput.value.trim();
+
+      const mediaUrl = activeAdminMediaData || (urlInput ? urlInput.value.trim() : "") || DEFAULT_COVER_IMAGE;
+
+      const galleryItem = {
+        id: itemId,
+        title: title,
+        category: category,
+        mediaType: mediaType,
+        mediaUrl: mediaUrl,
+        creatorName: creator,
+        date: date,
+        description: desc,
+        status: "Published",
+        timestamp: Date.now(),
+        isCustom: true
+      };
+
+      // Save instantly to local storage
+      savePublishedGalleryItem(galleryItem);
+
+      // Async sync to Google Apps Script
+      const payload = {
+        formType: "save_gallery_item",
+        id: itemId,
+        title: title,
+        category: category,
+        mediaType: mediaType,
+        mediaUrl: (activeAdminBase64 ? "" : mediaUrl),
+        creatorName: creator,
+        date: date,
+        description: desc,
+        base64Media: activeAdminBase64,
+        fileName: activeAdminFileName || `${title.replace(/\s+/g, "_")}.${mediaType === "video" ? "mp4" : "jpg"}`,
+        mimeType: activeAdminMimeType
+      };
+
+      try {
+        await postToAppsScript(payload);
+        showAlert(`🎉 Successfully ${isEdit ? "updated" : "published"} "${title}" live to the Visual Gallery!`, "success");
+      } catch (err) {
+        showAlert(`Item saved and published locally! Will sync with Google Cloud.`, "success");
+      }
+
+      resetForm();
+      updateMetrics();
+      loadLiveManageList();
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = origText;
+      }
+    });
+  }
+
+  // 6. Moderation Queue (Pending Submissions)
+  const loadPendingList = () => {
+    if (!pendingList) return;
+    const pending = getPendingGallerySubmissions();
+
+    if (pending.length === 0) {
+      pendingList.innerHTML = `
+        <div class="text-center py-16 bg-gray-50 rounded-2xl border border-gray-200 p-8">
+          <div class="text-4xl mb-2">🎉</div>
+          <h3 class="text-base font-bold text-gray-800">Moderation Queue Clear</h3>
+          <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">There are currently no pending submissions awaiting review. Community uploads from media-upload.html will appear here.</p>
+        </div>
+      `;
+      return;
+    }
+
+    pendingList.innerHTML = pending.map(sub => {
+      const isVideo = sub.mediaType === "video";
+      return `
+        <div class="bg-gray-50 rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-5 transition hover:bg-white hover:shadow-md">
+          <div class="flex items-start gap-4">
+            <div class="w-20 h-20 rounded-xl overflow-hidden bg-gray-900 flex-shrink-0 border border-gray-300 relative">
+              ${isVideo ? `
+                <div class="w-full h-full flex items-center justify-center bg-gray-800 text-orange-400 font-bold text-xl">
+                  🎥
+                </div>
+              ` : `
+                <img src="${sub.mediaUrl}" alt="${sub.title}" class="w-full h-full object-cover" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
+              `}
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  Pending Review
+                </span>
+                <span class="text-xs font-bold text-orange-600">${sub.category}</span>
+                <span class="text-[11px] text-gray-400">• ${sub.mediaType === "video" ? "🎥 Video" : "📸 Photo"}</span>
+              </div>
+              <h3 class="text-base font-bold text-gray-900 leading-snug">${sub.title}</h3>
+              <p class="text-xs text-gray-600 mt-1 line-clamp-2 max-w-xl">${sub.description || "No description provided."}</p>
+              <div class="flex flex-wrap items-center gap-3 mt-2 text-[11px] text-gray-500">
+                <span><strong>Creator:</strong> ${sub.creatorName}</span>
+                ${sub.email ? `<span><strong>Email:</strong> ${sub.email}</span>` : ""}
+                ${sub.phone ? `<span><strong>Phone:</strong> ${sub.phone}</span>` : ""}
+              </div>
+            </div>
+          </div>
+
+          <!-- Moderation Action Buttons -->
+          <div class="flex items-center gap-2 self-end md:self-center flex-shrink-0">
+            <button 
+              onclick="adminApproveSubmission('${sub.id}')"
+              class="bg-green-600 hover:bg-green-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5"
+            >
+              <span>✅</span> <span>Approve & Publish</span>
+            </button>
+            <button 
+              onclick="adminEditSubmission('${sub.id}')"
+              class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl transition shadow-sm"
+              title="Edit before publishing"
+            >
+              ✏️ Edit
+            </button>
+            <button 
+              onclick="adminRejectSubmission('${sub.id}')"
+              class="bg-red-100 hover:bg-red-200 text-red-700 font-bold text-xs px-3.5 py-2.5 rounded-xl transition"
+              title="Reject & Discard"
+            >
+              🗑️ Reject
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  };
+
+  if (refreshPendingBtn) refreshPendingBtn.addEventListener("click", () => {
+    loadPendingList();
+    showAlert("Pending list refreshed.", "info");
+  });
+
+  // Global Moderation Helpers
+  window.adminApproveSubmission = async (id) => {
+    const pending = getPendingGallerySubmissions();
+    const sub = pending.find(p => p.id === id);
+    if (!sub) return;
+
+    const publishedItem = {
+      ...sub,
+      id: sub.id.startsWith("gallery-") ? sub.id : `gallery-${Date.now()}`,
+      status: "Published",
+      isCustom: true
+    };
+
+    savePublishedGalleryItem(publishedItem);
+    removePendingGallerySubmission(id);
+
+    try {
+      await postToAppsScript({
+        formType: "save_gallery_item",
+        id: publishedItem.id,
+        title: publishedItem.title,
+        category: publishedItem.category,
+        mediaType: publishedItem.mediaType,
+        mediaUrl: publishedItem.mediaUrl,
+        creatorName: publishedItem.creatorName,
+        date: publishedItem.date,
+        description: publishedItem.description
+      });
+    } catch (e) {}
+
+    showAlert(`Approved "${sub.title}"! It is now live on the Visual Gallery.`, "success");
+    updateMetrics();
+    loadPendingList();
+    loadLiveManageList();
+  };
+
+  window.adminEditSubmission = (id) => {
+    const pending = getPendingGallerySubmissions();
+    const sub = pending.find(p => p.id === id);
+    if (!sub) return;
+
+    switchTab("upload");
+    if (editIdInput) editIdInput.value = sub.id;
+    if (formHeading) formHeading.textContent = `Review & Edit: ${sub.title}`;
+    if (titleInput) titleInput.value = sub.title;
+    if (catSelect) catSelect.value = sub.category;
+    if (typeSelect) typeSelect.value = sub.mediaType || "image";
+    if (creatorInput) creatorInput.value = sub.creatorName;
+    if (descInput) descInput.value = sub.description || "";
+    if (urlInput) urlInput.value = sub.mediaUrl || "";
+
+    activeAdminMediaData = sub.mediaUrl;
+    if (previewImg && sub.mediaType !== "video") {
+      previewImg.src = sub.mediaUrl;
+      previewImg.classList.remove("hidden");
+      if (previewContainer) previewContainer.classList.remove("hidden");
+    }
+
+    if (submitBtn) {
+      submitBtn.innerHTML = `<span>Approve & Publish</span> <span>🚀</span>`;
+    }
+
+    showAlert(`Loaded "${sub.title}" for review. Make adjustments and click Publish!`, "warning");
+  };
+
+  window.adminRejectSubmission = (id) => {
+    if (!confirm("Are you sure you want to reject this submission? It will be removed permanently.")) return;
+    removePendingGallerySubmission(id);
+    showAlert("Submission rejected and removed.", "info");
+    updateMetrics();
+    loadPendingList();
+  };
+
+  // 7. Manage Live Items
+  const loadLiveManageList = () => {
+    if (!manageList) return;
+    const items = getPublishedGalleryItems();
+
+    const search = manageSearch ? manageSearch.value.toLowerCase().trim() : "";
+    const cat = manageCatFilter ? manageCatFilter.value : "All";
+
+    let filtered = items;
+    if (cat !== "All") {
+      filtered = filtered.filter(i => i.category === cat);
+    }
+    if (search) {
+      filtered = filtered.filter(i => 
+        (i.title && i.title.toLowerCase().includes(search)) ||
+        (i.creatorName && i.creatorName.toLowerCase().includes(search)) ||
+        (i.description && i.description.toLowerCase().includes(search))
+      );
+    }
+
+    if (filtered.length === 0) {
+      manageList.innerHTML = `
+        <div class="text-center py-12 bg-gray-50 rounded-2xl border border-gray-200">
+          <p class="text-xs text-gray-500">No items match your filter.</p>
+        </div>
+      `;
+      return;
+    }
+
+    manageList.innerHTML = filtered.map(item => {
+      const isVideo = item.mediaType === "video";
+      return `
+        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition hover:bg-white hover:shadow-sm">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-xl overflow-hidden bg-gray-900 flex-shrink-0 border border-gray-200">
+              <img src="${item.mediaUrl}" alt="${item.title}" class="w-full h-full object-cover" onerror="this.src='${DEFAULT_COVER_IMAGE}'" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2 mb-0.5">
+                <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2 py-0.5 rounded-full">${item.category}</span>
+                <span class="text-[11px] text-gray-400">${isVideo ? "🎥 Video" : "📸 Photo"}</span>
+              </div>
+              <h4 class="text-sm font-bold text-gray-900 leading-snug">${item.title}</h4>
+              <span class="text-[11px] text-gray-500 block">By ${item.creatorName || "AIC Media"} • ${item.date || "Dec 2026"}</span>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-center flex-shrink-0">
+            <button 
+              onclick="adminEditLiveItem('${item.id}')"
+              class="bg-gray-200 hover:bg-gray-300 text-gray-800 text-xs font-bold px-3 py-2 rounded-xl transition"
+            >
+              ✏️ Edit
+            </button>
+            <button 
+              onclick="adminDeleteLiveItem('${item.id}')"
+              class="bg-red-100 hover:bg-red-200 text-red-700 text-xs font-bold px-3 py-2 rounded-xl transition"
+            >
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  };
+
+  if (manageSearch) manageSearch.addEventListener("input", loadLiveManageList);
+  if (manageCatFilter) manageCatFilter.addEventListener("change", loadLiveManageList);
+
+  window.adminEditLiveItem = (id) => {
+    const items = getPublishedGalleryItems();
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+
+    switchTab("upload");
+    if (editIdInput) editIdInput.value = item.id;
+    if (formHeading) formHeading.textContent = `Edit Item: ${item.title}`;
+    if (titleInput) titleInput.value = item.title;
+    if (catSelect) catSelect.value = item.category;
+    if (typeSelect) typeSelect.value = item.mediaType || "image";
+    if (creatorInput) creatorInput.value = item.creatorName || "";
+    if (dateInput) dateInput.value = item.date || "Dec 2026";
+    if (descInput) descInput.value = item.description || "";
+    if (urlInput) urlInput.value = item.mediaUrl || "";
+
+    activeAdminMediaData = item.mediaUrl;
+    if (previewImg && item.mediaType !== "video") {
+      previewImg.src = item.mediaUrl;
+      previewImg.classList.remove("hidden");
+      if (previewContainer) previewContainer.classList.remove("hidden");
+    }
+
+    if (submitBtn) {
+      submitBtn.innerHTML = `<span>Save Changes</span> <span>💾</span>`;
+    }
+
+    showAlert(`Loaded "${item.title}" for editing.`, "warning");
+  };
+
+  window.adminDeleteLiveItem = async (id) => {
+    if (!confirm("Are you sure you want to remove this item from the live gallery?")) return;
+    await deletePublishedGalleryItem(id);
+    showAlert("Item removed from the gallery.", "success");
+    updateMetrics();
+    loadLiveManageList();
+  };
+
+  // Run initial check
+  checkAuth();
+}
+
+// =============================================================
 // COUNTDOWN TIMER
 // =============================================================
 function setupCountdownTimer() {
@@ -1741,6 +3122,8 @@ document.addEventListener("DOMContentLoaded", () => {
   setupBlogFeed();
   setupBlogPostDetail();
   setupBlogAdmin();
+  setupGallery();
+  setupGalleryAdmin();
 
   // Mobile Menu Drawer Handler
   const menuBtn = document.getElementById("mobile-menu-button");

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="assets/images/Afikpo_logo-removebg.png" />
+    <title>Visual Gallery CMS Admin | Afikpo International Carnival 2026</title>
+    <meta name="description" content="Administrative portal for uploading, approving, moderating, and managing visual gallery media for AIC 2026." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="bg-gray-100 text-gray-900 font-sans selection:bg-orange-100 min-h-screen">
+    <!-- Top Navigation Bar -->
+    <nav class="bg-gray-900 text-white border-b border-gray-800 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <a href="index.html">
+            <img src="assets/images/Afikpo_logo-removebg.png" alt="AIC Logo" class="h-10 brightness-200" />
+          </a>
+          <span class="text-xs font-bold bg-orange-600 px-3 py-1 rounded-full uppercase tracking-wider">Gallery CMS</span>
+        </div>
+        <div class="flex items-center gap-4 text-xs font-semibold">
+          <a href="gallery.html" class="text-gray-300 hover:text-white flex items-center gap-1 transition">
+            <span>←</span> View Public Gallery
+          </a>
+          <button id="gallery-admin-logout-btn" class="hidden bg-gray-800 hover:bg-gray-700 text-red-400 px-4 py-2 rounded-xl transition">
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Authentication Gate -->
+    <section id="gallery-admin-auth-section" class="py-20 px-4 max-w-md mx-auto">
+      <div class="bg-white rounded-3xl p-8 md:p-10 shadow-2xl border border-gray-200 text-center">
+        <div class="w-16 h-16 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-inner">
+          🔒
+        </div>
+        <h2 class="text-2xl font-black text-gray-900 mb-2">Gallery Admin Login</h2>
+        <p class="text-xs text-gray-500 mb-6 leading-relaxed">
+          Enter administrative PIN to upload media directly, moderate community submissions, and manage gallery items.
+        </p>
+
+        <form id="gallery-admin-login-form" class="space-y-4">
+          <input 
+            type="password" 
+            id="gallery-admin-pin-input" 
+            placeholder="Enter PIN (Default: 2026)" 
+            required 
+            class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-center text-lg font-bold tracking-widest focus:ring-2 focus:ring-orange-600 outline-none" 
+          />
+          <button 
+            type="submit" 
+            class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-orange-200 text-sm"
+          >
+            Unlock Gallery Manager
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Admin CMS Dashboard (Hidden until PIN is authenticated) -->
+    <main id="gallery-admin-dashboard-section" class="hidden py-10 px-4 max-w-6xl mx-auto space-y-8">
+      
+      <!-- Header with Summary Stats -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 class="text-3xl font-black text-gray-900">Visual Gallery Manager</h1>
+          <p class="text-xs md:text-sm text-gray-500 mt-1">Directly publish festival media or review and approve community uploads.</p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a href="gallery.html" target="_blank" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold px-4 py-2.5 rounded-xl text-xs transition inline-flex items-center gap-1.5">
+            <span>Live Gallery</span> <span>↗</span>
+          </a>
+          <button id="admin-add-media-tab-trigger" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-lg shadow-orange-200 inline-flex items-center gap-1.5">
+            <span>+ Direct Upload</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Ribbon -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-orange-100 text-orange-600 flex items-center justify-center text-xl font-black">
+            🖼️
+          </div>
+          <div>
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Total Items</span>
+            <span id="stat-total-items" class="text-2xl font-black text-gray-900">18</span>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-black">
+            📸
+          </div>
+          <div>
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Photos</span>
+            <span id="stat-photo-items" class="text-2xl font-black text-gray-900">18</span>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-xl font-black">
+            🎥
+          </div>
+          <div>
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Videos / Docs</span>
+            <span id="stat-video-items" class="text-2xl font-black text-gray-900">0</span>
+          </div>
+        </div>
+        <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl font-black">
+            ⏳
+          </div>
+          <div>
+            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block">Pending Review</span>
+            <span id="stat-pending-items" class="text-2xl font-black text-amber-600">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="flex items-center gap-2 border-b border-gray-200 pb-2 overflow-x-auto no-scrollbar">
+        <button id="tab-nav-upload" class="admin-tab-btn active bg-orange-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl transition flex items-center gap-2">
+          <span>📤 Direct Upload & Publish</span>
+        </button>
+        <button id="tab-nav-pending" class="admin-tab-btn bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs px-5 py-2.5 rounded-xl border border-gray-200 transition flex items-center gap-2">
+          <span>📥 Pending Submissions</span>
+          <span id="pending-badge-count" class="hidden bg-amber-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+        </button>
+        <button id="tab-nav-manage" class="admin-tab-btn bg-white hover:bg-gray-50 text-gray-700 font-bold text-xs px-5 py-2.5 rounded-xl border border-gray-200 transition flex items-center gap-2">
+          <span>🖼️ Manage Live Items</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: Direct Admin Media Uploader -->
+      <section id="admin-panel-upload" class="bg-white rounded-3xl p-6 sm:p-10 shadow-xl border border-gray-200">
+        <div class="border-b border-gray-100 pb-4 mb-6 flex items-center justify-between">
+          <div>
+            <h2 id="gallery-form-heading" class="text-xl font-bold text-gray-900">Publish New Photo or Video</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Media published here bypasses moderation and goes directly live onto the public gallery.</p>
+          </div>
+          <span class="text-[11px] font-bold text-green-700 bg-green-50 px-3 py-1 rounded-full border border-green-200">Admin Bypass Mode</span>
+        </div>
+
+        <form id="admin-gallery-form" class="space-y-6">
+          <input type="hidden" id="admin-edit-item-id" value="" />
+
+          <!-- Mode Selector (Device vs URL) -->
+          <div>
+            <label class="block text-xs font-black text-gray-900 uppercase mb-2">Media Source</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <button type="button" id="admin-tab-btn-file" class="flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-orange-600 bg-orange-50 text-orange-700 font-bold text-xs transition">
+                <span>📁 Upload File (Device/Gallery Max 15MB)</span>
+              </button>
+              <button type="button" id="admin-tab-btn-url" class="flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-gray-200 bg-white hover:border-gray-300 text-gray-700 font-bold text-xs transition">
+                <span>🌐 Paste Web / YouTube / Cloud Link</span>
+              </button>
+            </div>
+
+            <!-- File Input Box -->
+            <div id="admin-file-box" class="p-5 bg-orange-50/50 rounded-2xl border border-orange-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-800">Select Image or Video File:</span>
+                <span class="text-[11px] font-extrabold text-orange-700 bg-orange-100 px-2.5 py-0.5 rounded-full">Max: 15MB</span>
+              </div>
+              <input 
+                type="file" 
+                id="admin-media-file-input" 
+                accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime"
+                class="w-full p-3 rounded-xl bg-white border border-gray-300 text-xs focus:ring-2 focus:ring-orange-600 outline-none file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-orange-600 file:text-white hover:file:bg-orange-700 cursor-pointer shadow-sm"
+              />
+              <p class="text-[11px] text-gray-500">Supports JPG, PNG, WEBP, GIF, MP4, WebM, MOV. Files are optimized for fast web delivery.</p>
+            </div>
+
+            <!-- URL Input Box -->
+            <div id="admin-url-box" class="hidden p-5 bg-gray-50 rounded-2xl border border-gray-200 space-y-2">
+              <label class="block text-xs font-bold text-gray-800">Web Image or Video URL:</label>
+              <input 
+                type="url" 
+                id="admin-media-url-input" 
+                placeholder="https://images.unsplash.com/... or https://youtube.com/watch?v=..."
+                class="w-full p-3.5 rounded-xl bg-white border border-gray-300 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none"
+              />
+              <p class="text-[11px] text-gray-500">Supports YouTube links, Vimeo documentaries, Google Drive shared links, or CDN images.</p>
+            </div>
+          </div>
+
+          <!-- Real-time Media Preview Box -->
+          <div id="admin-preview-container" class="hidden bg-gray-900 rounded-2xl overflow-hidden border border-gray-300 relative shadow-md">
+            <div class="relative max-h-72 w-full flex items-center justify-center bg-black">
+              <img id="admin-preview-img" src="" alt="Preview" class="max-h-72 w-full object-contain hidden" />
+              <video id="admin-preview-video" controls class="max-h-72 w-full object-contain hidden"></video>
+            </div>
+            <div class="p-3 bg-gray-900 flex items-center justify-between text-white text-xs border-t border-gray-800">
+              <span id="admin-preview-info" class="text-[11px] text-gray-300 font-semibold truncate max-w-sm"></span>
+              <button type="button" id="admin-preview-clear-btn" class="bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold px-3 py-1 rounded-lg transition">
+                ✕ Clear
+              </button>
+            </div>
+          </div>
+
+          <!-- Title, Format, Category -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Media Title / Subject *</label>
+              <input 
+                type="text" 
+                id="admin-media-title" 
+                placeholder="e.g. Masquerade Display (Eze Lúgúlú & Ikpó)" 
+                required 
+                class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none" 
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Format</label>
+              <select id="admin-media-type" class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="image">📸 Photo / Picture</option>
+                <option value="video">🎥 Video / Documentary</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Category, Creator & Date -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Category *</label>
+              <select id="admin-media-category" required class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Cultural Masquerades & Rites">Cultural Masquerades & Rites</option>
+                <option value="Nature, Rivers & Beaches">Nature, Rivers & Beaches</option>
+                <option value="Concerts & Dance Performances">Concerts & Dance Performances</option>
+                <option value="Traditional Wrestling (Mgba)">Traditional Wrestling (Mgba)</option>
+                <option value="Art & Tradition">Art & Tradition (Carving/Crafts)</option>
+                <option value="Historical Mini-Documentary">Historical Mini-Documentary</option>
+                <option value="Community & Festival Moments">Community & Festival Moments</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Photographer / Creator Credit</label>
+              <input 
+                type="text" 
+                id="admin-media-creator" 
+                placeholder="e.g. AIC Media Team, Studio, or Name" 
+                required 
+                class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none" 
+              />
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Event Date</label>
+              <input 
+                type="text" 
+                id="admin-media-date" 
+                placeholder="e.g. Dec 2026" 
+                value="Dec 2026" 
+                class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none" 
+              />
+            </div>
+          </div>
+
+          <!-- Caption & Cultural Context -->
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Caption / Description (Shown on card overlay) *</label>
+            <textarea 
+              id="admin-media-description" 
+              rows="3" 
+              placeholder="e.g. Traditional masquerade display along the Ozizza riverfront during the maiden carnival..."
+              required 
+              class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm font-medium focus:ring-2 focus:ring-orange-600 outline-none"
+            ></textarea>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center gap-4 pt-4 border-t border-gray-100">
+            <button 
+              type="submit" 
+              id="admin-submit-btn"
+              class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-8 py-3.5 rounded-xl transition shadow-lg shadow-orange-200 text-sm flex items-center gap-2 cursor-pointer"
+            >
+              <span>Publish to Visual Gallery</span>
+              <span>🚀</span>
+            </button>
+            <button 
+              type="button" 
+              id="admin-reset-form-btn" 
+              class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold px-6 py-3.5 rounded-xl transition text-sm cursor-pointer"
+            >
+              Reset Form
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- TAB 2: Pending Submissions Moderation Queue -->
+      <section id="admin-panel-pending" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-200">
+        <div class="border-b border-gray-100 pb-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Community Moderation Inbox</h2>
+            <p class="text-xs text-gray-500">Review public uploads submitted on media-upload.html. Approve to publish or reject spam.</p>
+          </div>
+          <button id="refresh-pending-btn" class="text-xs text-orange-600 font-bold hover:underline flex items-center gap-1 self-start sm:self-center">
+            <span>🔄 Refresh Submissions</span>
+          </button>
+        </div>
+
+        <div id="admin-pending-list" class="space-y-4">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </section>
+
+      <!-- TAB 3: Manage Live Items -->
+      <section id="admin-panel-manage" class="hidden bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-gray-200">
+        <div class="border-b border-gray-100 pb-4 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-xl font-bold text-gray-900">Live Gallery Items</h2>
+            <p class="text-xs text-gray-500">Edit titles, update captions, or remove items from the live public feed.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input 
+              type="text" 
+              id="admin-manage-search" 
+              placeholder="Search items..." 
+              class="p-2.5 px-4 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none w-56"
+            />
+            <select id="admin-manage-cat-filter" class="p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+              <option value="All">All Categories</option>
+              <option value="Cultural Masquerades & Rites">Masquerades</option>
+              <option value="Nature, Rivers & Beaches">Nature & Beaches</option>
+              <option value="Concerts & Dance Performances">Concerts & Dances</option>
+              <option value="Traditional Wrestling (Mgba)">Wrestling</option>
+              <option value="Art & Tradition">Art & Tradition</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="admin-live-items-list" class="space-y-4">
+          <!-- Dynamically populated by JS -->
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-8 px-4 mt-20 border-t border-gray-800 text-center text-xs text-gray-400">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+        <span>&copy; 2026 Afikpo Carnival & Resorts Ltd. Gallery CMS.</span>
+        <div class="flex items-center gap-4">
+          <a href="gallery.html" class="hover:text-white transition">View Public Gallery</a>
+          <a href="blog-admin.html" class="hover:text-white transition">Blog Admin CMS</a>
+          <a href="index.html" class="hover:text-white transition">Home</a>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>

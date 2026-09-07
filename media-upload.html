@@ -158,81 +158,239 @@
     </nav>
 
     <!-- Header Banner -->
-    <header class="relative h-[48vh] flex items-center justify-center overflow-hidden pt-20">
+    <header class="relative h-[44vh] min-h-[320px] flex items-center justify-center overflow-hidden pt-20">
       <div class="absolute inset-0 bg-black/60 z-10"></div>
       <img src="assets/images/Afikpo dancers and masquerades at sunset along the Ozizza River.webp" class="absolute inset-0 w-full h-full object-cover" alt="Media & Video Upload" />
       <div class="relative z-20 text-center px-4 max-w-4xl">
-        <span class="inline-block bg-orange-600 text-white font-extrabold text-xs px-4 py-1.5 rounded-full uppercase tracking-widest mb-3 shadow-lg">Creators, Videographers & Researchers</span>
-        <h1 class="text-4xl md:text-6xl font-black text-white mb-4 drop-shadow-2xl">Upload Video & Documentary</h1>
-        <p class="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto">Share your cultural footage, drone recordings, historical documentaries, and creative stories with the festival archives.</p>
+        <span class="inline-block bg-orange-600 text-white font-extrabold text-xs px-4 py-1.5 rounded-full uppercase tracking-widest mb-3 shadow-lg">
+          AIC Community Visual Archive
+        </span>
+        <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-3 drop-shadow-2xl">
+          Upload Photo, Video & Docs
+        </h1>
+        <p class="text-sm md:text-lg text-gray-200 max-w-2xl mx-auto">
+          Submit cultural footage, festival photography, or mini-documentaries directly from your device (Max 15MB) or via web link.
+        </p>
       </div>
     </header>
 
     <!-- Upload Form Section -->
-    <section class="py-16 px-4 max-w-4xl mx-auto">
-      <div class="bg-white rounded-3xl p-8 md:p-12 shadow-xl border border-gray-100">
-        <div class="border-b border-gray-100 pb-6 mb-8">
-          <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">AIC Digital Archive</span>
-          <h2 class="text-2xl md:text-3xl font-black text-gray-900 mt-1">Submit Your Media</h2>
-          <p class="text-xs md:text-sm text-gray-500 mt-1">Accepted media: Google Drive, YouTube, Vimeo, TikTok, or Direct Cloud Video Links.</p>
+    <section class="py-14 px-4 max-w-4xl mx-auto">
+      <div class="bg-white rounded-3xl p-6 sm:p-10 md:p-12 shadow-xl border border-gray-100">
+        
+        <!-- Header & Action Bar -->
+        <div class="border-b border-gray-100 pb-6 mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold text-orange-600 uppercase tracking-wider">AIC Community Contribution</span>
+            <h2 class="text-2xl md:text-3xl font-black text-gray-900 mt-1">Submit Photo or Video</h2>
+            <p class="text-xs md:text-sm text-gray-500 mt-1">
+              Select files from your phone/computer (Max 15MB) or provide a web link. Submissions are reviewed by our media team.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 self-start sm:self-center flex-shrink-0">
+            <a href="gallery.html" class="inline-flex items-center gap-1.5 text-xs font-bold text-orange-600 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 px-4 py-2.5 rounded-full transition">
+              <span>View Gallery</span>
+              <span>→</span>
+            </a>
+          </div>
         </div>
 
         <form id="media-upload-form" class="space-y-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Media Title / Subject</label>
-              <input type="text" name="mediaTitle" placeholder="e.g. Eze Lúgúlú Masquerade Dance 4K" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
+          
+          <!-- Media Source Selection Tabs -->
+          <div>
+            <label class="block text-xs font-black text-gray-900 uppercase mb-2">Choose Upload Method</label>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <button type="button" id="tab-btn-file" class="upload-mode-tab flex items-center justify-center gap-2.5 p-3.5 rounded-2xl border-2 border-orange-600 bg-orange-50 text-orange-700 font-bold text-xs transition shadow-sm">
+                <span>📁</span>
+                <span>Upload from Device / Gallery (Max 15MB)</span>
+              </button>
+              <button type="button" id="tab-btn-url" class="upload-mode-tab flex items-center justify-center gap-2.5 p-3.5 rounded-2xl border-2 border-gray-200 bg-white hover:border-gray-300 text-gray-700 font-bold text-xs transition">
+                <span>🌐</span>
+                <span>Paste Web Video / Cloud Link</span>
+              </button>
+            </div>
+
+            <!-- Option 1: File Upload Box -->
+            <div id="file-upload-box" class="p-6 bg-orange-50/60 rounded-2xl border border-orange-200 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-gray-800">Select File from Device / Photo Library:</span>
+                <span class="text-[11px] font-extrabold text-orange-700 bg-orange-100 px-2.5 py-0.5 rounded-full">Max: 15MB</span>
+              </div>
+              <input 
+                type="file" 
+                id="media-file-input" 
+                name="mediaFile" 
+                accept="image/*,video/mp4,video/webm,video/ogg,video/quicktime" 
+                class="w-full p-3.5 rounded-xl bg-white border border-gray-300 text-xs font-medium focus:ring-2 focus:ring-orange-600 outline-none file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-orange-600 file:text-white hover:file:bg-orange-700 cursor-pointer shadow-sm" 
+              />
+              <p class="text-[11px] text-gray-500">
+                Supports photos (JPG, PNG, WEBP, GIF) and videos (MP4, WebM, MOV) up to 15MB.
+              </p>
+            </div>
+
+            <!-- Option 2: URL Input Box -->
+            <div id="url-upload-box" class="hidden p-6 bg-gray-50 rounded-2xl border border-gray-200 space-y-3">
+              <label class="block text-xs font-bold text-gray-800">Web / YouTube / Cloud Drive Link:</label>
+              <input 
+                type="url" 
+                id="media-url-input" 
+                name="mediaUrl" 
+                placeholder="https://youtube.com/watch?v=... or https://drive.google.com/..." 
+                class="w-full p-4 rounded-xl bg-white border border-gray-300 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none" 
+              />
+              <p class="text-[11px] text-gray-500">
+                Supports direct links to YouTube videos, Vimeo documentaries, Google Drive, or high-res image URLs.
+              </p>
+            </div>
+          </div>
+
+          <!-- Live Real-Time Preview Card -->
+          <div id="media-preview-container" class="hidden bg-gray-900 rounded-3xl overflow-hidden border border-gray-200 shadow-xl relative">
+            <div id="media-preview-inner" class="relative max-h-80 w-full flex items-center justify-center bg-black">
+              <img id="media-preview-img" src="" alt="Preview" class="max-h-80 w-full object-contain hidden" />
+              <video id="media-preview-video" controls class="max-h-80 w-full object-contain hidden"></video>
+            </div>
+            <div class="p-4 bg-gray-900/95 flex items-center justify-between flex-wrap gap-2 text-white border-t border-gray-800">
+              <div class="flex items-center gap-2">
+                <span id="media-preview-badge" class="bg-green-600 text-white text-[10px] font-black px-3 py-1 rounded-full uppercase">
+                  Ready to Submit
+                </span>
+                <span id="media-preview-info" class="text-xs text-gray-300 font-semibold truncate max-w-xs"></span>
+              </div>
+              <button type="button" id="remove-media-file-btn" class="bg-red-600/80 hover:bg-red-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">
+                ✕ Clear Media
+              </button>
+            </div>
+          </div>
+
+          <!-- Title & Format -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2">
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Media Title / Subject *</label>
+              <input 
+                type="text" 
+                id="media-title" 
+                name="mediaTitle" 
+                placeholder="e.g. Eze Lúgúlú Masquerade Dance or Ozizza Sunset" 
+                required 
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none" 
+              />
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Category</label>
-              <select name="category" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
-                <option value="Cultural Masquerades & Rites">Cultural Masquerades & Rites</option>
-                <option value="Historical Mini-Documentary">Historical Mini-Documentary</option>
-                <option value="Concerts & Dance Performances">Concerts & Dance Performances</option>
-                <option value="Nature, Rivers & Beaches">Nature, Rivers & Beaches</option>
-                <option value="Traditional Wrestling (Mgba)">Traditional Wrestling (Mgba)</option>
-                <option value="Social Media Reels / TikTok Promos">Social Media Reels / TikTok Promos</option>
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Format</label>
+              <select id="media-type" name="mediaType" class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="image">📸 Picture / Photo</option>
+                <option value="video">🎥 Video / Documentary</option>
               </select>
             </div>
           </div>
 
+          <!-- Category -->
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Category *</label>
+            <select id="media-category" name="category" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+              <option value="Cultural Masquerades & Rites">Cultural Masquerades & Rites</option>
+              <option value="Nature, Rivers & Beaches">Nature, Rivers & Beaches</option>
+              <option value="Concerts & Dance Performances">Concerts & Dance Performances</option>
+              <option value="Traditional Wrestling (Mgba)">Traditional Wrestling (Mgba)</option>
+              <option value="Art & Tradition">Art, Crafts & Mask Carving</option>
+              <option value="Historical Mini-Documentary">Historical Mini-Documentary</option>
+              <option value="Community & Festival Moments">Community & Festival Moments</option>
+            </select>
+          </div>
+
+          <!-- Creator Details -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Creator / Producer Name</label>
-              <input type="text" name="creatorName" placeholder="Your Name or Studio" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Creator / Photographer Name *</label>
+              <input 
+                type="text" 
+                id="media-creator" 
+                name="creatorName" 
+                placeholder="Your Name or Studio" 
+                required 
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none" 
+              />
             </div>
             <div>
-              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Email Address</label>
-              <input type="email" name="email" placeholder="email@domain.com" required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
+              <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Email Address *</label>
+              <input 
+                type="email" 
+                id="media-email" 
+                name="email" 
+                placeholder="email@domain.com" 
+                required 
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none" 
+              />
             </div>
             <div>
               <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Phone / WhatsApp</label>
-              <input type="tel" name="phone" placeholder="+234..." required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
+              <input 
+                type="tel" 
+                id="media-phone" 
+                name="phone" 
+                placeholder="+234..." 
+                class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold focus:ring-2 focus:ring-orange-600 outline-none" 
+              />
             </div>
           </div>
 
+          <!-- Description -->
           <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Link to Video / Cloud Drive / Documentary</label>
-            <input type="url" name="mediaUrl" placeholder="https://youtube.com/watch?v=... or https://drive.google.com/..." required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none" />
-            <span class="text-[11px] text-gray-400 mt-1 block">Please ensure Google Drive or Dropbox links have sharing set to "Anyone with link".</span>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Description & Cultural Context *</label>
+            <textarea 
+              id="media-description" 
+              name="description" 
+              rows="3" 
+              placeholder="Describe the location, village, participants, or story behind this photo or video..." 
+              required 
+              class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-medium focus:ring-2 focus:ring-orange-600 outline-none"
+            ></textarea>
           </div>
 
-          <div>
-            <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Description & Cultural Context</label>
-            <textarea name="description" rows="4" placeholder="Describe the location, village, participants, or story behind this video..." required class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-orange-600 outline-none"></textarea>
-          </div>
-
+          <!-- Rights & Permissions -->
           <div class="p-5 bg-orange-50 rounded-2xl border border-orange-100 flex items-start gap-3">
-            <input type="checkbox" id="media-rights" required class="mt-1 w-4 h-4 text-orange-600 rounded" />
-            <label for="media-rights" class="text-xs text-gray-600 font-medium">
-              I certify that I own or have permission to submit this footage, and grant Afikpo Carnival & Resorts Ltd the non-exclusive license to feature it in carnival broadcasts, exhibitions, and archives.
+            <input type="checkbox" id="media-rights" required class="mt-1 w-4 h-4 text-orange-600 rounded cursor-pointer" />
+            <label for="media-rights" class="text-xs text-gray-700 font-medium cursor-pointer leading-relaxed">
+              I certify that this media is within 15MB, that I own or have permission to submit it, and I grant permission for it to be featured in the official Afikpo International Carnival 2026 visual gallery upon editorial review.
             </label>
           </div>
 
-          <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-black py-4 rounded-2xl transition shadow-xl shadow-orange-200 text-base">
-            Submit Media & Documentary Link
+          <!-- Submit Button -->
+          <button 
+            type="submit" 
+            class="w-full bg-orange-600 hover:bg-orange-700 text-white font-black py-4 rounded-2xl transition shadow-xl shadow-orange-200 text-base flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <span>Submit for Gallery Review</span>
+            <span>🚀</span>
           </button>
         </form>
+      </div>
+
+      <!-- Feature Highlight Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center">
+          <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-xl mx-auto mb-3">
+            🛡️
+          </div>
+          <h4 class="font-bold text-sm text-gray-900 mb-1">Editorial Curation</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">Submissions are reviewed by the AIC Media Board to ensure authentic cultural context.</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center">
+          <div class="w-12 h-12 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center text-xl mx-auto mb-3">
+            📱
+          </div>
+          <h4 class="font-bold text-sm text-gray-900 mb-1">Device & Gallery Upload</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">Select photos or videos up to 15MB directly from your phone or laptop camera roll.</p>
+        </div>
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center">
+          <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-xl mx-auto mb-3">
+            🏛️
+          </div>
+          <h4 class="font-bold text-sm text-gray-900 mb-1">Permanent Archive</h4>
+          <p class="text-xs text-gray-500 leading-relaxed">Approved works are permanently archived in the official festival digital collection.</p>
+        </div>
       </div>
     </section>
 

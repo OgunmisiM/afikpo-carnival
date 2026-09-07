@@ -41,11 +41,12 @@ const CONFIG = {
   mediaSheet: "MediaSubmissions",
   accommodationSheet: "Accommodations",
   tourGuideSheet: "TourGuides",
-  blogSheet: "BlogPosts"
+  blogSheet: "BlogPosts",
+  gallerySheet: "GalleryItems"
 };
 
 /**
- * Handle GET requests - Serves dynamic content (Blog Posts, Pageant Votes, etc.)
+ * Handle GET requests - Serves dynamic content (Blog Posts, Pageant Votes, Gallery Items)
  */
 function doGet(e) {
   try {
@@ -53,6 +54,8 @@ function doGet(e) {
     
     if (action === "get_blog_posts") {
       return getBlogPostsResponse();
+    } else if (action === "get_gallery_items") {
+      return getGalleryItemsResponse();
     } else if (action === "get_pageant_votes") {
       return getPageantVotesResponse();
     } else {
@@ -110,6 +113,10 @@ function doPost(e) {
         return handleSaveBlogPost(requestData);
       case "delete_blog_post":
         return handleDeleteBlogPost(requestData);
+      case "save_gallery_item":
+        return handleSaveGalleryItem(requestData);
+      case "delete_gallery_item":
+        return handleDeleteGalleryItem(requestData);
       default:
         return createResponse("error", "Invalid form type: " + formType);
     }
@@ -501,6 +508,101 @@ function handleDeleteBlogPost(data) {
   return createResponse("success", "Blog article deleted or marked removed.");
 }
 
+// 14. Save Gallery Item (Direct Publish or Approved Community Upload)
+function handleSaveGalleryItem(data) {
+  const required = ["title", "category"];
+  for (let f of required) {
+    if (!data[f] || data[f].toString().trim() === "") {
+      return createResponse("error", `Missing gallery field: ${f}`);
+    }
+  }
+
+  let mediaUrl = data.mediaUrl || "";
+
+  // If raw base64 data was sent, upload directly into Google Drive folder
+  if (data.fileData && data.fileData.includes(",")) {
+    try {
+      const parts = data.fileData.split(",");
+      const mimeMatch = parts[0].match(/:(.*?);/);
+      const mimeType = mimeMatch ? mimeMatch[1] : (data.mediaType === "video" ? "video/mp4" : "image/jpeg");
+      const base64Content = parts[1];
+      const fileName = "AIC_" + (data.mediaType === "video" ? "Video_" : "Photo_") + Date.now();
+      mediaUrl = saveMediaToDrive(base64Content, fileName, mimeType);
+    } catch(err) {
+      Logger.log("Drive upload error: " + err.toString());
+      if (!mediaUrl) mediaUrl = "[Saved to Gallery Archive]";
+    }
+  }
+
+  const sheet = getSheetByName(CONFIG.gallerySheet, [
+    "ID", "Title", "Category", "MediaType", "MediaUrl", "CreatorName", "Date", "Description", "Status", "Timestamp"
+  ]);
+
+  const values = sheet.getDataRange().getValues();
+  const itemId = data.id || ("gal-" + Date.now());
+  const itemDate = data.date || "Dec 2026";
+  const mediaType = data.mediaType || "image";
+  const creatorName = data.creatorName || "AIC Contributor";
+  const description = data.description || "";
+  const status = data.status || "Published";
+  const timestamp = new Date().toISOString();
+
+  let existingRow = -1;
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][0] == itemId) {
+      existingRow = i + 1;
+      break;
+    }
+  }
+
+  if (existingRow > 0) {
+    sheet.getRange(existingRow, 1, 1, 10).setValues([[
+      itemId, data.title, data.category, mediaType, mediaUrl, creatorName, itemDate, description, status, timestamp
+    ]]);
+    return createResponse("success", "Gallery item updated successfully!", { id: itemId, mediaUrl: mediaUrl });
+  } else {
+    sheet.appendRow([
+      itemId, data.title, data.category, mediaType, mediaUrl, creatorName, itemDate, description, status, timestamp
+    ]);
+    return createResponse("success", "Gallery item published successfully!", { id: itemId, mediaUrl: mediaUrl });
+  }
+}
+
+// 15. Delete Gallery Item
+function handleDeleteGalleryItem(data) {
+  if (!data.id) {
+    return createResponse("error", "Missing gallery item ID to delete");
+  }
+
+  const sheet = getSheetByName(CONFIG.gallerySheet, [
+    "ID", "Title", "Category", "MediaType", "MediaUrl", "CreatorName", "Date", "Description", "Status", "Timestamp"
+  ]);
+
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][0] == data.id) {
+      sheet.deleteRow(i + 1);
+      return createResponse("success", "Gallery item removed successfully.");
+    }
+  }
+
+  return createResponse("success", "Gallery item removed from database.");
+}
+
+// Helper: Save Base64 File to Google Drive Folder & return public URL
+function saveMediaToDrive(base64Data, fileName, mimeType) {
+  const folderName = "AIC_Festival_Gallery_Uploads";
+  const folders = DriveApp.getFoldersByName(folderName);
+  const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+
+  const decoded = Utilities.base64Decode(base64Data);
+  const blob = Utilities.newBlob(decoded, mimeType, fileName);
+  const file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+  return "https://drive.google.com/uc?export=view&id=" + file.getId();
+}
+
 /* -------------------------------------------------------------
    GET RESPONSES
 ------------------------------------------------------------- */
@@ -556,6 +658,40 @@ function getPageantVotesResponse() {
   return createJsonResponse({
     status: "success",
     voteTotals: voteTotals
+  });
+}
+
+function getGalleryItemsResponse() {
+  const sheet = getSheetByName(CONFIG.gallerySheet, [
+    "ID", "Title", "Category", "MediaType", "MediaUrl", "CreatorName", "Date", "Description", "Status", "Timestamp"
+  ]);
+
+  const values = sheet.getDataRange().getValues();
+  const items = [];
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (row[0] && (row[8] === "Published" || !row[8])) {
+      items.push({
+        id: row[0],
+        title: row[1],
+        category: row[2],
+        mediaType: row[3] || "image",
+        mediaUrl: row[4],
+        creatorName: row[5] || "AIC Contributor",
+        date: row[6] || "Dec 2026",
+        description: row[7] || "",
+        status: row[8] || "Published",
+        timestamp: row[9] || 0,
+        isCustom: true
+      });
+    }
+  }
+
+  return createJsonResponse({
+    status: "success",
+    count: items.length,
+    items: items
   });
 }
 
