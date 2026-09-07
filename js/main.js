@@ -2336,42 +2336,55 @@ function setupGallery() {
       return `
         <div 
           onclick="openGalleryLightbox('${item.id}')"
-          class="group relative overflow-hidden rounded-3xl bg-gray-200 shadow-md hover:shadow-2xl transition duration-500 cursor-pointer h-80 w-full"
+          class="group relative overflow-hidden rounded-3xl bg-gray-900 shadow-md hover:shadow-2xl transition duration-500 cursor-pointer aspect-4/3 sm:aspect-auto sm:h-80"
         >
-          <!-- Media Photo / Cover -->
-          <img
-            src="${item.mediaUrl}"
-            alt="${item.title}"
-            class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
-            onerror="this.src='${DEFAULT_COVER_IMAGE}'"
-            loading="lazy"
-          />
-
-          <!-- Play Button Overlay for Videos -->
+          <!-- Media Preview (Image or Video) -->
           ${isVideo ? `
-            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <span class="w-14 h-14 rounded-full bg-orange-600/90 text-white flex items-center justify-center text-xl shadow-xl group-hover:scale-110 group-hover:bg-orange-500 transition duration-300">
-                ▶
-              </span>
+            <div class="w-full h-full bg-gray-950 flex items-center justify-center relative overflow-hidden">
+              <img 
+                src="${item.mediaUrl.match(/\.(jpeg|jpg|png|webp)/i) ? item.mediaUrl : DEFAULT_COVER_IMAGE}" 
+                alt="${item.title}" 
+                class="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition duration-700 ease-out" 
+              />
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span class="w-14 h-14 rounded-full bg-orange-600/90 text-white flex items-center justify-center text-xl shadow-xl group-hover:scale-110 group-hover:bg-orange-500 transition duration-300">
+                  ▶
+                </span>
+              </div>
             </div>
-          ` : ''}
+          ` : `
+            <img
+              src="${item.mediaUrl}"
+              alt="${item.title}"
+              class="w-full h-full object-cover transition duration-700 ease-out group-hover:scale-105"
+              onerror="this.src='${DEFAULT_COVER_IMAGE}'"
+              loading="lazy"
+            />
+          `}
 
-          <!-- Community Badge -->
-          ${item.isCustom ? `
-            <div class="absolute top-4 right-4 pointer-events-none z-10">
-              <span class="bg-amber-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
-                Community
-              </span>
-            </div>
-          ` : ''}
+          <!-- Top Tags Ribbon -->
+          <div class="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none z-10">
+            <span class="bg-gray-900/80 backdrop-blur-md text-white text-[11px] font-bold px-3 py-1 rounded-full border border-white/20 shadow">
+              ${isVideo ? "🎥 Video" : "📸 Photo"}
+            </span>
+            ${isCustomBadge}
+          </div>
 
-          <!-- Authentic Bottom Gradient Hover Caption Overlay -->
-          <div
-            class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6 z-10"
-          >
-            <p class="text-white text-sm italic drop-shadow">
-              ${item.description || item.title}
+          <!-- Bottom Gradient Hover Caption Overlay -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent opacity-90 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-10">
+            <span class="text-[11px] font-bold text-orange-400 uppercase tracking-wider mb-1 block">
+              ${item.category || "Afikpo Heritage"}
+            </span>
+            <h4 class="text-white font-extrabold text-base leading-snug mb-1 drop-shadow-sm">
+              ${item.title}
+            </h4>
+            <p class="text-gray-300 text-xs line-clamp-2 leading-relaxed mb-2">
+              ${item.description || "Moments of culture, pageantry, and celebration from the Afikpo International Carnival."}
             </p>
+            <div class="flex items-center justify-between text-[11px] text-gray-400 pt-2 border-t border-white/10">
+              <span>By ${item.creatorName || "AIC Contributor"}</span>
+              <span class="text-orange-300 font-bold flex items-center gap-1">Enlarge ↗</span>
+            </div>
           </div>
         </div>
       `;

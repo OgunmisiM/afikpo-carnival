@@ -94,7 +94,6 @@ nav {
 .timer-box {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   transition: transform 0.3s ease;
@@ -112,13 +111,9 @@ nav {
 }
 
 .timer-box-refined {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  @apply flex flex-col items-center justify-center;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1.5rem;
   min-width: 100px;
@@ -140,45 +135,12 @@ nav {
 }
 
 .timer-number {
-  font-size: 2.25rem;
-  line-height: 1;
-  font-weight: 900;
-  color: #ffffff;
-  margin-bottom: 0.5rem;
-  font-family: inherit;
-  font-variant-numeric: tabular-nums;
-  display: block;
-}
-
-@media (min-width: 768px) {
-  .timer-number {
-    font-size: 3.75rem;
-  }
+  @apply text-4xl md:text-6xl font-black text-white leading-none mb-2;
+  font-variant-numeric: tabular-nums; /* Prevents jumping during countdown */
 }
 
 .timer-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgb(255, 237, 213);
-  opacity: 0.8;
-  display: block;
-}
-
-@media (min-width: 768px) {
-  .timer-label {
-    font-size: 0.875rem;
-  }
-}
-
-/* No-scrollbar helper */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  @apply text-xs md:text-sm font-bold uppercase tracking-widest text-orange-100 opacity-80;
 }
 
 /* --- Responsive Media Queries (Standard) --- */
