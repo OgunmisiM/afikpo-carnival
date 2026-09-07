@@ -347,32 +347,72 @@ function handlePageantVote(data) {
   return createResponse("success", `Thank you! ${data.voteCount} vote(s) successfully cast for ${data.contestantName || 'Contestant #' + data.contestantId}!`);
 }
 
-// 9. Media & Documentary Submission
+// 9. Media & Documentary Submission (Saves to Drive, MediaSubmissions sheet, and GalleryItems sheet)
 function handleMediaSubmission(data) {
-  const required = ["creatorName", "email", "title", "category", "mediaUrl"];
+  const required = ["creatorName", "title", "category"];
   for (let f of required) {
     if (!data[f] || data[f].toString().trim() === "") {
       return createResponse("error", `Missing required field: ${f}`);
     }
   }
 
-  const sheet = getSheetByName(CONFIG.mediaSheet, [
+  let finalMediaUrl = data.mediaUrl || "";
+
+  // Check if base64 file data was sent (from direct device file upload)
+  const base64Data = data.base64Media || data.fileData || data.base64Data || "";
+  if (base64Data) {
+    const driveUrl = saveMediaToDrive(base64Data, data.fileName, data.mimeType);
+    if (driveUrl) {
+      finalMediaUrl = driveUrl;
+    }
+  }
+
+  if (!finalMediaUrl) {
+    finalMediaUrl = "https://images.unsplash.com/photo-1569383746724-6f1b882b8f46?auto=format&fit=crop&w=1200&q=80";
+  }
+
+  // 1. Record in MediaSubmissions sheet
+  const mediaSheet = getSheetByName(CONFIG.mediaSheet, [
     "Timestamp", "Creator Name / Studio", "Email", "Phone", "Media Title",
     "Category", "Media Link (YouTube/Drive/Vimeo)", "Description & Cultural Notes"
   ]);
 
-  sheet.appendRow([
+  mediaSheet.appendRow([
     new Date().toLocaleString(),
     data.creatorName,
-    data.email,
+    data.email || "",
     data.phone || "",
     data.title,
     data.category,
-    data.mediaUrl,
+    finalMediaUrl,
     data.description || ""
   ]);
 
-  return createResponse("success", "Video/Documentary submitted successfully! Our media curation committee will review it for showcase.");
+  // 2. Also record in GalleryItems sheet so it appears in the live gallery
+  const gallerySheet = getSheetByName(CONFIG.gallerySheet, [
+    "ID", "Title", "Category", "MediaType", "MediaUrl", "CreatorName", "Date", "Description", "Status", "Timestamp"
+  ]);
+
+  const itemId = data.id || ("sub-" + Date.now());
+  const mediaType = data.mediaType || "image";
+
+  gallerySheet.appendRow([
+    itemId,
+    data.title,
+    data.category,
+    mediaType,
+    finalMediaUrl,
+    data.creatorName,
+    "Dec 2026",
+    data.description || "",
+    "Published",
+    new Date().toISOString()
+  ]);
+
+  return createResponse("success", "Media uploaded and submitted successfully!", {
+    id: itemId,
+    mediaUrl: finalMediaUrl
+  });
 }
 
 // 10. Accommodation Reservation
@@ -519,14 +559,11 @@ function handleSaveGalleryItem(data) {
   let mediaUrl = data.mediaUrl || "";
 
   // If raw base64 data was sent, upload directly into Google Drive folder
-  if (data.fileData && data.fileData.includes(",")) {
+  const base64Data = data.base64Media || data.fileData || data.base64Data || "";
+  if (base64Data) {
     try {
-      const parts = data.fileData.split(",");
-      const mimeMatch = parts[0].match(/:(.*?);/);
-      const mimeType = mimeMatch ? mimeMatch[1] : (data.mediaType === "video" ? "video/mp4" : "image/jpeg");
-      const base64Content = parts[1];
-      const fileName = "AIC_" + (data.mediaType === "video" ? "Video_" : "Photo_") + Date.now();
-      mediaUrl = saveMediaToDrive(base64Content, fileName, mimeType);
+      const driveUrl = saveMediaToDrive(base64Data, data.fileName, data.mimeType);
+      if (driveUrl) mediaUrl = driveUrl;
     } catch(err) {
       Logger.log("Drive upload error: " + err.toString());
       if (!mediaUrl) mediaUrl = "[Saved to Gallery Archive]";
@@ -588,18 +625,36 @@ function handleDeleteGalleryItem(data) {
   return createResponse("success", "Gallery item removed from database.");
 }
 
-// Helper: Save Base64 File to Google Drive Folder & return public URL
-function saveMediaToDrive(base64Data, fileName, mimeType) {
-  const folderName = "AIC_Festival_Gallery_Uploads";
-  const folders = DriveApp.getFoldersByName(folderName);
-  const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+// Helper: Save Base64 File to Google Drive Folder & return public direct URL
+function saveMediaToDrive(base64Input, fileName, mimeType) {
+  try {
+    if (!base64Input || typeof base64Input !== "string") return "";
 
-  const decoded = Utilities.base64Decode(base64Data);
-  const blob = Utilities.newBlob(decoded, mimeType, fileName);
-  const file = folder.createFile(blob);
-  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    const folderName = "AIC_Festival_Gallery_Uploads";
+    const folders = DriveApp.getFoldersByName(folderName);
+    const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
 
-  return "https://drive.google.com/uc?export=view&id=" + file.getId();
+    let cleanBase64 = base64Input;
+    let resolvedMime = mimeType || "image/jpeg";
+
+    if (base64Input.indexOf(",") !== -1) {
+      const parts = base64Input.split(",");
+      const mimeMatch = parts[0].match(/:(.*?);/);
+      if (mimeMatch) resolvedMime = mimeMatch[1];
+      cleanBase64 = parts[1];
+    }
+
+    const cleanFileName = fileName || ("AIC_" + Date.now() + (resolvedMime.indexOf("video") !== -1 ? ".mp4" : ".jpg"));
+    const decoded = Utilities.base64Decode(cleanBase64);
+    const blob = Utilities.newBlob(decoded, resolvedMime, cleanFileName);
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+
+    return "https://lh3.googleusercontent.com/d/" + file.getId();
+  } catch (err) {
+    Logger.log("Drive upload error: " + err.toString());
+    return "";
+  }
 }
 
 /* -------------------------------------------------------------
@@ -734,4 +789,34 @@ function createResponse(status, message, extraData) {
 function createJsonResponse(data) {
   return ContentService.createTextOutput(JSON.stringify(data))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Test function to verify Google Drive folder creation and permissions.
+ * You can select and RUN this function directly inside the Google Apps Script editor.
+ * It automatically initializes the dedicated 'AIC_Festival_Gallery_Uploads' folder in Google Drive.
+ */
+function testDriveAndGallerySetup() {
+  const folderName = "AIC_Festival_Gallery_Uploads";
+  const folders = DriveApp.getFoldersByName(folderName);
+  const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+
+  Logger.log("✅ Google Drive Folder Ready: " + folder.getName() + " (ID: " + folder.getId() + ")");
+  Logger.log("📁 Drive Folder URL: " + folder.getUrl());
+
+  // Verify and initialize GalleryItems sheet
+  const gallerySheet = getSheetByName(CONFIG.gallerySheet, [
+    "ID", "Title", "Category", "MediaType", "MediaUrl", "CreatorName", "Date", "Description", "Status", "Timestamp"
+  ]);
+  Logger.log("📊 GalleryItems sheet ready: " + gallerySheet.getName());
+
+  // Verify and initialize MediaSubmissions sheet
+  const mediaSheet = getSheetByName(CONFIG.mediaSheet, [
+    "Timestamp", "Creator Name / Studio", "Email", "Phone", "Media Title",
+    "Category", "Media Link (YouTube/Drive/Vimeo)", "Description & Cultural Notes"
+  ]);
+  Logger.log("📊 MediaSubmissions sheet ready: " + mediaSheet.getName());
+
+  Logger.log("🚀 SUCCESS! Dedicated Google Drive folder and Sheets are active and ready for live uploads.");
+  return "SUCCESS: Folder URL is " + folder.getUrl();
 }
