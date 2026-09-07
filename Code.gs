@@ -56,6 +56,8 @@ function doGet(e) {
       return getBlogPostsResponse();
     } else if (action === "get_gallery_items") {
       return getGalleryItemsResponse();
+    } else if (action === "get_pending_gallery_items") {
+      return getPendingGalleryItemsResponse();
     } else if (action === "get_pageant_votes") {
       return getPageantVotesResponse();
     } else {
@@ -405,11 +407,11 @@ function handleMediaSubmission(data) {
     data.creatorName,
     "Dec 2026",
     data.description || "",
-    "Published",
+    "Pending",
     new Date().toISOString()
   ]);
 
-  return createResponse("success", "Media uploaded and submitted successfully!", {
+  return createResponse("success", "Media uploaded and submitted for admin review!", {
     id: itemId,
     mediaUrl: finalMediaUrl
   });
@@ -738,6 +740,39 @@ function getGalleryItemsResponse() {
         status: row[8] || "Published",
         timestamp: row[9] || 0,
         isCustom: true
+      });
+    }
+  }
+
+  return createJsonResponse({
+    status: "success",
+    count: items.length,
+    items: items
+  });
+}
+
+function getPendingGalleryItemsResponse() {
+  const sheet = getSheetByName(CONFIG.gallerySheet, [
+    "ID", "Title", "Category", "MediaType", "MediaUrl", "CreatorName", "Date", "Description", "Status", "Timestamp"
+  ]);
+
+  const values = sheet.getDataRange().getValues();
+  const items = [];
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (row[0] && (row[8] === "Pending" || row[8] === "pending")) {
+      items.push({
+        id: row[0],
+        title: row[1],
+        category: row[2],
+        mediaType: row[3] || "image",
+        mediaUrl: row[4],
+        creatorName: row[5] || "Community Contributor",
+        date: row[6] || "Dec 2026",
+        description: row[7] || "",
+        status: "pending",
+        timestamp: row[9] || 0
       });
     }
   }

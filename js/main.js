@@ -1194,13 +1194,13 @@ function setupMediaUpload() {
       phone: phone,
       description: description,
       date: "Dec 2026",
-      status: "Published",
+      status: "pending",
       isCustom: true,
       timestamp: Date.now()
     };
 
-    // Save into BOTH published gallery and moderation queue so it displays immediately across all tabs!
-    savePublishedGalleryItem(newSubmission);
+    // Save strictly into Pending Submissions queue for admin review
+    // Public uploads will NOT show on the visual gallery until approved by admin
     savePendingGallerySubmission(newSubmission);
 
     // Prepare Cloud POST payload for Apps Script
@@ -2108,25 +2108,30 @@ const STORAGE_KEY_DELETED_GALLERY = "aic_deleted_gallery_ids";
 const STORAGE_KEY_PENDING_GALLERY = "aic_pending_gallery_submissions";
 const STORAGE_KEY_GALLERY_AUTH = "aic_gallery_admin_auth";
 
-// Retrieve combined live gallery items (Default 18 items + custom & community uploads)
+// Retrieve combined live gallery items (Default 18 items + approved custom items)
 function getPublishedGalleryItems() {
   try {
     const deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
     const custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
     const pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+    const pendingIds = new Set(pending.map(p => p && p.id).filter(Boolean));
 
     const activeDefault = DEFAULT_GALLERY_ITEMS.filter(item => !deletedIds.includes(item.id));
 
-    // Combine custom and pending community submissions into a deduplicated list
-    const customMap = new Map();
-    [...pending, ...custom].forEach(item => {
-      if (item && item.id && !deletedIds.includes(item.id)) {
-        customMap.set(item.id, { ...item, isCustom: true });
-      }
-    });
+    // STRICT ADMIN APPROVAL REQUIREMENT:
+    // Only approved/published items appear on the visual gallery!
+    // Any submission currently in pending queue is NEVER shown until approved by admin.
+    const activeCustom = custom.filter(item => 
+      item && 
+      item.id && 
+      !deletedIds.includes(item.id) && 
+      !pendingIds.has(item.id) &&
+      (item.status === "Published" || !item.status) &&
+      item.status !== "pending" &&
+      item.status !== "Pending"
+    );
 
-    const activeCustom = Array.from(customMap.values());
-    // Place new community uploads first so visitors and uploaders see their photos immediately!
+    // Place newly approved custom items at the top
     return [...activeCustom, ...activeDefault];
   } catch (err) {
     console.warn("Could not read gallery items from localStorage:", err);
@@ -2241,6 +2246,29 @@ async function fetchRemoteGalleryItems() {
         }
       });
       localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(custom));
+    }
+  } catch (err) {
+    // Non-blocking fallback to local cache
+  }
+}
+
+// Fetch pending gallery submissions from Google Apps Script for admin review
+async function fetchRemotePendingGalleryItems() {
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=get_pending_gallery_items`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.status === "success" && Array.isArray(data.items)) {
+      let pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+      data.items.forEach(remoteItem => {
+        const idx = pending.findIndex(p => p.id === remoteItem.id);
+        if (idx >= 0) {
+          pending[idx] = { ...pending[idx], ...remoteItem };
+        } else {
+          pending.push(remoteItem);
+        }
+      });
+      localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(pending));
     }
   } catch (err) {
     // Non-blocking fallback to local cache
@@ -2582,6 +2610,10 @@ function setupGalleryAdmin() {
       updateMetrics();
       loadPendingList();
       loadLiveManageList();
+      fetchRemotePendingGalleryItems().then(() => {
+        updateMetrics();
+        loadPendingList();
+      });
     } else {
       authSection.classList.remove("hidden");
       dashboardSection.classList.add("hidden");
@@ -2950,9 +2982,15 @@ function setupGalleryAdmin() {
     }).join("");
   };
 
-  if (refreshPendingBtn) refreshPendingBtn.addEventListener("click", () => {
+  if (refreshPendingBtn) refreshPendingBtn.addEventListener("click", async () => {
+    refreshPendingBtn.disabled = true;
+    refreshPendingBtn.innerHTML = `<span>⏳ Refreshing...</span>`;
+    await fetchRemotePendingGalleryItems();
+    updateMetrics();
     loadPendingList();
-    showAlert("Pending list refreshed.", "info");
+    refreshPendingBtn.disabled = false;
+    refreshPendingBtn.innerHTML = `<span>🔄 Refresh Submissions</span>`;
+    showAlert("Pending list refreshed from cloud.", "info");
   });
 
   // Global Moderation Helpers
