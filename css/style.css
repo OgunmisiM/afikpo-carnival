@@ -91,56 +91,94 @@ nav {
 }
 
 /* --- Countdown Cards --- */
-.timer-box {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  transition: transform 0.3s ease;
-}
-
-.timer-box:hover {
-  transform: scale(1.05);
-  border-color: var(--brand-orange);
-}
-
-/* Updated Section Background & Text Colors */
-.bg-brand-gradient {
-  /* Using Afikpo Red and Orange from the logo */
-  background: linear-gradient(135deg, #b22222 0%, #ea580c 100%);
-}
-
+.timer-box,
 .timer-box-refined {
-  @apply flex flex-col items-center justify-center;
-  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1.5rem;
-  min-width: 100px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 1.25rem;
+  min-width: 75px;
+  padding: 1rem 0.75rem;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
+  .timer-box,
   .timer-box-refined {
-    min-width: 140px;
-    padding: 2rem;
+    border-radius: 1.5rem;
+    min-width: 110px;
+    padding: 1.5rem 1.25rem;
   }
 }
 
+@media (min-width: 768px) {
+  .timer-box,
+  .timer-box-refined {
+    min-width: 135px;
+    padding: 2rem 1.5rem;
+  }
+}
+
+.timer-box:hover,
 .timer-box-refined:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.22);
+  transform: translateY(-6px) scale(1.03);
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.3);
 }
 
 .timer-number {
-  @apply text-4xl md:text-6xl font-black text-white leading-none mb-2;
-  font-variant-numeric: tabular-nums; /* Prevents jumping during countdown */
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .timer-number {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .timer-number {
+    font-size: 3.75rem;
+  }
 }
 
 .timer-label {
-  @apply text-xs md:text-sm font-bold uppercase tracking-widest text-orange-100 opacity-80;
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(255, 237, 213, 0.95);
+  display: block;
+}
+
+@media (min-width: 640px) {
+  .timer-label {
+    font-size: 0.8rem;
+  }
+}
+
+/* No-scrollbar helper */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* --- Responsive Media Queries (Standard) --- */
