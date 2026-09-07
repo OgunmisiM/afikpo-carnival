@@ -2336,67 +2336,42 @@ function setupGallery() {
       return `
         <div 
           onclick="openGalleryLightbox('${item.id}')"
-          class="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group cursor-pointer"
+          class="group relative overflow-hidden rounded-3xl bg-gray-200 shadow-md hover:shadow-2xl transition duration-500 cursor-pointer h-80 w-full"
         >
-          <!-- Media Preview (Image or Video) -->
-          <div class="relative h-64 sm:h-72 w-full overflow-hidden bg-gray-900 flex-shrink-0">
-            ${isVideo ? `
-              <img 
-                src="${item.mediaUrl.match(/\.(jpeg|jpg|png|webp)/i) ? item.mediaUrl : DEFAULT_COVER_IMAGE}" 
-                alt="${item.title}" 
-                class="w-full h-full object-cover opacity-85 group-hover:opacity-95 group-hover:scale-105 transition-transform duration-500 ease-out" 
-                onerror="this.src='${DEFAULT_COVER_IMAGE}'"
-              />
-              <div class="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition">
-                <span class="w-14 h-14 rounded-full bg-orange-600/90 text-white flex items-center justify-center text-xl shadow-xl group-hover:scale-110 group-hover:bg-orange-500 transition duration-300">
-                  ▶
-                </span>
-              </div>
-            ` : `
-              <img
-                src="${item.mediaUrl}"
-                alt="${item.title}"
-                class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                onerror="this.src='${DEFAULT_COVER_IMAGE}'"
-                loading="lazy"
-              />
-            `}
+          <!-- Media Photo / Cover -->
+          <img
+            src="${item.mediaUrl}"
+            alt="${item.title}"
+            class="w-full h-full object-cover transition duration-500 group-hover:scale-110"
+            onerror="this.src='${DEFAULT_COVER_IMAGE}'"
+            loading="lazy"
+          />
 
-            <!-- Top Tags Ribbon -->
-            <div class="absolute top-4 left-4 flex items-center gap-2 pointer-events-none z-10">
-              <span class="bg-gray-900/80 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider border border-white/20 shadow">
-                ${isVideo ? "🎥 Video" : "📸 " + (item.category ? item.category.split("&")[0].trim() : "Photo")}
-              </span>
-              ${isCustomBadge}
-            </div>
-
-            <!-- Quick Expand Hint -->
-            <span class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition duration-200">
-              ↗
-            </span>
-          </div>
-
-          <!-- Card Body -->
-          <div class="p-6 flex-1 flex flex-col justify-between">
-            <div>
-              <div class="flex items-center justify-between text-[11px] text-orange-600 font-bold uppercase tracking-wider mb-1.5">
-                <span class="truncate max-w-[200px]">${item.category || "Heritage"}</span>
-                <span class="text-gray-400 font-medium">${item.date || "Dec 2026"}</span>
-              </div>
-              <h3 class="text-base sm:text-lg font-black text-gray-900 group-hover:text-orange-600 transition leading-snug mb-2 line-clamp-1">
-                ${item.title}
-              </h3>
-              <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-4">
-                ${item.description || "Moments of culture, pageantry, and celebration from the Afikpo International Carnival."}
-              </p>
-            </div>
-
-            <div class="pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-400">
-              <span class="font-medium truncate max-w-[180px]">By ${item.creatorName || "AIC Contributor"}</span>
-              <span class="text-orange-600 font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-                Enlarge <span>→</span>
+          <!-- Play Button Overlay for Videos -->
+          ${isVideo ? `
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span class="w-14 h-14 rounded-full bg-orange-600/90 text-white flex items-center justify-center text-xl shadow-xl group-hover:scale-110 group-hover:bg-orange-500 transition duration-300">
+                ▶
               </span>
             </div>
+          ` : ''}
+
+          <!-- Community Badge -->
+          ${item.isCustom ? `
+            <div class="absolute top-4 right-4 pointer-events-none z-10">
+              <span class="bg-amber-500 text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow">
+                Community
+              </span>
+            </div>
+          ` : ''}
+
+          <!-- Authentic Bottom Gradient Hover Caption Overlay -->
+          <div
+            class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6 z-10"
+          >
+            <p class="text-white text-sm italic drop-shadow">
+              ${item.description || item.title}
+            </p>
           </div>
         </div>
       `;
