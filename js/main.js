@@ -1388,11 +1388,22 @@ async function fetchBlogPosts() {
     }
   });
 
-  // Sync with cloud Google Apps Script posts
+  // Sync with cloud Google Apps Script posts with server reconciliation
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=get_blog_posts`);
     const data = await res.json();
     if (data.status === "success" && Array.isArray(data.posts)) {
+      const serverPostIds = new Set(data.posts.map(p => p.id));
+      const defaultIds = new Set(DEFAULT_BLOG_POSTS.map(p => p.id));
+      const now = Date.now();
+
+      // Reconcile local storage: automatically drop posts deleted on the server
+      const reconciledLocal = localPosts.filter(p => {
+        if (defaultIds.has(p.id)) return true; // keep core default post customizations
+        return serverPostIds.has(p.id) || (p.timestamp && (now - p.timestamp < 60000));
+      });
+      localStorage.setItem("aic_blog_posts", JSON.stringify(reconciledLocal));
+
       data.posts.forEach(p => {
         if (!deletedIds.has(p.id)) {
           postsMap.set(p.id, p);
@@ -2225,7 +2236,7 @@ function removePendingGallerySubmission(id) {
   }
 }
 
-// Fetch published gallery items from Google Apps Script in the background
+// Fetch published gallery items from Google Apps Script in the background with server reconciliation
 async function fetchRemoteGalleryItems() {
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=get_gallery_items`);
@@ -2233,42 +2244,67 @@ async function fetchRemoteGalleryItems() {
     const data = await res.json();
     if (data.status === "success" && Array.isArray(data.items)) {
       const deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
-      let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
+      const pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+      const pendingIds = new Set(pending.map(p => p && p.id).filter(Boolean));
+      let localCustom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_GALLERY) || "[]");
 
-      data.items.forEach(remoteItem => {
-        if (!deletedIds.includes(remoteItem.id)) {
-          const idx = custom.findIndex(c => c.id === remoteItem.id);
-          if (idx >= 0) {
-            custom[idx] = { ...custom[idx], ...remoteItem };
-          } else {
-            custom.push(remoteItem);
-          }
-        }
-      });
-      localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(custom));
+      const serverIds = new Set(data.items.map(item => item.id));
+      const now = Date.now();
+
+      // Keep recent local items created in the last 60 seconds (grace period while cloud POST is in transit)
+      const recentLocalItems = localCustom.filter(item => 
+        item && 
+        item.id && 
+        !serverIds.has(item.id) && 
+        item.timestamp && 
+        (now - item.timestamp < 60000) &&
+        !deletedIds.includes(item.id) &&
+        !pendingIds.has(item.id)
+      );
+
+      // Active items confirmed alive on the server
+      const activeServerItems = data.items.filter(item => 
+        item && 
+        item.id && 
+        !deletedIds.includes(item.id) && 
+        !pendingIds.has(item.id)
+      );
+
+      // Server Reconciliation: Replace local cached custom items with verified active items!
+      // This automatically purges any deleted item from localStorage without needing users to clear cookies or cache.
+      const reconciled = [...recentLocalItems, ...activeServerItems];
+      localStorage.setItem(STORAGE_KEY_CUSTOM_GALLERY, JSON.stringify(reconciled));
     }
   } catch (err) {
     // Non-blocking fallback to local cache
   }
 }
 
-// Fetch pending gallery submissions from Google Apps Script for admin review
+// Fetch pending gallery submissions from Google Apps Script for admin review with reconciliation
 async function fetchRemotePendingGalleryItems() {
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=get_pending_gallery_items`);
     if (!res.ok) return;
     const data = await res.json();
     if (data.status === "success" && Array.isArray(data.items)) {
-      let pending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
-      data.items.forEach(remoteItem => {
-        const idx = pending.findIndex(p => p.id === remoteItem.id);
-        if (idx >= 0) {
-          pending[idx] = { ...pending[idx], ...remoteItem };
-        } else {
-          pending.push(remoteItem);
-        }
-      });
-      localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(pending));
+      let localPending = JSON.parse(localStorage.getItem(STORAGE_KEY_PENDING_GALLERY) || "[]");
+      const serverIds = new Set(data.items.map(item => item.id));
+      const deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_GALLERY) || "[]");
+      const now = Date.now();
+
+      // Keep local submissions created in the last 60 seconds while cloud POST is in flight
+      const recentLocalPending = localPending.filter(p => 
+        p && 
+        p.id && 
+        !serverIds.has(p.id) && 
+        p.timestamp && 
+        (now - p.timestamp < 60000) &&
+        !deletedIds.includes(p.id)
+      );
+
+      const activeServerPending = data.items.filter(p => p && p.id && !deletedIds.includes(p.id));
+      const reconciled = [...recentLocalPending, ...activeServerPending];
+      localStorage.setItem(STORAGE_KEY_PENDING_GALLERY, JSON.stringify(reconciled));
     }
   } catch (err) {
     // Non-blocking fallback to local cache
@@ -2534,6 +2570,21 @@ function setupGallery() {
   // Initial render & background cloud sync
   render();
   fetchRemoteGalleryItems().then(() => render());
+
+  // Auto-reconcile with cloud on tab focus & visibility change
+  window.addEventListener("focus", () => {
+    fetchRemoteGalleryItems().then(() => render());
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+      fetchRemoteGalleryItems().then(() => render());
+    }
+  });
+
+  // Periodic background reconciliation (every 30 seconds) to ensure deleted images vanish seamlessly
+  setInterval(() => {
+    fetchRemoteGalleryItems().then(() => render());
+  }, 30000);
 }
 
 // =============================================================
