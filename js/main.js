@@ -2681,7 +2681,7 @@ function setupGalleryAdmin() {
         showAlert("Admin authenticated successfully! Welcome to Visual Gallery Manager.", "success");
         checkAuth();
       } else {
-        showAlert("Invalid PIN code. Please enter 2026 or afikpo2026.", "error");
+        showAlert("Invalid PIN code. Please enter your password.", "error");
         pinInput.value = "";
         pinInput.focus();
       }
