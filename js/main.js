@@ -9,6 +9,9 @@
 // Master Google Apps Script Web App Deployment URL
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEbX71MSQ2Kh-7g1tWDZaH_jrNpksauc0TEwGOcZaQObN1Enu9RluGfOXXURvNNgRO/exec";
 
+// Official AIC WhatsApp Order & Reservation Line (Test number configured by user: +234 812 545 7981)
+const AIC_WHATSAPP_NUMBER = "2348125457981";
+
 // Default Seed Data for Blog Posts
 // Universal Fallback Cover Image (High-Res Festival Photography)
 const DEFAULT_COVER_IMAGE = "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80";
@@ -547,13 +550,512 @@ function setupSubscriptionForm() {
 }
 
 // =============================================================
-// 4. TICKETS MODULE
+// 4. TICKETS & PENDING RESERVATION TOKENS MODULE
 // =============================================================
+
+function generateOrderToken(prefix) {
+  const rand = Math.floor(10000 + Math.random() * 90000);
+  return `AIC-${prefix}-2026-${rand}`;
+}
+
+function getPendingOrders() {
+  try {
+    return JSON.parse(localStorage.getItem("aic_pending_orders") || "[]");
+  } catch (e) {
+    return [];
+  }
+}
+
+function savePendingOrder(order) {
+  const orders = getPendingOrders();
+  const idx = orders.findIndex(o => o.token === order.token);
+  if (idx >= 0) {
+    orders[idx] = order;
+  } else {
+    orders.unshift(order);
+  }
+  localStorage.setItem("aic_pending_orders", JSON.stringify(orders));
+  updatePendingOrdersBadges();
+}
+
+window.removePendingOrder = function(token) {
+  let orders = getPendingOrders();
+  orders = orders.filter(o => o.token !== token);
+  localStorage.setItem("aic_pending_orders", JSON.stringify(orders));
+  updatePendingOrdersBadges();
+  renderPendingOrdersList();
+  showAlert(`Removed token ${token} from your saved list.`, "info");
+};
+
+function updatePendingOrdersBadges() {
+  const orders = getPendingOrders();
+  const ticketCount = orders.filter(o => o.type === "ticket").length;
+  const storeCount = orders.filter(o => o.type === "merchandise").length;
+  const totalCount = orders.length;
+
+  document.querySelectorAll(".pending-tokens-badge").forEach(el => {
+    el.textContent = totalCount;
+    el.classList.toggle("hidden", totalCount === 0);
+  });
+  document.querySelectorAll(".pending-tickets-badge").forEach(el => {
+    el.textContent = ticketCount;
+    el.classList.toggle("hidden", ticketCount === 0);
+  });
+  document.querySelectorAll(".pending-store-badge").forEach(el => {
+    el.textContent = storeCount;
+    el.classList.toggle("hidden", storeCount === 0);
+  });
+}
+
+function buildTicketWhatsAppUrl(order) {
+  const text = 
+`🎟️ *AFIKPO INTERNATIONAL CARNIVAL 2026*
+*TICKET RESERVATION — PENDING CONFIRMATION*
+════════════════════════════════
+📌 *Reservation Token:* ${order.token}
+🟡 *Status:* PENDING WHATSAPP PAYMENT
+👤 *Pass Holder:* ${order.customerName}
+📱 *Phone:* ${order.phone}
+📧 *Email:* ${order.email}
+════════════════════════════════
+🎫 *Pass Tier:* ${order.ticketType}
+🔢 *Quantity:* ${order.ticketCount} Attendee(s)
+📅 *Planned Attendance:* ${order.visitDate || "Carnival Week Dec 2026"}
+💰 *Total Payable:* ${order.totalAmount}
+════════════════════════════════
+Hello Afikpo Carnival & Resorts Team, I have just reserved my festival pass(es) on the official website. My reservation token is *${order.token}*. Please provide the official payment details and confirm my reservation. Thank you!`;
+
+  return `https://wa.me/${AIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
+function buildStoreWhatsAppUrl(order) {
+  const itemsText = Array.isArray(order.itemsList)
+    ? order.itemsList.map(item => `• ${item}`).join("\n")
+    : `• ${order.itemsList || "Carnival Merchandise"}`;
+
+  const text = 
+`🛍️ *AFIKPO INTERNATIONAL CARNIVAL 2026*
+*MERCHANDISE ORDER — PENDING CONFIRMATION*
+════════════════════════════════
+📌 *Order Token:* ${order.token}
+🟡 *Status:* PENDING WHATSAPP PAYMENT
+👤 *Customer:* ${order.customerName}
+📱 *Phone:* ${order.phone}
+📧 *Email:* ${order.email}
+🚚 *Delivery Method:* ${order.deliveryMethod || "Carnival Village Pickup"}
+📍 *Delivery Address:* ${order.deliveryAddress || "N/A"}
+════════════════════════════════
+📦 *Goods Selected:*
+${itemsText}
+💰 *Total Payable:* ${order.totalAmount}
+════════════════════════════════
+Hello Afikpo Carnival & Resorts Team, I have placed an order for carnival merchandise on the official website. My order token is *${order.token}*. Please confirm item availability and share payment/delivery instructions. Thank you!`;
+
+  return `https://wa.me/${AIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
+function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
+  const existing = document.getElementById("pending-order-modal");
+  if (existing) existing.remove();
+
+  const isTicket = order.type === "ticket";
+  const whatsappUrl = isTicket ? buildTicketWhatsAppUrl(order) : buildStoreWhatsAppUrl(order);
+
+  const modal = document.createElement("div");
+  modal.id = "pending-order-modal";
+  modal.className = "fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in overflow-y-auto";
+
+  let detailsHtml = "";
+  if (isTicket) {
+    detailsHtml = `
+      <div class="space-y-2.5 text-xs text-gray-700">
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Pass Holder:</span>
+          <strong class="text-gray-900 font-bold">${order.customerName}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Pass Tier:</span>
+          <strong class="text-orange-600 font-black">${order.ticketType}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Passes / Coverage:</span>
+          <strong class="text-gray-900 font-bold">${order.ticketCount} Attendee(s) ${order.ticketType.toLowerCase().includes('family') ? '(Admits up to 5 family members)' : ''}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Attendance Period:</span>
+          <strong class="text-gray-900 font-semibold">${order.visitDate || 'Carnival Week Dec 26-31, 2026'}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Contact Phone:</span>
+          <strong class="text-gray-900 font-semibold">${order.phone}</strong>
+        </div>
+        <div class="flex justify-between py-2 pt-3">
+          <span class="text-sm font-extrabold text-gray-900">Total Payable:</span>
+          <strong class="text-xl font-black text-green-600">${order.totalAmount}</strong>
+        </div>
+      </div>
+    `;
+  } else {
+    const itemsListHtml = Array.isArray(order.itemsList)
+      ? order.itemsList.map(item => `<li class="py-1 text-xs text-gray-800 font-medium flex items-center justify-between"><span>${item}</span></li>`).join("")
+      : `<li class="py-1 text-xs text-gray-800">${order.itemsList}</li>`;
+
+    detailsHtml = `
+      <div class="space-y-2.5 text-xs text-gray-700">
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Customer Name:</span>
+          <strong class="text-gray-900 font-bold">${order.customerName}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Delivery Method:</span>
+          <strong class="text-orange-600 font-bold">${order.deliveryMethod || 'Carnival Village Pickup'}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Delivery Address:</span>
+          <strong class="text-gray-900 font-semibold text-right max-w-[60%] truncate">${order.deliveryAddress || 'Afikpo Carnival Grounds'}</strong>
+        </div>
+        <div class="pt-2 pb-1 border-b border-gray-100">
+          <span class="text-gray-500 block mb-1.5 font-bold uppercase text-[10px] tracking-wider">Goods Selected:</span>
+          <ul class="bg-gray-50 rounded-xl p-3 divide-y divide-gray-200/60 max-h-32 overflow-y-auto">
+            ${itemsListHtml}
+          </ul>
+        </div>
+        <div class="flex justify-between py-2 pt-3">
+          <span class="text-sm font-extrabold text-gray-900">Total Payable:</span>
+          <strong class="text-xl font-black text-green-600">${order.totalAmount}</strong>
+        </div>
+      </div>
+    `;
+  }
+
+  modal.innerHTML = `
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-gray-100 relative my-8 animate-in zoom-in-95 duration-200">
+      <button onclick="document.getElementById('pending-order-modal').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold p-2 leading-none cursor-pointer" title="Close">×</button>
+
+      <!-- Status Header -->
+      <div class="text-center pb-5 border-b border-gray-100">
+        <div class="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider mb-3">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+          <span>🟡 PENDING PAYMENT CONFIRMATION</span>
+        </div>
+        <h3 class="text-2xl font-black text-gray-900">
+          ${isTicket ? "Festival Pass Reservation" : "Merchandise Order Placed"}
+        </h3>
+        <p class="text-xs text-gray-500 mt-1">
+          Your request has been registered with the official token below. Complete the final step on WhatsApp!
+        </p>
+      </div>
+
+      <!-- Token Ribbon Box -->
+      <div class="my-5 p-4 rounded-2xl bg-gradient-to-r from-orange-50 via-amber-50 to-orange-50 border border-orange-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <span class="text-[10px] font-black uppercase text-orange-800 tracking-wider block">Official Reservation Token</span>
+          <span id="display-order-token" class="font-mono text-xl md:text-2xl font-black text-orange-600 tracking-wider">${order.token}</span>
+        </div>
+        <button 
+          type="button"
+          onclick="window.copyOrderToken('${order.token}')" 
+          class="bg-white hover:bg-orange-600 hover:text-white text-orange-700 text-xs font-bold px-3.5 py-2 rounded-xl border border-orange-200 shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          <span>📋</span> <span id="copy-btn-text">Copy Token</span>
+        </button>
+      </div>
+
+      <!-- Details Summary -->
+      ${detailsHtml}
+
+      <!-- WhatsApp Notice Callout -->
+      <div class="my-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-start gap-3">
+        <span class="text-2xl flex-shrink-0">💬</span>
+        <div class="leading-relaxed">
+          <strong>Final Step Required:</strong> Message our festival concierge on WhatsApp (<strong>+234 812 545 7981</strong>) with your token to get payment instructions and your verified festival pass / dispatch tracking.
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="space-y-2.5 pt-2">
+        <a 
+          href="${whatsappUrl}" 
+          target="_blank" 
+          rel="noopener noreferrer" 
+          class="w-full bg-[#25D366] hover:bg-[#1EBE5D] text-white font-black py-4 px-6 rounded-2xl transition shadow-lg shadow-emerald-200 flex items-center justify-center gap-2.5 text-base cursor-pointer"
+        >
+          <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+          </svg>
+          <span>Continue to WhatsApp to Finalize ↗</span>
+        </a>
+
+        <div class="flex gap-2.5">
+          <button 
+            type="button"
+            onclick="window.printPendingOrder()" 
+            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 px-4 rounded-xl text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <span>🖨️</span> <span>Print / Save Slip</span>
+          </button>
+          <button 
+            type="button"
+            onclick="document.getElementById('pending-order-modal').remove()" 
+            class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-3 px-5 rounded-xl text-xs transition cursor-pointer"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  if (autoLaunchWhatsApp) {
+    try {
+      window.open(whatsappUrl, '_blank');
+    } catch (e) {
+      console.warn("Could not auto-open WhatsApp:", e);
+    }
+  }
+}
+
+window.copyOrderToken = function(token) {
+  const onSuccess = () => {
+    const btnText = document.getElementById("copy-btn-text");
+    if (btnText) {
+      btnText.textContent = "Copied!";
+      setTimeout(() => { btnText.textContent = "Copy Token"; }, 2000);
+    }
+    showAlert(`Token "${token}" copied to clipboard!`, "success");
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(token).then(onSuccess).catch(() => fallbackCopy(token));
+  } else {
+    fallbackCopy(token);
+  }
+};
+
+function fallbackCopy(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand("copy");
+  document.body.removeChild(ta);
+  showAlert(`Token "${text}" copied to clipboard!`, "success");
+}
+
+window.printPendingOrder = function() {
+  window.print();
+};
+
+function createPendingOrdersDrawer() {
+  let drawer = document.getElementById("pending-orders-drawer");
+  if (drawer) return drawer;
+
+  drawer = document.createElement("div");
+  drawer.id = "pending-orders-drawer";
+  drawer.className = "fixed inset-y-0 right-0 max-w-md w-full bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col justify-between border-l border-gray-200";
+
+  drawer.innerHTML = `
+    <!-- Drawer Header -->
+    <div class="p-6 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-orange-50/70 to-white">
+      <div>
+        <div class="flex items-center gap-2">
+          <h3 class="text-lg font-black text-gray-900">My Bookings & Orders</h3>
+          <span class="pending-tokens-badge hidden bg-orange-600 text-white font-black text-[10px] px-2 py-0.5 rounded-full">0</span>
+        </div>
+        <p class="text-[11px] text-gray-500 mt-0.5">Track your pending tokens & WhatsApp status</p>
+      </div>
+      <button onclick="window.closePendingOrdersDrawer()" class="p-2 text-gray-400 hover:text-gray-800 text-2xl font-bold cursor-pointer leading-none">×</button>
+    </div>
+
+    <!-- Quick Token Search Box -->
+    <div class="p-4 bg-gray-50 border-b border-gray-100">
+      <label class="block text-[10px] font-black uppercase text-gray-500 mb-1.5 tracking-wider">Search / Look Up Any Token</label>
+      <div class="flex gap-2">
+        <input 
+          type="text" 
+          id="token-lookup-input" 
+          placeholder="e.g. AIC-TKT-2026-..." 
+          class="flex-1 p-2.5 rounded-xl bg-white border border-gray-200 text-xs font-mono font-bold uppercase focus:ring-2 focus:ring-orange-600 outline-none"
+        />
+        <button 
+          type="button" 
+          onclick="window.lookupPendingToken()" 
+          class="bg-orange-600 hover:bg-orange-700 text-white font-bold text-xs px-3.5 py-2.5 rounded-xl transition cursor-pointer"
+        >
+          Check
+        </button>
+      </div>
+      <div class="flex gap-2 mt-3 text-[11px]">
+        <button onclick="window.filterPendingDrawer('all')" class="filter-btn-all font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition">All</button>
+        <button onclick="window.filterPendingDrawer('ticket')" class="filter-btn-ticket font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition">🎟️ Tickets</button>
+        <button onclick="window.filterPendingDrawer('merchandise')" class="filter-btn-merchandise font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition">📦 Store Merch</button>
+      </div>
+    </div>
+
+    <!-- Orders List Container -->
+    <div id="pending-orders-list" class="p-6 flex-1 overflow-y-auto space-y-3">
+      <!-- Injected dynamically -->
+    </div>
+
+    <!-- Drawer Footer -->
+    <div class="p-4 bg-gray-50 border-t border-gray-200 text-center text-[11px] text-gray-500">
+      Official AIC WhatsApp Line: <strong class="text-gray-800">+234 812 545 7981</strong>
+    </div>
+  `;
+
+  document.body.appendChild(drawer);
+  return drawer;
+}
+
+let currentDrawerFilter = "all";
+
+function renderPendingOrdersList(filterType) {
+  if (filterType) currentDrawerFilter = filterType;
+  const list = document.getElementById("pending-orders-list");
+  if (!list) return;
+
+  const orders = getPendingOrders();
+  const filtered = currentDrawerFilter === "all" ? orders : orders.filter(o => o.type === currentDrawerFilter);
+
+  const drawer = document.getElementById("pending-orders-drawer");
+  if (drawer) {
+    drawer.querySelectorAll("[class*='filter-btn-']").forEach(btn => {
+      btn.className = `font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition cursor-pointer`;
+    });
+    const activeBtn = drawer.querySelector(`.filter-btn-${currentDrawerFilter}`);
+    if (activeBtn) {
+      activeBtn.className = `font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition cursor-pointer`;
+    }
+  }
+
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="text-center py-12 text-gray-400">
+        <span class="text-4xl block mb-2">🏷️</span>
+        <p class="text-sm font-bold text-gray-600">No pending tokens found</p>
+        <p class="text-xs text-gray-400 mt-1">When you reserve passes or pick store items, your pending token will appear here!</p>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = filtered.map(order => {
+    const isTicket = order.type === "ticket";
+    const title = isTicket ? order.ticketType : (order.itemsSummary || "Merchandise Order");
+    const subText = isTicket ? `${order.ticketCount} Attendee(s) • ${order.visitDate || 'Dec 2026'}` : `${order.deliveryMethod || 'Pickup'} • ${order.customerName}`;
+    const whatsappUrl = isTicket ? buildTicketWhatsAppUrl(order) : buildStoreWhatsAppUrl(order);
+
+    return `
+      <div class="p-4 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition">
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <div>
+            <span class="inline-block bg-amber-50 text-amber-800 text-[10px] font-black uppercase px-2 py-0.5 rounded-full border border-amber-200 mb-1">
+              🟡 ${order.status || 'Pending Payment'}
+            </span>
+            <div class="font-mono text-xs font-black text-orange-600">${order.token}</div>
+          </div>
+          <button 
+            type="button"
+            onclick="window.removePendingOrder('${order.token}')" 
+            class="text-gray-300 hover:text-red-500 text-base leading-none p-1 cursor-pointer" 
+            title="Remove from device"
+          >×</button>
+        </div>
+
+        <h4 class="text-xs font-bold text-gray-900 leading-snug">${title}</h4>
+        <p class="text-[11px] text-gray-500 mt-0.5">${subText}</p>
+        
+        <div class="flex items-center justify-between pt-3 mt-3 border-t border-gray-100">
+          <strong class="text-sm font-black text-green-600">${order.totalAmount}</strong>
+          <div class="flex items-center gap-1.5">
+            <button 
+              type="button" 
+              onclick="window.viewSavedPendingOrder('${order.token}')" 
+              class="text-[11px] font-bold text-gray-600 hover:text-orange-600 bg-gray-50 hover:bg-orange-50 px-2.5 py-1.5 rounded-lg transition cursor-pointer"
+            >
+              Slip
+            </button>
+            <a 
+              href="${whatsappUrl}" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              class="text-[11px] font-bold text-white bg-[#25D366] hover:bg-[#1EBE5D] px-3 py-1.5 rounded-lg transition flex items-center gap-1 shadow-sm cursor-pointer"
+            >
+              <span>💬</span> <span>WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+window.openPendingOrdersDrawer = function(filterType = "all") {
+  let drawer = document.getElementById("pending-orders-drawer");
+  if (!drawer) drawer = createPendingOrdersDrawer();
+  renderPendingOrdersList(filterType);
+  drawer.classList.remove("translate-x-full");
+};
+
+window.closePendingOrdersDrawer = function() {
+  const drawer = document.getElementById("pending-orders-drawer");
+  if (drawer) drawer.classList.add("translate-x-full");
+};
+
+window.filterPendingDrawer = function(type) {
+  renderPendingOrdersList(type);
+};
+
+window.viewSavedPendingOrder = function(token) {
+  const orders = getPendingOrders();
+  const order = orders.find(o => o.token === token);
+  if (order) {
+    showPendingOrderModal(order, false);
+  } else {
+    showAlert("Order details not found locally.", "warning");
+  }
+};
+
+window.lookupPendingToken = function(customToken) {
+  const input = document.getElementById("token-lookup-input");
+  const token = (customToken || (input ? input.value : "")).trim().toUpperCase();
+  if (!token) {
+    showAlert("Please enter a Token ID to look up.", "warning");
+    return;
+  }
+
+  const orders = getPendingOrders();
+  const found = orders.find(o => o.token.toUpperCase() === token);
+  if (found) {
+    showPendingOrderModal(found, false);
+  } else {
+    const mockOrder = {
+      token: token,
+      type: token.includes("TKT") ? "ticket" : "merchandise",
+      customerName: "Token Holder",
+      phone: "Provided on WhatsApp",
+      email: "N/A",
+      ticketType: token.includes("TKT") ? "Festival Village Pass" : "Festival Goods",
+      ticketCount: "1+",
+      totalAmount: "Pending Confirmation",
+      itemsList: ["Items linked to " + token],
+      deliveryMethod: "Arranged on WhatsApp",
+      status: "🟡 Pending WhatsApp Verification"
+    };
+    showPendingOrderModal(mockOrder, false);
+    showAlert(`Loaded reference for ${token}. Message WhatsApp to confirm.`, "info");
+  }
+};
+
 function setupTicketPurchase() {
   const form = document.getElementById("ticket-order-form");
   const tierSelect = document.getElementById("ticket-tier-select");
   const qtyInput = document.getElementById("ticket-qty-input");
   const subtotalDisplay = document.getElementById("ticket-subtotal-display");
+
+  updatePendingOrdersBadges();
 
   if (!form) return;
 
@@ -597,66 +1099,63 @@ function setupTicketPurchase() {
     const btn = form.querySelector("button[type='submit']");
     const origText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "Generating Ticket...";
+    btn.textContent = "Generating Reservation Token...";
 
     const tier = tierSelect ? tierSelect.value : "regular";
-    const qty = qtyInput ? (parseInt(qtyInput.value) || 1) : 1;
+    const qty = qtyInput ? Math.max(1, parseInt(qtyInput.value) || 1) : 1;
     const totalAmount = (PRICES[tier] || 3000) * qty;
+    const token = generateOrderToken("TKT");
 
-    const payload = {
-      formType: "ticket_purchase",
-      fullName: form.querySelector("input[name='fullName']").value,
-      email: form.querySelector("input[name='email']").value,
-      phone: form.querySelector("input[name='phone']").value,
-      ticketType: tier.toUpperCase() + " Pass",
+    const fullName = form.querySelector("input[name='fullName']").value;
+    const email = form.querySelector("input[name='email']").value;
+    const phone = form.querySelector("input[name='phone']").value;
+    const visitDate = form.querySelector("input[name='visitDate']") ? form.querySelector("input[name='visitDate']").value : "Carnival Week Dec 26-31, 2026";
+    const tierLabel = tierSelect.options[tierSelect.selectedIndex] ? tierSelect.options[tierSelect.selectedIndex].text : (tier.toUpperCase() + " Pass");
+
+    const order = {
+      token: token,
+      type: "ticket",
+      customerName: fullName,
+      email: email,
+      phone: phone,
+      ticketType: tierLabel,
+      ticketTier: tier,
       ticketCount: qty,
       totalAmount: "₦" + totalAmount.toLocaleString(),
-      visitDate: form.querySelector("input[name='visitDate']") ? form.querySelector("input[name='visitDate']").value : "Carnival Week 2026",
-      paymentStatus: "Confirmed / Reserved"
+      visitDate: visitDate || "Carnival Week Dec 26-31, 2026",
+      status: "🟡 Pending WhatsApp Payment",
+      createdAt: new Date().toISOString()
     };
 
-    const res = await postToAppsScript(payload);
-    const refId = res.referenceId || ("AIC-TKT-" + Math.floor(100000 + Math.random() * 900000));
-    showTicketReceiptModal(payload, refId);
+    // Save to local storage for persistent pending token tracking
+    savePendingOrder(order);
 
-    showAlert(res.message || "Ticket booked successfully! Keep your reference ID.", "success");
+    // Asynchronously log to Google Apps Script
+    postToAppsScript({
+      formType: "ticket_purchase",
+      referenceId: token,
+      token: token,
+      fullName: fullName,
+      email: email,
+      phone: phone,
+      ticketType: tierLabel,
+      ticketCount: qty,
+      totalAmount: order.totalAmount,
+      visitDate: visitDate,
+      paymentStatus: "🟡 Pending WhatsApp Confirmation"
+    }).catch(err => console.error("Ticket cloud sync error:", err));
+
+    showAlert(`Reservation Token generated: ${token}. Redirecting to WhatsApp...`, "success");
+
+    // Show on-screen pending modal & trigger WhatsApp
+    showPendingOrderModal(order, true);
+
     form.reset();
     updateSubtotal();
 
     btn.disabled = false;
     btn.textContent = origText;
   });
-}
-
-function showTicketReceiptModal(data, refId) {
-  const modal = document.createElement("div");
-  modal.className = "fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in";
-  modal.innerHTML = `
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border-4 border-orange-500 relative">
-      <button onclick="this.closest('.fixed').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold">×</button>
-      <div class="text-center pb-6 border-b border-dashed border-gray-300">
-        <span class="inline-block bg-orange-100 text-orange-600 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider mb-2">Official Digital Pass</span>
-        <h3 class="text-2xl font-black text-gray-900">Afikpo Carnival 2026</h3>
-        <p class="text-sm text-gray-500">Carnival Village & Festival Arena</p>
-      </div>
-      <div class="py-6 space-y-3 text-sm">
-        <div class="flex justify-between"><span class="text-gray-500">Pass Holder:</span><strong class="text-gray-900">${data.fullName}</strong></div>
-        <div class="flex justify-between"><span class="text-gray-500">Ticket Tier:</span><strong class="text-orange-600 font-bold">${data.ticketType}</strong></div>
-        <div class="flex justify-between"><span class="text-gray-500">Quantity:</span><strong class="text-gray-900">${data.ticketCount} Attendee(s)</strong></div>
-        <div class="flex justify-between"><span class="text-gray-500">Total Paid:</span><strong class="text-green-600 font-extrabold text-base">${data.totalAmount}</strong></div>
-        <div class="flex justify-between"><span class="text-gray-500">Reference ID:</span><span class="font-mono font-bold bg-gray-100 px-2 py-0.5 rounded text-orange-600">${refId}</span></div>
-      </div>
-      <div class="bg-orange-50 p-4 rounded-2xl flex items-center gap-4 text-xs text-orange-800 mb-6">
-        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center font-mono font-black text-xs shadow-sm border border-orange-200">PASS</div>
-        <p>Present this Reference ID or screenshot at the Carnival Village entrance gates for your festival wristband.</p>
-      </div>
-      <div class="flex gap-3">
-        <button onclick="window.print()" class="flex-1 bg-gray-100 text-gray-800 font-bold py-3 rounded-xl hover:bg-gray-200 transition text-sm">Print / Save Pass</button>
-        <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-orange-600 text-white font-bold py-3 rounded-xl hover:bg-orange-700 transition text-sm">Done</button>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
 }
 
 // =============================================================
@@ -682,7 +1181,7 @@ function updateCartUI() {
 
   if (cartItemsList) {
     if (cart.length === 0) {
-      cartItemsList.innerHTML = `<div class="text-center py-12 text-gray-400"><p class="text-base font-bold">Your cart is empty</p><p class="text-xs mt-1">Explore our branded caps, shirts, and Igbo beads!</p></div>`;
+      cartItemsList.innerHTML = `<div class="text-center py-12 text-gray-400"><p class="text-base font-bold">Your bag is empty</p><p class="text-xs mt-1">Explore our branded caps, shirts, and Igbo beads!</p></div>`;
     } else {
       cartItemsList.innerHTML = cart.map((item, idx) => `
         <div class="flex items-center gap-4 py-3 border-b border-gray-100">
@@ -691,14 +1190,14 @@ function updateCartUI() {
             <h5 class="font-bold text-gray-900 truncate text-xs">${item.name}</h5>
             <p class="text-[11px] text-gray-500">${item.variant ? item.variant + ' • ' : ''}₦${item.price.toLocaleString()}</p>
             <div class="flex items-center gap-2 mt-1">
-              <button onclick="window.changeCartQty(${idx}, -1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center">-</button>
+              <button onclick="window.changeCartQty(${idx}, -1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center cursor-pointer">-</button>
               <span class="text-xs font-bold">${item.qty}</span>
-              <button onclick="window.changeCartQty(${idx}, 1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center">+</button>
+              <button onclick="window.changeCartQty(${idx}, 1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center cursor-pointer">+</button>
             </div>
           </div>
           <div class="text-right">
             <strong class="text-xs text-gray-900 block">₦${(item.price * item.qty).toLocaleString()}</strong>
-            <button onclick="window.removeFromCart(${idx})" class="text-[11px] text-red-500 hover:text-red-700 mt-1">Remove</button>
+            <button onclick="window.removeFromCart(${idx})" class="text-[11px] text-red-500 hover:text-red-700 mt-1 cursor-pointer">Remove</button>
           </div>
         </div>
       `).join("");
@@ -749,6 +1248,7 @@ window.closeCartDrawer = function() {
 
 function setupMerchandiseStore() {
   updateCartUI();
+  updatePendingOrdersBadges();
 
   // Attach quick-add buttons
   document.querySelectorAll(".add-to-cart-btn").forEach(btn => {
@@ -783,29 +1283,62 @@ function setupMerchandiseStore() {
       const btn = checkoutForm.querySelector("button[type='submit']");
       const origText = btn.textContent;
       btn.disabled = true;
-      btn.textContent = "Processing Order...";
+      btn.textContent = "Generating Order Token...";
 
       const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const itemsList = cart.map(i => `${i.name} (${i.variant || 'Standard'}) x${i.qty} — ₦${(i.price * i.qty).toLocaleString()}`);
       const itemsSummary = cart.map(i => `${i.name} (${i.variant || 'Standard'}) x${i.qty}`).join(", ");
+      const token = generateOrderToken("STR");
 
-      const payload = {
-        formType: "merchandise_order",
-        customerName: checkoutForm.querySelector("input[name='customerName']").value,
-        email: checkoutForm.querySelector("input[name='email']").value,
-        phone: checkoutForm.querySelector("input[name='phone']").value,
-        deliveryAddress: checkoutForm.querySelector("input[name='deliveryAddress']").value,
-        deliveryMethod: checkoutForm.querySelector("select[name='deliveryMethod']").value,
-        orderItems: itemsSummary,
-        totalAmount: "₦" + totalAmount.toLocaleString()
+      const customerName = checkoutForm.querySelector("input[name='customerName']").value;
+      const email = checkoutForm.querySelector("input[name='email']").value;
+      const phone = checkoutForm.querySelector("input[name='phone']").value;
+      const deliveryAddress = checkoutForm.querySelector("input[name='deliveryAddress']").value;
+      const deliveryMethod = checkoutForm.querySelector("select[name='deliveryMethod']").value;
+
+      const order = {
+        token: token,
+        type: "merchandise",
+        customerName: customerName,
+        email: email,
+        phone: phone,
+        deliveryAddress: deliveryAddress,
+        deliveryMethod: deliveryMethod,
+        itemsList: itemsList,
+        itemsSummary: itemsSummary,
+        totalAmount: "₦" + totalAmount.toLocaleString(),
+        status: "🟡 Pending WhatsApp Payment",
+        createdAt: new Date().toISOString()
       };
 
-      const res = await postToAppsScript(payload);
-      showAlert(res.message || "Order submitted successfully! We will contact you for dispatch.", "success");
-      
+      // Save to local storage for pending orders tracking
+      savePendingOrder(order);
+
+      // Asynchronously log to Google Apps Script
+      postToAppsScript({
+        formType: "merchandise_order",
+        orderId: token,
+        token: token,
+        customerName: customerName,
+        email: email,
+        phone: phone,
+        deliveryAddress: deliveryAddress,
+        deliveryMethod: deliveryMethod,
+        orderItems: itemsSummary,
+        totalAmount: order.totalAmount,
+        orderStatus: "🟡 Pending WhatsApp Confirmation"
+      }).catch(err => console.error("Store cloud sync error:", err));
+
+      showAlert(`Order Token generated: ${token}. Redirecting to WhatsApp...`, "success");
+
+      // Reset active shopping cart
       cart = [];
       saveCart();
       checkoutForm.reset();
       window.closeCartDrawer();
+
+      // Show on-screen pending modal & trigger WhatsApp
+      showPendingOrderModal(order, true);
 
       btn.disabled = false;
       btn.textContent = origText;
@@ -3292,6 +3825,7 @@ function initAICApp() {
   try { setupBlogAdmin(); } catch (e) { console.error("Blog admin init error:", e); }
   try { setupGallery(); } catch (e) { console.error("Gallery init error:", e); }
   try { setupGalleryAdmin(); } catch (e) { console.error("Gallery admin init error:", e); }
+  try { updatePendingOrdersBadges(); } catch (e) { console.error("Badges init error:", e); }
 
   // Mobile Menu Drawer Handler
   const menuBtn = document.getElementById("mobile-menu-button");

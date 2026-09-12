@@ -242,22 +242,22 @@ function handleTicketPurchase(data) {
     "Ticket Tier", "Quantity", "Total Amount (NGN)", "Attendance Date", "Status"
   ]);
 
-  const refId = data.referenceId || ("AIC-TKT-" + Math.floor(100000 + Math.random() * 900000));
+  const refId = data.referenceId || data.token || ("AIC-TKT-2026-" + Math.floor(10000 + Math.random() * 90000));
 
   sheet.appendRow([
     new Date().toLocaleString(),
     refId,
-    data.fullName,
+    data.fullName || data.customerName,
     data.email,
     data.phone,
     data.ticketType,
     data.ticketCount,
     data.totalAmount,
     data.visitDate || "Carnival Week Dec 2026",
-    data.paymentStatus || "Confirmed / Reserved"
+    data.paymentStatus || "🟡 Pending WhatsApp Confirmation"
   ]);
 
-  return createResponse("success", `Ticket purchase reserved successfully! Your Reference ID is ${refId}. Check your email for details.`, { referenceId: refId });
+  return createResponse("success", `Ticket reservation created! Token: ${refId}. Please finalize on WhatsApp.`, { referenceId: refId, token: refId, status: "Pending" });
 }
 
 // 6. Merchandise Order
@@ -274,7 +274,7 @@ function handleMerchandiseOrder(data) {
     "Delivery Address", "Delivery Method", "Items Ordered", "Total Amount (NGN)", "Order Status"
   ]);
 
-  const orderId = data.orderId || ("AIC-SHOP-" + Math.floor(100000 + Math.random() * 900000));
+  const orderId = data.orderId || data.token || ("AIC-STR-2026-" + Math.floor(10000 + Math.random() * 90000));
   const itemsSummary = typeof data.orderItems === "string" ? data.orderItems : JSON.stringify(data.orderItems);
 
   sheet.appendRow([
@@ -287,10 +287,10 @@ function handleMerchandiseOrder(data) {
     data.deliveryMethod || "Carnival Village Pickup",
     itemsSummary,
     data.totalAmount,
-    "Pending Dispatch"
+    data.orderStatus || data.paymentStatus || "🟡 Pending WhatsApp Confirmation"
   ]);
 
-  return createResponse("success", `Order placed successfully! Reference ID: ${orderId}. Our store team will contact you for fulfillment.`, { orderId: orderId });
+  return createResponse("success", `Order placed successfully! Token: ${orderId}. Please finalize on WhatsApp.`, { orderId: orderId, token: orderId, status: "Pending" });
 }
 
 // 7. Pageantry Contestant Registration
