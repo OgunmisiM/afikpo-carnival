@@ -550,6 +550,7 @@ function setupSubscriptionForm() {
 }
 
 // =============================================================
+// 4. TICKETS MODULE
 // 4. TICKETS & PENDING RESERVATION TOKENS MODULE
 // =============================================================
 
@@ -1094,6 +1095,102 @@ function setupTicketPurchase() {
     });
   });
 
+  // Calendar Attendance Date Picker Logic
+  const startDateInput = form.querySelector("input[name='visitStartDate']");
+  const endDateInput = form.querySelector("input[name='visitEndDate']");
+  const visitDateHidden = form.querySelector("input[name='visitDate']");
+  const dateSummaryEl = document.getElementById("ticket-date-summary");
+  const daysCountEl = document.getElementById("ticket-days-count");
+  const presetBtns = form.querySelectorAll(".preset-date-btn");
+
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  function formatDisplayDate(dateStr) {
+    if (!dateStr) return "";
+    const parts = dateStr.split("-");
+    if (parts.length !== 3) return dateStr;
+    const y = parts[0];
+    const m = MONTHS[parseInt(parts[1], 10) - 1] || parts[1];
+    const d = parseInt(parts[2], 10);
+    return `${m} ${d}, ${y}`;
+  }
+
+  function syncTicketCalendar(customLabel = null) {
+    if (!startDateInput || !endDateInput) return;
+
+    if (endDateInput.value < startDateInput.value) {
+      endDateInput.value = startDateInput.value;
+    }
+
+    const start = startDateInput.value;
+    const end = endDateInput.value;
+    const startFormatted = formatDisplayDate(start);
+    const endFormatted = formatDisplayDate(end);
+
+    const d1 = new Date(start + "T00:00:00");
+    const d2 = new Date(end + "T00:00:00");
+    const diffTime = Math.abs(d2 - d1);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+    let periodText = "";
+    if (customLabel) {
+      periodText = customLabel;
+    } else if (start === end) {
+      periodText = `${startFormatted} (1 Day Pass)`;
+    } else {
+      periodText = `${startFormatted} to ${endFormatted} (${diffDays} Days Pass)`;
+    }
+
+    if (visitDateHidden) {
+      visitDateHidden.value = periodText;
+    }
+    if (dateSummaryEl) {
+      dateSummaryEl.textContent = periodText;
+    }
+    if (daysCountEl) {
+      daysCountEl.textContent = `${diffDays} Day${diffDays > 1 ? 's' : ''} Pass`;
+    }
+
+    // Highlight active preset if matches
+    presetBtns.forEach(btn => {
+      const bStart = btn.getAttribute("data-start");
+      const bEnd = btn.getAttribute("data-end");
+      const isMatch = (bStart === start && bEnd === end);
+      if (isMatch) {
+        btn.classList.remove("border-gray-200", "bg-gray-50", "text-gray-800");
+        btn.classList.add("border-orange-500", "bg-orange-500", "text-white");
+        const subtext = btn.querySelector("span:last-child");
+        if (subtext) subtext.className = "block text-[10px] opacity-90";
+      } else {
+        btn.classList.remove("border-orange-500", "bg-orange-500", "text-white");
+        btn.classList.add("border-gray-200", "bg-gray-50", "text-gray-800");
+        const subtext = btn.querySelector("span:last-child");
+        if (subtext) subtext.className = "block text-[10px] text-gray-500";
+      }
+    });
+  }
+
+  if (startDateInput) {
+    startDateInput.addEventListener("change", () => syncTicketCalendar());
+  }
+  if (endDateInput) {
+    endDateInput.addEventListener("change", () => syncTicketCalendar());
+  }
+
+  presetBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const s = btn.getAttribute("data-start");
+      const e = btn.getAttribute("data-end");
+      const title = btn.getAttribute("data-title");
+      if (startDateInput && s) startDateInput.value = s;
+      if (endDateInput && e) endDateInput.value = e;
+      syncTicketCalendar(title);
+    });
+  });
+
+  // Run initial sync on load
+  syncTicketCalendar("All Festival Week (Dec 26 – Dec 31, 2026)");
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = form.querySelector("button[type='submit']");
@@ -1109,8 +1206,12 @@ function setupTicketPurchase() {
     const fullName = form.querySelector("input[name='fullName']").value;
     const email = form.querySelector("input[name='email']").value;
     const phone = form.querySelector("input[name='phone']").value;
-    const visitDate = form.querySelector("input[name='visitDate']") ? form.querySelector("input[name='visitDate']").value : "Carnival Week Dec 26-31, 2026";
-    const tierLabel = tierSelect.options[tierSelect.selectedIndex] ? tierSelect.options[tierSelect.selectedIndex].text : (tier.toUpperCase() + " Pass");
+    const visitDate = (visitDateHidden && visitDateHidden.value)
+      ? visitDateHidden.value
+      : (form.querySelector("input[name='visitDate']") ? form.querySelector("input[name='visitDate']").value : "Carnival Week Dec 26-31, 2026");
+    const tierLabel = tierSelect && tierSelect.options[tierSelect.selectedIndex]
+      ? tierSelect.options[tierSelect.selectedIndex].text
+      : (tier.toUpperCase() + " Pass");
 
     const order = {
       token: token,
@@ -1152,10 +1253,42 @@ function setupTicketPurchase() {
 
     form.reset();
     updateSubtotal();
+    syncTicketCalendar("All Festival Week (Dec 26 – Dec 31, 2026)");
 
     btn.disabled = false;
     btn.textContent = origText;
   });
+}
+
+function showTicketReceiptModal(data, refId) {
+  const modal = document.createElement("div");
+  modal.className = "fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in";
+  modal.innerHTML = `
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border-4 border-orange-500 relative">
+      <button onclick="this.closest('.fixed').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold">×</button>
+      <div class="text-center pb-6 border-b border-dashed border-gray-300">
+        <span class="inline-block bg-orange-100 text-orange-600 font-extrabold text-xs px-3 py-1 rounded-full uppercase tracking-wider mb-2">Official Digital Pass</span>
+        <h3 class="text-2xl font-black text-gray-900">Afikpo Carnival 2026</h3>
+        <p class="text-sm text-gray-500">Carnival Village & Festival Arena</p>
+      </div>
+      <div class="py-6 space-y-3 text-sm">
+        <div class="flex justify-between"><span class="text-gray-500">Pass Holder:</span><strong class="text-gray-900">${data.fullName}</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Ticket Tier:</span><strong class="text-orange-600 font-bold">${data.ticketType}</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Quantity:</span><strong class="text-gray-900">${data.ticketCount} Attendee(s)</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Total Paid:</span><strong class="text-green-600 font-extrabold text-base">${data.totalAmount}</strong></div>
+        <div class="flex justify-between"><span class="text-gray-500">Reference ID:</span><span class="font-mono font-bold bg-gray-100 px-2 py-0.5 rounded text-orange-600">${refId}</span></div>
+      </div>
+      <div class="bg-orange-50 p-4 rounded-2xl flex items-center gap-4 text-xs text-orange-800 mb-6">
+        <div class="w-12 h-12 bg-white rounded-xl flex items-center justify-center font-mono font-black text-xs shadow-sm border border-orange-200">PASS</div>
+        <p>Present this Reference ID or screenshot at the Carnival Village entrance gates for your festival wristband.</p>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="window.print()" class="flex-1 bg-gray-100 text-gray-800 font-bold py-3 rounded-xl hover:bg-gray-200 transition text-sm">Print / Save Pass</button>
+        <button onclick="this.closest('.fixed').remove()" class="flex-1 bg-orange-600 text-white font-bold py-3 rounded-xl hover:bg-orange-700 transition text-sm">Done</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
 }
 
 // =============================================================
