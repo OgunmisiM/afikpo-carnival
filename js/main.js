@@ -1095,13 +1095,12 @@ function setupTicketPurchase() {
     });
   });
 
-  // Calendar Attendance Date Picker Logic
+  // Calendar Attendance Date Picker Logic (Arrival & Departure)
   const startDateInput = form.querySelector("input[name='visitStartDate']");
   const endDateInput = form.querySelector("input[name='visitEndDate']");
   const visitDateHidden = form.querySelector("input[name='visitDate']");
   const dateSummaryEl = document.getElementById("ticket-date-summary");
   const daysCountEl = document.getElementById("ticket-days-count");
-  const presetBtns = form.querySelectorAll(".preset-date-btn");
 
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -1115,7 +1114,7 @@ function setupTicketPurchase() {
     return `${m} ${d}, ${y}`;
   }
 
-  function syncTicketCalendar(customLabel = null) {
+  function syncTicketCalendar() {
     if (!startDateInput || !endDateInput) return;
 
     if (endDateInput.value < startDateInput.value) {
@@ -1133,9 +1132,7 @@ function setupTicketPurchase() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
     let periodText = "";
-    if (customLabel) {
-      periodText = customLabel;
-    } else if (start === end) {
+    if (start === end) {
       periodText = `${startFormatted} (1 Day Pass)`;
     } else {
       periodText = `${startFormatted} to ${endFormatted} (${diffDays} Days Pass)`;
@@ -1145,51 +1142,22 @@ function setupTicketPurchase() {
       visitDateHidden.value = periodText;
     }
     if (dateSummaryEl) {
-      dateSummaryEl.textContent = periodText;
+      dateSummaryEl.textContent = start === end ? startFormatted : `${startFormatted} to ${endFormatted}`;
     }
     if (daysCountEl) {
       daysCountEl.textContent = `${diffDays} Day${diffDays > 1 ? 's' : ''} Pass`;
     }
-
-    // Highlight active preset if matches
-    presetBtns.forEach(btn => {
-      const bStart = btn.getAttribute("data-start");
-      const bEnd = btn.getAttribute("data-end");
-      const isMatch = (bStart === start && bEnd === end);
-      if (isMatch) {
-        btn.classList.remove("border-gray-200", "bg-gray-50", "text-gray-800");
-        btn.classList.add("border-orange-500", "bg-orange-500", "text-white");
-        const subtext = btn.querySelector("span:last-child");
-        if (subtext) subtext.className = "block text-[10px] opacity-90";
-      } else {
-        btn.classList.remove("border-orange-500", "bg-orange-500", "text-white");
-        btn.classList.add("border-gray-200", "bg-gray-50", "text-gray-800");
-        const subtext = btn.querySelector("span:last-child");
-        if (subtext) subtext.className = "block text-[10px] text-gray-500";
-      }
-    });
   }
 
   if (startDateInput) {
-    startDateInput.addEventListener("change", () => syncTicketCalendar());
+    startDateInput.addEventListener("change", syncTicketCalendar);
   }
   if (endDateInput) {
-    endDateInput.addEventListener("change", () => syncTicketCalendar());
+    endDateInput.addEventListener("change", syncTicketCalendar);
   }
 
-  presetBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-      const s = btn.getAttribute("data-start");
-      const e = btn.getAttribute("data-end");
-      const title = btn.getAttribute("data-title");
-      if (startDateInput && s) startDateInput.value = s;
-      if (endDateInput && e) endDateInput.value = e;
-      syncTicketCalendar(title);
-    });
-  });
-
-  // Run initial sync on load
-  syncTicketCalendar("All Festival Week (Dec 26 – Dec 31, 2026)");
+  // Initial sync
+  syncTicketCalendar();
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1253,7 +1221,7 @@ function setupTicketPurchase() {
 
     form.reset();
     updateSubtotal();
-    syncTicketCalendar("All Festival Week (Dec 26 – Dec 31, 2026)");
+    syncTicketCalendar();
 
     btn.disabled = false;
     btn.textContent = origText;
@@ -1314,6 +1282,7 @@ function updateCartUI() {
 
   if (cartItemsList) {
     if (cart.length === 0) {
+      cartItemsList.innerHTML = `<div class="text-center py-12 text-gray-400"><p class="text-base font-bold">Your cart is empty</p><p class="text-xs mt-1">Explore our branded caps, shirts, and Igbo beads!</p></div>`;
       cartItemsList.innerHTML = `<div class="text-center py-12 text-gray-400"><p class="text-base font-bold">Your bag is empty</p><p class="text-xs mt-1">Explore our branded caps, shirts, and Igbo beads!</p></div>`;
     } else {
       cartItemsList.innerHTML = cart.map((item, idx) => `
@@ -1323,13 +1292,16 @@ function updateCartUI() {
             <h5 class="font-bold text-gray-900 truncate text-xs">${item.name}</h5>
             <p class="text-[11px] text-gray-500">${item.variant ? item.variant + ' • ' : ''}₦${item.price.toLocaleString()}</p>
             <div class="flex items-center gap-2 mt-1">
+              <button onclick="window.changeCartQty(${idx}, -1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center">-</button>
               <button onclick="window.changeCartQty(${idx}, -1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center cursor-pointer">-</button>
               <span class="text-xs font-bold">${item.qty}</span>
+              <button onclick="window.changeCartQty(${idx}, 1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center">+</button>
               <button onclick="window.changeCartQty(${idx}, 1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center cursor-pointer">+</button>
             </div>
           </div>
           <div class="text-right">
             <strong class="text-xs text-gray-900 block">₦${(item.price * item.qty).toLocaleString()}</strong>
+            <button onclick="window.removeFromCart(${idx})" class="text-[11px] text-red-500 hover:text-red-700 mt-1">Remove</button>
             <button onclick="window.removeFromCart(${idx})" class="text-[11px] text-red-500 hover:text-red-700 mt-1 cursor-pointer">Remove</button>
           </div>
         </div>

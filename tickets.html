@@ -361,85 +361,16 @@
                 <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
-                <span>Planned Attendance Date / Period (Calendar)</span>
+                <span>Planned Attendance Date (Calendar)</span>
               </label>
               <span class="text-[11px] font-bold text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-100">Festival Dates: Dec 26 – 31, 2026</span>
             </div>
 
-            <!-- Quick Festival Program & Day Presets -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              <button 
-                type="button" 
-                data-start="2026-12-26" 
-                data-end="2026-12-31" 
-                data-title="All Festival Week (Dec 26 – Dec 31, 2026)" 
-                class="preset-date-btn text-left p-2.5 rounded-xl border border-orange-500 bg-orange-500 text-white font-semibold text-xs transition cursor-pointer shadow-sm hover:scale-[1.01]"
-              >
-                <span class="block font-black text-xs">🌟 All Festival Week</span>
-                <span class="block text-[10px] opacity-90">Dec 26 – Dec 31, 2026 (6 Days)</span>
-              </button>
-
-              <button 
-                type="button" 
-                data-start="2026-12-26" 
-                data-end="2026-12-26" 
-                data-title="Day 1: Opening Parade & Carnival (Dec 26, 2026)" 
-                class="preset-date-btn text-left p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 font-semibold text-xs transition cursor-pointer hover:bg-orange-50 hover:border-orange-300"
-              >
-                <span class="block font-black text-xs">🎭 Day 1: Opening Parade</span>
-                <span class="block text-[10px] text-gray-500">Saturday, Dec 26, 2026</span>
-              </button>
-
-              <button 
-                type="button" 
-                data-start="2026-12-27" 
-                data-end="2026-12-27" 
-                data-title="Day 2: Masquerade Festival (Dec 27, 2026)" 
-                class="preset-date-btn text-left p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 font-semibold text-xs transition cursor-pointer hover:bg-orange-50 hover:border-orange-300"
-              >
-                <span class="block font-black text-xs">👹 Day 2: Masquerade Fest</span>
-                <span class="block text-[10px] text-gray-500">Sunday, Dec 27, 2026</span>
-              </button>
-
-              <button 
-                type="button" 
-                data-start="2026-12-28" 
-                data-end="2026-12-28" 
-                data-title="Day 3: Queen Pageantry Night (Dec 28, 2026)" 
-                class="preset-date-btn text-left p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 font-semibold text-xs transition cursor-pointer hover:bg-orange-50 hover:border-orange-300"
-              >
-                <span class="block font-black text-xs">👑 Day 3: Queen Pageant</span>
-                <span class="block text-[10px] text-gray-500">Monday, Dec 28, 2026</span>
-              </button>
-
-              <button 
-                type="button" 
-                data-start="2026-12-29" 
-                data-end="2026-12-29" 
-                data-title="Day 4: River Regatta & Beach Party (Dec 29, 2026)" 
-                class="preset-date-btn text-left p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 font-semibold text-xs transition cursor-pointer hover:bg-orange-50 hover:border-orange-300"
-              >
-                <span class="block font-black text-xs">🌊 Day 4: Beach & Regatta</span>
-                <span class="block text-[10px] text-gray-500">Tuesday, Dec 29, 2026</span>
-              </button>
-
-              <button 
-                type="button" 
-                data-start="2026-12-30" 
-                data-end="2026-12-31" 
-                data-title="Day 5–6: Music Concert & Finale (Dec 30 – 31, 2026)" 
-                class="preset-date-btn text-left p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-800 font-semibold text-xs transition cursor-pointer hover:bg-orange-50 hover:border-orange-300"
-              >
-                <span class="block font-black text-xs">🎶 Day 5–6: Music & Finale</span>
-                <span class="block text-[10px] text-gray-500">Wed–Thu, Dec 30–31, 2026</span>
-              </button>
-            </div>
-
-            <!-- Calendar Date Picker Inputs -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <!-- Calendar Date Picker Inputs (Arrival & Departure) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label for="ticket-start-date" class="block text-[11px] font-bold text-gray-600 mb-1.5 flex items-center gap-1">
-                  <span>📅 Arrival / Start Date:</span>
+                <label for="ticket-start-date" class="block text-xs font-bold text-gray-700 uppercase mb-2 flex items-center gap-1.5">
+                  <span>📅 Arrival Date</span>
                 </label>
                 <input 
                   type="date" 
@@ -447,14 +378,14 @@
                   name="visitStartDate" 
                   value="2026-12-26" 
                   min="2026-12-01" 
-                  max="2027-01-05" 
-                  class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-orange-600 outline-none cursor-pointer"
+                  max="2027-01-10" 
+                  class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-orange-600 outline-none cursor-pointer"
                   required
                 />
               </div>
               <div>
-                <label for="ticket-end-date" class="block text-[11px] font-bold text-gray-600 mb-1.5 flex items-center gap-1">
-                  <span>📅 Departure / End Date:</span>
+                <label for="ticket-end-date" class="block text-xs font-bold text-gray-700 uppercase mb-2 flex items-center gap-1.5">
+                  <span>📅 Departure Date</span>
                 </label>
                 <input 
                   type="date" 
@@ -462,23 +393,23 @@
                   name="visitEndDate" 
                   value="2026-12-31" 
                   min="2026-12-01" 
-                  max="2027-01-05" 
-                  class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-orange-600 outline-none cursor-pointer"
+                  max="2027-01-10" 
+                  class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-orange-600 outline-none cursor-pointer"
                   required
                 />
               </div>
             </div>
 
             <!-- Hidden field for synced submission text -->
-            <input type="hidden" id="ticket-visit-date" name="visitDate" value="Dec 26 – Dec 31, 2026 (All Festival Week)" />
+            <input type="hidden" id="ticket-visit-date" name="visitDate" value="Dec 26, 2026 to Dec 31, 2026 (6 Days Pass)" />
 
             <!-- Dynamic Selection Summary Display -->
-            <div id="ticket-date-summary-box" class="p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between text-xs text-amber-900">
+            <div id="ticket-date-summary-box" class="p-3.5 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between text-xs text-amber-900">
               <div class="flex items-center gap-2">
                 <span class="text-base">📅</span>
-                <span>Selected Attendance: <strong id="ticket-date-summary" class="font-bold text-amber-950">Dec 26 – Dec 31, 2026 (All Festival Week)</strong></span>
+                <span>Selected Attendance: <strong id="ticket-date-summary" class="font-bold text-amber-950">Dec 26, 2026 to Dec 31, 2026</strong></span>
               </div>
-              <span id="ticket-days-count" class="text-[10px] font-black uppercase tracking-wider bg-white px-2 py-0.5 rounded-md border border-amber-200 text-amber-800">6 Days Pass</span>
+              <span id="ticket-days-count" class="text-[10px] font-black uppercase tracking-wider bg-white px-2.5 py-1 rounded-md border border-amber-200 text-amber-800 font-bold">6 Days Pass</span>
             </div>
           </div>
 
