@@ -111,9 +111,13 @@ nav {
 }
 
 .timer-box-refined {
-  @apply flex flex-col items-center justify-center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 1.5rem;
   min-width: 100px;
@@ -135,12 +139,35 @@ nav {
 }
 
 .timer-number {
-  @apply text-4xl md:text-6xl font-black text-white leading-none mb-2;
+  display: block;
+  font-size: 2.25rem;
+  line-height: 1;
+  font-weight: 900;
+  color: #ffffff;
+  margin-bottom: 0.5rem;
   font-variant-numeric: tabular-nums; /* Prevents jumping during countdown */
 }
 
+@media (min-width: 768px) {
+  .timer-number {
+    font-size: 3.75rem;
+  }
+}
+
 .timer-label {
-  @apply text-xs md:text-sm font-bold uppercase tracking-widest text-orange-100 opacity-80;
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #ffedd5;
+  opacity: 0.8;
+}
+
+@media (min-width: 768px) {
+  .timer-label {
+    font-size: 0.875rem;
+  }
 }
 
 /* --- Responsive Media Queries (Standard) --- */
