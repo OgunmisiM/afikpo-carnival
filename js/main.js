@@ -1369,6 +1369,92 @@ function setupMerchandiseStore() {
     });
   });
 
+  // Category Filtering & Search logic
+  let activeCategory = "all";
+  const searchInput = document.getElementById("store-search-input");
+  const clearSearchBtn = document.getElementById("clear-search-btn");
+  const categoryPills = document.querySelectorAll(".category-pill");
+  const productCards = document.querySelectorAll(".product-card");
+  const productCountEl = document.getElementById("product-count");
+  const noProductsMsg = document.getElementById("no-products-message");
+
+  function filterStoreProducts() {
+    const query = (searchInput ? searchInput.value.toLowerCase().trim() : "");
+    if (clearSearchBtn) {
+      clearSearchBtn.classList.toggle("hidden", query.length === 0);
+    }
+
+    let visibleCount = 0;
+    productCards.forEach(card => {
+      const category = card.getAttribute("data-category") || "";
+      const name = (card.getAttribute("data-name") || "").toLowerCase();
+      const keywords = (card.getAttribute("data-keywords") || "").toLowerCase();
+      const cardText = card.textContent.toLowerCase();
+
+      const matchesCategory = (activeCategory === "all" || category === activeCategory);
+      const matchesSearch = (!query || name.includes(query) || keywords.includes(query) || cardText.includes(query));
+
+      if (matchesCategory && matchesSearch) {
+        card.classList.remove("hidden");
+        visibleCount++;
+      } else {
+        card.classList.add("hidden");
+      }
+    });
+
+    if (productCountEl) {
+      productCountEl.textContent = visibleCount;
+    }
+
+    if (noProductsMsg) {
+      noProductsMsg.classList.toggle("hidden", visibleCount > 0);
+    }
+  }
+
+  // Category pill clicks
+  categoryPills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      categoryPills.forEach(p => {
+        p.classList.remove("active", "bg-orange-600", "text-white");
+        p.classList.add("bg-gray-100", "text-gray-700");
+      });
+      pill.classList.add("active", "bg-orange-600", "text-white");
+      pill.classList.remove("bg-gray-100", "text-gray-700");
+
+      activeCategory = pill.getAttribute("data-category") || "all";
+      filterStoreProducts();
+    });
+  });
+
+  // Search input handler
+  if (searchInput) {
+    searchInput.addEventListener("input", filterStoreProducts);
+  }
+
+  if (clearSearchBtn) {
+    clearSearchBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      filterStoreProducts();
+      searchInput.focus();
+    });
+  }
+
+  window.resetStoreFilters = function() {
+    if (searchInput) searchInput.value = "";
+    activeCategory = "all";
+    categoryPills.forEach(p => {
+      const cat = p.getAttribute("data-category");
+      if (cat === "all") {
+        p.classList.add("active", "bg-orange-600", "text-white");
+        p.classList.remove("bg-gray-100", "text-gray-700");
+      } else {
+        p.classList.remove("active", "bg-orange-600", "text-white");
+        p.classList.add("bg-gray-100", "text-gray-700");
+      }
+    });
+    filterStoreProducts();
+  };
+
   // Cart open/close triggers
   const openCartBtn = document.getElementById("open-cart-btn");
   const closeCartBtn = document.getElementById("close-cart-btn");

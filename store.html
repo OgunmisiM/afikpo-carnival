@@ -193,66 +193,110 @@
 
     <!-- Store Products Section -->
     <section class="py-16 px-4 max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+      <!-- Section Header -->
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
         <div>
-          <h2 class="text-3xl font-black text-gray-900">Featured Festival Collection</h2>
-          <p class="text-xs md:text-sm text-gray-500 mt-1">Pickup at Carnival Village or choose nationwide delivery</p>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-bold mb-2">
+            <span>🛍️</span> <span>Official Carnival Merchandise</span>
+          </div>
+          <h2 class="text-3xl md:text-4xl font-black text-gray-900">Festival Store & Collectibles</h2>
+          <p class="text-xs md:text-sm text-gray-500 mt-1">Pickup at the Carnival Village in Afikpo or choose nationwide courier delivery</p>
         </div>
         <div class="flex items-center gap-3">
-          <button onclick="window.openCartDrawer()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-full text-sm flex items-center gap-2 shadow-lg shadow-orange-200">
+          <button onclick="window.openCartDrawer()" class="bg-orange-600 hover:bg-orange-700 text-white font-bold px-6 py-3 rounded-full text-sm flex items-center gap-2 shadow-lg shadow-orange-200 cursor-pointer transition">
             <span>View Shopping Bag</span>
             <span>🛒</span>
           </button>
         </div>
       </div>
 
-      <!-- Products Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Product 1: Caps -->
-        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
-          <div>
-            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-orange-50">
-              <img src="assets/images/Afikpo_logo-removebg.png" alt="AIC Official Embroidered Cap" class="w-full h-full object-contain p-6 group-hover:scale-105 transition duration-300" />
-              <span class="absolute top-4 left-4 bg-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Official Merch</span>
-            </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Embroidered Snapback Cap</h3>
-            <p class="text-xs text-gray-500 mb-4">High-density embroidered logo on premium cotton twill. Adjustable snapback.</p>
-            <div class="mb-4">
-              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Color Variant</label>
-              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
-                <option value="Carnival Orange">Carnival Orange</option>
-                <option value="Midnight Black">Midnight Black</option>
-                <option value="Pure White">Pure White</option>
-              </select>
-            </div>
-          </div>
-          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-            <div>
-              <span class="text-xs text-gray-400 block">Price</span>
-              <strong class="text-xl font-black text-gray-900">₦5,000</strong>
-            </div>
-            <button data-id="cap-01" data-name="AIC Embroidered Snapback Cap" data-price="5000" data-image="assets/images/Afikpo_logo-removebg.png" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
-              Add to Bag
+      <!-- Controls: Category Pills & Search -->
+      <div class="bg-white rounded-3xl p-5 md:p-6 border border-gray-200 shadow-sm mb-10 space-y-5">
+        <!-- Search & Info Bar -->
+        <div class="flex flex-col md:flex-row gap-4 items-center justify-between">
+          <!-- Search Input -->
+          <div class="relative w-full md:max-w-md">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </span>
+            <input 
+              type="text" 
+              id="store-search-input" 
+              placeholder="Search items by name or keyword (e.g. cap, shirt, fan, bag)..." 
+              class="w-full pl-10 pr-10 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-medium focus:ring-2 focus:ring-orange-600 focus:bg-white outline-none transition"
+            />
+            <button id="clear-search-btn" class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 text-xs font-bold cursor-pointer">
+              ✕
             </button>
+          </div>
+
+          <!-- Product Counter -->
+          <div class="flex items-center gap-2 text-xs font-semibold text-gray-500 w-full md:w-auto justify-between md:justify-end">
+            <span>Showing <strong id="product-count" class="text-orange-600 font-bold">19</strong> of 19 products</span>
           </div>
         </div>
 
-        <!-- Product 2: Festival T-Shirt / Polo -->
-        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+        <!-- Category Pills -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs font-bold scrollbar-none" id="category-pills">
+          <button data-category="all" class="category-pill active bg-orange-600 text-white px-4 py-2 rounded-full transition shadow-sm whitespace-nowrap cursor-pointer">
+            ✨ All Items (19)
+          </button>
+          <button data-category="apparel" class="category-pill bg-gray-100 hover:bg-orange-50 text-gray-700 hover:text-orange-600 px-4 py-2 rounded-full transition whitespace-nowrap cursor-pointer">
+            👕 Apparel & Outfits (5)
+          </button>
+          <button data-category="headwear" class="category-pill bg-gray-100 hover:bg-orange-50 text-gray-700 hover:text-orange-600 px-4 py-2 rounded-full transition whitespace-nowrap cursor-pointer">
+            🧢 Caps & Headwear (2)
+          </button>
+          <button data-category="masks" class="category-pill bg-gray-100 hover:bg-orange-50 text-gray-700 hover:text-orange-600 px-4 py-2 rounded-full transition whitespace-nowrap cursor-pointer">
+            🎭 Carnival Masks (2)
+          </button>
+          <button data-category="fans" class="category-pill bg-gray-100 hover:bg-orange-50 text-gray-700 hover:text-orange-600 px-4 py-2 rounded-full transition whitespace-nowrap cursor-pointer">
+            🪭 Hand Fans (3)
+          </button>
+          <button data-category="accessories" class="category-pill bg-gray-100 hover:bg-orange-50 text-gray-700 hover:text-orange-600 px-4 py-2 rounded-full transition whitespace-nowrap cursor-pointer">
+            👜 Accessories (5)
+          </button>
+          <button data-category="drinkware" class="category-pill bg-gray-100 hover:bg-orange-50 text-gray-700 hover:text-orange-600 px-4 py-2 rounded-full transition whitespace-nowrap cursor-pointer">
+            🥤 Drinkware (2)
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State Container -->
+      <div id="no-products-message" class="hidden text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-sm p-8 max-w-lg mx-auto mb-12">
+        <span class="text-4xl block mb-3">🔍</span>
+        <h4 class="text-lg font-bold text-gray-800">No matching merchandise found</h4>
+        <p class="text-xs text-gray-500 mt-1 mb-4">Try searching with a different term or pick another category filter.</p>
+        <button onclick="window.resetStoreFilters()" class="bg-orange-600 text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-orange-700 transition cursor-pointer">Reset Filters</button>
+      </div>
+
+      <!-- Products Grid -->
+      <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8">
+        
+        <!-- ========================================== -->
+        <!-- CATEGORY 1: APPAREL & OUTFITS (5 ITEMS)    -->
+        <!-- ========================================== -->
+
+        <!-- Product 1: Festival T-Shirt -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="apparel" data-name="AIC Official Ankara-Sleeve Festival T-Shirt" data-keywords="t-shirt shirt tee top ankara apparel clothes clothing">
           <div>
-            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-100">
-              <img src="assets/images/Afikpo image 1.webp" alt="AIC 2026 Commemorative T-Shirt" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-              <span class="absolute top-4 left-4 bg-gray-900 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Bestseller</span>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo tee.webp" alt="AIC Official Ankara-Sleeve Festival T-Shirt" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Bestseller</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Apparel</span>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC 2026 Commemorative T-Shirt</h3>
-            <p class="text-xs text-gray-500 mb-4">100% breathable combed cotton with vibrant cultural maiden edition artwork.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Official Ankara-Sleeve Festival Tee</h3>
+            <p class="text-xs text-gray-500 mb-4">100% premium combed cotton t-shirt with vibrant authentic Ankara pattern sleeves and front AIC chest emblem.</p>
             <div class="mb-4">
-              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Size</label>
-              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
-                <option value="Size Medium (M)">Size Medium (M)</option>
-                <option value="Size Large (L)">Size Large (L)</option>
-                <option value="Size X-Large (XL)">Size X-Large (XL)</option>
-                <option value="Size 2XL (XXL)">Size 2XL (XXL)</option>
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Select Size</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Small (S)">Small (S)</option>
+                <option value="Medium (M)">Medium (M)</option>
+                <option value="Large (L)" selected>Large (L)</option>
+                <option value="X-Large (XL)">X-Large (XL)</option>
+                <option value="2XL (XXL)">2XL (XXL)</option>
               </select>
             </div>
           </div>
@@ -261,54 +305,300 @@
               <span class="text-xs text-gray-400 block">Price</span>
               <strong class="text-xl font-black text-gray-900">₦8,500</strong>
             </div>
-            <button data-id="shirt-01" data-name="AIC 2026 Commemorative T-Shirt" data-price="8500" data-image="assets/images/Afikpo image 1.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+            <button data-id="merch-tee-01" data-name="AIC Official Ankara-Sleeve Festival Tee" data-price="8500" data-image="assets/store/Afikpo tee.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
               Add to Bag
             </button>
           </div>
         </div>
 
-        <!-- Product 3: Royal Coral & Igbo Beads -->
-        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+        <!-- Product 2: Adult Top and Cap Set -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="apparel" data-name="AIC Adult Matching Top & Cap Combo Set" data-keywords="top cap set combo couple matching adult apparel outfit">
           <div>
-            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-red-50">
-              <img src="assets/images/Nkwa Umuagbógó cultural dance competition.jpeg" alt="Royal Igbo Coral Bead Set" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-              <span class="absolute top-4 left-4 bg-red-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Handcrafted</span>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo top and cap.webp" alt="AIC Adult Matching Top & Cap Combo Set" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-emerald-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Complete Set</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Apparel</span>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-1">Authentic Royal Igbo Coral Beads</h3>
-            <p class="text-xs text-gray-500 mb-4">Exquisite handcrafted ceremonial coral bead necklace and matching royal wristlet.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Adult Matching Top & Cap Combo Set</h3>
+            <p class="text-xs text-gray-500 mb-4">Unisex festival duo containing the signature Ankara-sleeve graphic top paired with the official embroidered cap.</p>
             <div class="mb-4">
-              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Bead Type</label>
-              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
-                <option value="Royal Coral Red">Royal Coral Red (Ceremonial)</option>
-                <option value="Afikpo Terracotta Earth Beads">Afikpo Terracotta Earth Beads</option>
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Select Combo Size</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Medium Set (M)">Medium Set (M)</option>
+                <option value="Large Set (L)" selected>Large Set (L)</option>
+                <option value="X-Large Set (XL)">X-Large Set (XL)</option>
+                <option value="2XL Set (XXL)">2XL Set (XXL)</option>
               </select>
             </div>
           </div>
           <div class="flex items-center justify-between pt-4 border-t border-gray-100">
             <div>
               <span class="text-xs text-gray-400 block">Price</span>
-              <strong class="text-xl font-black text-gray-900">₦12,000</strong>
+              <strong class="text-xl font-black text-gray-900">₦13,500</strong>
             </div>
-            <button data-id="beads-01" data-name="Authentic Royal Igbo Coral Beads" data-price="12000" data-image="assets/images/Nkwa Umuagbógó cultural dance competition.jpeg" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+            <button data-id="merch-top-cap-adult" data-name="AIC Adult Matching Top & Cap Combo Set" data-price="13500" data-image="assets/store/Afikpo top and cap.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
               Add to Bag
             </button>
           </div>
         </div>
 
-        <!-- Product 4: Beaded Wristbands -->
-        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+        <!-- Product 3: Kids Top and Cap Set (Edition 1) -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="apparel" data-name="AIC Kids Top & Cap Festival Set (Edition 1)" data-keywords="kids children boy girl top cap set apparel outfit junior family">
           <div>
-            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-yellow-50">
-              <img src="assets/images/Afikpo (ikpó) cultural display.jpeg" alt="Afikpo Beaded Wristband" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-              <span class="absolute top-4 left-4 bg-yellow-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Tribal</span>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo top and cap for children.webp" alt="AIC Kids Top & Cap Festival Set (Edition 1)" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-purple-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Kids Collection</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Kids Wear</span>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-1">Afikpo Tribal Wristbands (Set of 2)</h3>
-            <p class="text-xs text-gray-500 mb-4">Traditional woven elastic bead wristbands in Igbo & Afikpo ceremonial colorways.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Kids Top & Cap Set (Edition 1)</h3>
+            <p class="text-xs text-gray-500 mb-4">Festive matching t-shirt and cap set tailored for boys and girls with soft breathable cotton and Ankara sleeve accents.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Age Range / Size</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Age 3-5 Years">Age 3-5 Years</option>
+                <option value="Age 6-8 Years" selected>Age 6-8 Years</option>
+                <option value="Age 9-12 Years">Age 9-12 Years</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦9,500</strong>
+            </div>
+            <button data-id="merch-kids-set-01" data-name="AIC Kids Top & Cap Set (Edition 1)" data-price="9500" data-image="assets/store/Afikpo top and cap for children.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 4: Kids Top and Cap Set (Edition 2) -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="apparel" data-name="AIC Kids Top & Cap Festival Set (Edition 2)" data-keywords="kids children boy girl top cap set apparel outfit junior family celebration">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo top and cap for children 2.webp" alt="AIC Kids Top & Cap Festival Set (Edition 2)" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-indigo-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Kids Edition</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Kids Wear</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Kids Top & Cap Set (Edition 2)</h3>
+            <p class="text-xs text-gray-500 mb-4">Celebration edition children's graphic tee and snapback cap duo, tailored for full comfort during carnival parades.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Age Range / Size</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Age 3-5 Years">Age 3-5 Years</option>
+                <option value="Age 6-8 Years" selected>Age 6-8 Years</option>
+                <option value="Age 9-12 Years">Age 9-12 Years</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦9,500</strong>
+            </div>
+            <button data-id="merch-kids-set-02" data-name="AIC Kids Top & Cap Set (Edition 2)" data-price="9500" data-image="assets/store/Afikpo top and cap for children 2.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 5: Festival Muffler / Scarf -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="apparel" data-name="AIC Fringed Festival Muffler / Scarf" data-keywords="muffler mufla scarf neckwear fringe white apparel">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo mufla.webp" alt="AIC Fringed Festival Muffler / Scarf" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-amber-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Popular</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Apparel</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Fringed Festival Muffler / Scarf</h3>
+            <p class="text-xs text-gray-500 mb-4">Luxurious soft pure-white festival knit muffler scarf with double-ended AIC carnival crests and woven fringe tassels.</p>
             <div class="mb-4">
               <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Style</label>
-              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
-                <option value="Classic Orange & Black">Classic Orange & Black</option>
-                <option value="Traditional Multi-Color">Traditional Multi-Color</option>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="White Festival Fringe (One Size)">White Festival Fringe (One Size)</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦4,500</strong>
+            </div>
+            <button data-id="merch-muffler-01" data-name="AIC Fringed Festival Muffler / Scarf" data-price="4500" data-image="assets/store/Afikpo mufla.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CATEGORY 2: CAPS & HEADWEAR (2 ITEMS)      -->
+        <!-- ========================================== -->
+
+        <!-- Product 6: Embroidered Cap -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="headwear" data-name="AIC Official Embroidered Baseball Cap" data-keywords="cap hat baseball snapback headwear head embroidery">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo cap.webp" alt="AIC Official Embroidered Baseball Cap" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Official Merch</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Headwear</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Embroidered Snapback Cap</h3>
+            <p class="text-xs text-gray-500 mb-4">High-density embroidered full-color Afikpo Carnival crest on structured white twill with curved visor and adjustable snap.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Fit & Color</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Classic White (Adjustable Snapback)">Classic White (Adjustable Snapback)</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦5,000</strong>
+            </div>
+            <button data-id="merch-cap-01" data-name="AIC Embroidered Snapback Cap" data-price="5000" data-image="assets/store/Afikpo cap.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 7: Festival Fedora Hat -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="headwear" data-name="AIC Festival Fedora / Wide-Brim Hat" data-keywords="hat fedora cowboy wide brim headwear sunhat cap">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo hat.webp" alt="AIC Festival Fedora / Wide-Brim Hat" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-amber-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Premium Edition</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Headwear</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Festival Fedora / Cowboy Hat</h3>
+            <p class="text-xs text-gray-500 mb-4">Wide-brim festival cowboy fedora with braided white band, antique bronze concho star emblems, and crisp carnival logo.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Fit</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Adult Fit (58-60cm Crown)">Adult Fit (58-60cm Crown)</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦7,500</strong>
+            </div>
+            <button data-id="merch-hat-01" data-name="AIC Festival Fedora / Wide-Brim Hat" data-price="7500" data-image="assets/store/Afikpo hat.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CATEGORY 3: CARNIVAL MASKS (2 ITEMS)       -->
+        <!-- ========================================== -->
+
+        <!-- Product 8: Feathered Carnival Mask -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="masks" data-name="AIC Feathered Carnival Masquerade Mask" data-keywords="mask masquerade feather carnival costume face eye prop culture">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo carnival mask.webp" alt="AIC Feathered Carnival Masquerade Mask" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-rose-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Festival Favorite</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Carnival Mask</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Feathered Carnival Mask</h3>
+            <p class="text-xs text-gray-500 mb-4">Extravagant masquerade eye mask adorned with multi-color festival plumage, glitter trim, and authentic Ankara ribbon ties.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Mask Style</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Multicolor Feathered Edition">Multicolor Feathered Edition</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦6,500</strong>
+            </div>
+            <button data-id="merch-mask-feather" data-name="AIC Feathered Carnival Mask" data-price="6500" data-image="assets/store/Afikpo carnival mask.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 9: Sleek White Eyemask with Ankara Ribbons -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="masks" data-name="AIC Sleek Masquerade Eyemask with Ankara Ribbons" data-keywords="mask masquerade ribbon sleek ankara prop eye costume masquerade">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo mask 2.webp" alt="AIC Sleek Masquerade Eyemask with Ankara Ribbons" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-violet-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Cultural Prop</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Carnival Mask</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Sleek Masquerade Eyemask</h3>
+            <p class="text-xs text-gray-500 mb-4">Contoured glossy white masquerade mask featuring the AIC emblem and authentic geometric Ankara fabric tie ribbons.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Style</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Classic White with Ankara Ties">Classic White with Ankara Ties</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦4,500</strong>
+            </div>
+            <button data-id="merch-mask-sleek" data-name="AIC Sleek Masquerade Eyemask" data-price="4500" data-image="assets/store/Afikpo mask 2.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CATEGORY 4: CULTURAL HAND FANS (3 ITEMS)   -->
+        <!-- ========================================== -->
+
+        <!-- Product 10: Folding Hand Fan -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="fans" data-name="AIC Official Folding Festival Hand Fan" data-keywords="handfan hand fan folding cooling heat fan cultural igbo">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo handfan.webp" alt="AIC Official Folding Festival Hand Fan" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Hot Pick</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Hand Fan</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Official Folding Hand Fan</h3>
+            <p class="text-xs text-gray-500 mb-4">Accordion-folding handheld carnival fan displaying sunburst logo and Ankara wing patterns. Folds compact with loop handle.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Style</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="White & Ankara Folding Fan">White & Ankara Folding Fan</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦3,000</strong>
+            </div>
+            <button data-id="merch-handfan-folding" data-name="AIC Official Folding Hand Fan" data-price="3000" data-image="assets/store/Afikpo handfan.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 11: Paddle Fans Trio -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="fans" data-name="AIC Tri-Color Paddle Hand Fans (Trio Pack)" data-keywords="hand fan paddle fan trio pack cooling heat red white orange">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo hand fan 2.webp" alt="AIC Tri-Color Paddle Hand Fans (Trio Pack)" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-blue-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Essential</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Hand Fan</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Tri-Color Paddle Hand Fans</h3>
+            <p class="text-xs text-gray-500 mb-4">Sturdy handheld paddle cooling fans with ergonomic grip handles in festive Red, White, and Carnival Orange colors.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Color / Pack</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Complete Trio (Red, White, Orange)" selected>Complete Trio (Red, White, Orange)</option>
+                <option value="Single White Fan">Single White Fan</option>
+                <option value="Single Carnival Orange Fan">Single Carnival Orange Fan</option>
+                <option value="Single Festival Red Fan">Single Festival Red Fan</option>
               </select>
             </div>
           </div>
@@ -317,26 +607,118 @@
               <span class="text-xs text-gray-400 block">Price</span>
               <strong class="text-xl font-black text-gray-900">₦3,500</strong>
             </div>
-            <button data-id="wrist-01" data-name="Afikpo Tribal Wristbands (Set of 2)" data-price="3500" data-image="assets/images/Afikpo (ikpó) cultural display.jpeg" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+            <button data-id="merch-handfan-paddle-trio" data-name="AIC Tri-Color Paddle Hand Fans" data-price="3500" data-image="assets/store/Afikpo hand fan 2.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
               Add to Bag
             </button>
           </div>
         </div>
 
-        <!-- Product 5: Handwoven Hand Fan -->
-        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+        <!-- Product 12: Ankara Heritage Paddle Fans -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="fans" data-name="AIC Ankara Heritage Paddle Hand Fans" data-keywords="hand fan paddle fan heritage ankara slogan cooling heat fan">
           <div>
-            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-green-50">
-              <img src="assets/images/Nkwawite cultural dance.jpeg" alt="Cultural Hand Fan" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-              <span class="absolute top-4 left-4 bg-green-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Eco-Craft</span>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo handfan 3.webp" alt="AIC Ankara Heritage Paddle Hand Fans" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-emerald-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Heritage Edition</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Hand Fan</span>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-1">Handwoven Cultural Hand Fan</h3>
-            <p class="text-xs text-gray-500 mb-4">Handwoven palm-frond and leather-trimmed festival cooling fan with tribal patterns.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Ankara Heritage Paddle Fans</h3>
+            <p class="text-xs text-gray-500 mb-4">Commemorative paddle cooling fan set decorated with authentic Igbo Ankara border motifs and official carnival slogan.</p>
             <div class="mb-4">
-              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Pattern</label>
-              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
-                <option value="Ikpó Masquerade Pattern">Ikpó Masquerade Pattern</option>
-                <option value="Golden Beach Sunset">Golden Beach Sunset</option>
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Selection</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Complete Trio Set (3 Colors)" selected>Complete Trio Set (3 Colors)</option>
+                <option value="White Heritage Fan">White Heritage Fan</option>
+                <option value="Carnival Orange Heritage Fan">Carnival Orange Heritage Fan</option>
+                <option value="Ruby Red Heritage Fan">Ruby Red Heritage Fan</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦3,500</strong>
+            </div>
+            <button data-id="merch-handfan-ankara" data-name="AIC Ankara Heritage Paddle Fans" data-price="3500" data-image="assets/store/Afikpo handfan 3.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CATEGORY 5: ACCESSORIES & SOUVENIRS (5)    -->
+        <!-- ========================================== -->
+
+        <!-- Product 13: Canvas Tote Bag -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="accessories" data-name="AIC Official Ankara Canvas Tote Bag" data-keywords="bag tote canvas handbag shopping carryall ankara accessories">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo bag.webp" alt="AIC Official Ankara Canvas Tote Bag" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-teal-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Eco-Friendly</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Accessories</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Ankara Trim Canvas Tote Bag</h3>
+            <p class="text-xs text-gray-500 mb-4">Heavy-duty white canvas shopper tote bag lined with traditional Ankara trim and reinforced dual shoulder handles.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Style</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="White Canvas with Ankara Border">White Canvas with Ankara Border</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦6,500</strong>
+            </div>
+            <button data-id="merch-bag-tote" data-name="AIC Ankara Trim Canvas Tote Bag" data-price="6500" data-image="assets/store/Afikpo bag.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 14: Sunglasses -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="accessories" data-name="AIC Ankara Accent Festival Sunglasses" data-keywords="glasses sunglasses shades eyewear uv sun protection accessories">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo glasses.webp" alt="AIC Ankara Accent Festival Sunglasses" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-pink-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Trending</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Accessories</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Ankara Accent Sunglasses</h3>
+            <p class="text-xs text-gray-500 mb-4">UV400 protective white-frame sunglasses with custom carnival logo and colorful Ankara pattern temple arms.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Frame Style</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Classic White Frame with Ankara Arms">Classic White Frame with Ankara Arms</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦4,000</strong>
+            </div>
+            <button data-id="merch-glasses-01" data-name="AIC Ankara Accent Sunglasses" data-price="4000" data-image="assets/store/Afikpo glasses.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 15: Lanyard & Neckstrap -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="accessories" data-name="AIC Ankara Festival Lanyard & Neckstrap" data-keywords="lanyard neckstrap neck strap id badge holder ankara accessories">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo neckstrap.webp" alt="AIC Ankara Festival Lanyard & Neckstrap" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-yellow-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Souvenir</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Accessories</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Ankara Festival Lanyard</h3>
+            <p class="text-xs text-gray-500 mb-4">High-density woven Ankara print festival neck lanyard with premium 360-degree swivel lobster claw metal clasp.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Pack Option</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Single Lanyard" selected>Single Lanyard</option>
+                <option value="Duo Pack (2 Lanyards)">Duo Pack (2 Lanyards)</option>
               </select>
             </div>
           </div>
@@ -345,39 +727,133 @@
               <span class="text-xs text-gray-400 block">Price</span>
               <strong class="text-xl font-black text-gray-900">₦2,500</strong>
             </div>
-            <button data-id="fan-01" data-name="Handwoven Cultural Hand Fan" data-price="2500" data-image="assets/images/Nkwawite cultural dance.jpeg" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+            <button data-id="merch-lanyard-01" data-name="AIC Ankara Festival Lanyard" data-price="2500" data-image="assets/store/Afikpo neckstrap.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
               Add to Bag
             </button>
           </div>
         </div>
 
-        <!-- Product 6: Masquerade Miniature Mask -->
-        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition group flex flex-col justify-between">
+        <!-- Product 16: Keyholder Set -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="accessories" data-name="AIC Souvenir Keyholder & Keychain Duo" data-keywords="keyholder key holder keychain keyring keys souvenir accessories">
           <div>
-            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-orange-50">
-              <img src="assets/images/Local artisans displaying carved Afikpo masks..webp" alt="Carved Afikpo Mask Miniature" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
-              <span class="absolute top-4 left-4 bg-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase">Collector's Edition</span>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo key holder.webp" alt="AIC Souvenir Keyholder & Keychain Duo" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-cyan-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Keepsake</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Accessories</span>
             </div>
-            <h3 class="text-xl font-bold text-gray-900 mb-1">Handcarved Afikpo Miniature Mask</h3>
-            <p class="text-xs text-gray-500 mb-4">Sculpted from sacred Iroko wood by master artisans of Ehugbo. Comes with display stand.</p>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Souvenir Keyholder Duo</h3>
+            <p class="text-xs text-gray-500 mb-4">Durable acrylic keychains with stainless steel split rings: features the round AIC medallion and rectangular Ankara tag.</p>
             <div class="mb-4">
-              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Mask Style</label>
-              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold">
-                <option value="Eze Lúgúlú Crown Mask">Eze Lúgúlú Crown Mask</option>
-                <option value="Ikpó Ceremonial Face Mask">Ikpó Ceremonial Face Mask</option>
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Selection</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Duo Pack (Round + Tag)" selected>Duo Pack (Round + Rectangular Tag)</option>
+                <option value="Round Medallion Only">Round Medallion Only</option>
+                <option value="Rectangular Ankara Tag Only">Rectangular Ankara Tag Only</option>
               </select>
             </div>
           </div>
           <div class="flex items-center justify-between pt-4 border-t border-gray-100">
             <div>
               <span class="text-xs text-gray-400 block">Price</span>
-              <strong class="text-xl font-black text-gray-900">₦15,000</strong>
+              <strong class="text-xl font-black text-gray-900">₦2,000</strong>
             </div>
-            <button data-id="mask-01" data-name="Handcarved Afikpo Miniature Mask" data-price="15000" data-image="assets/images/Local artisans displaying carved Afikpo masks..webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200">
+            <button data-id="merch-keyholder-01" data-name="AIC Souvenir Keyholder Duo" data-price="2000" data-image="assets/store/Afikpo key holder.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
               Add to Bag
             </button>
           </div>
         </div>
+
+        <!-- Product 17: Silicone Wristband -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="accessories" data-name="AIC Official Festival Silicone Wristband" data-keywords="wristband wrist band bracelet silicone band accessories">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo wristband.webp" alt="AIC Official Festival Silicone Wristband" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-gray-800 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Collector</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Accessories</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Festival Silicone Wristband</h3>
+            <p class="text-xs text-gray-500 mb-4">High-grade waterproof silicone wristband debossed with the full-color Afikpo International Carnival emblem and motto.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Wristband Size</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Standard Adult (202mm)" selected>Standard Adult (202mm)</option>
+                <option value="Youth / Petite (180mm)">Youth / Petite (180mm)</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦1,500</strong>
+            </div>
+            <button data-id="merch-wristband-01" data-name="AIC Festival Silicone Wristband" data-price="1500" data-image="assets/store/Afikpo wristband.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- CATEGORY 6: DRINKWARE (2 ITEMS)            -->
+        <!-- ========================================== -->
+
+        <!-- Product 18: Stainless Water Bottle -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="drinkware" data-name="AIC Insulated Stainless Water Bottle" data-keywords="water bottle flask bottle stainless drink hydration drinkware">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo water bottle.webp" alt="AIC Insulated Stainless Water Bottle" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-blue-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Premium</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Drinkware</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Insulated Stainless Flask</h3>
+            <p class="text-xs text-gray-500 mb-4">Double-walled vacuum insulated 500ml white stainless steel flask with carry handle lid. Keeps hydration chilled 24hrs.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Capacity</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="500ml Stainless Flask">500ml Stainless Flask</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦6,000</strong>
+            </div>
+            <button data-id="merch-bottle-01" data-name="AIC Insulated Stainless Flask" data-price="6000" data-image="assets/store/Afikpo water bottle.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 19: Ceramic Mug and Cup Set -->
+        <div class="product-card bg-white rounded-3xl p-6 border border-gray-100 shadow-lg hover:shadow-2xl transition-all duration-300 group flex flex-col justify-between" data-category="drinkware" data-name="AIC Ceramic Mug & Festival Cup Set" data-keywords="cups cup mug ceramic coffee tea tumbler stadium drink drinkware">
+          <div>
+            <div class="relative h-64 rounded-2xl overflow-hidden mb-5 bg-gray-50 border border-gray-100 flex items-center justify-center p-3">
+              <img src="assets/store/Afikpo cups.webp" alt="AIC Ceramic Mug & Festival Cup Set" class="w-full h-full object-contain group-hover:scale-105 transition duration-300" loading="lazy" />
+              <span class="absolute top-4 left-4 bg-amber-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase shadow-md">Duo Pack</span>
+              <span class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-gray-700 font-bold text-[10px] px-2.5 py-0.5 rounded-full border border-gray-200">Drinkware</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-1">AIC Ceramic Mug & Party Cup Set</h3>
+            <p class="text-xs text-gray-500 mb-4">Versatile drinkware pack: glossy 11oz ceramic coffee mug with Ankara border plus reusable plastic festival stadium party cup.</p>
+            <div class="mb-4">
+              <label class="block text-[11px] font-bold text-gray-400 uppercase mb-1">Drinkware Option</label>
+              <select class="variant-select w-full p-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs font-semibold focus:ring-2 focus:ring-orange-600 outline-none">
+                <option value="Complete Duo (Mug + Cup)" selected>Complete Duo (Mug + Party Cup)</option>
+                <option value="Ceramic Mug Only">Ceramic Mug Only</option>
+                <option value="Stadium Cup Only">Stadium Cup Only</option>
+              </select>
+            </div>
+          </div>
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <div>
+              <span class="text-xs text-gray-400 block">Price</span>
+              <strong class="text-xl font-black text-gray-900">₦4,500</strong>
+            </div>
+            <button data-id="merch-cups-01" data-name="AIC Ceramic Mug & Party Cup Set" data-price="4500" data-image="assets/store/Afikpo cups.webp" class="add-to-cart-btn bg-orange-600 hover:bg-orange-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-orange-200 cursor-pointer">
+              Add to Bag
+            </button>
+          </div>
+        </div>
+
       </div>
     </section>
 
