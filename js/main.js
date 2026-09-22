@@ -489,72 +489,15 @@ const DEFAULT_ACCOMMODATIONS = [
       { name: "Presidential Carnival Penthouse", pricePerNight: 120000, description: "Ultra-luxury top-floor penthouse, VIP lounge access & private jacuzzi." }
     ],
     status: "Available"
-  },
-  {
-    id: "hotel-2",
-    name: "Unwana Beachfront Eco-Resort & Chalets",
-    type: "Beachfront Eco-Resort",
-    location: "Unwana Riverfront & Beach Sandstrip, Afikpo",
-    badge: "🌊 Beachfront Haven",
-    rating: 4.8,
-    reviewsCount: 98,
-    description: "Wake up to gentle river breezes and golden sand beaches. Ideal for tourists and carnival revellers seeking serenity, private beach cabanas, canoeing regattas, and fresh grilled river catfish under the stars.",
-    amenities: [
-      "River / Beachfront View",
-      "Free High-Speed Wi-Fi",
-      "24/7 Solar & Generator Power",
-      "Carnival Village Shuttle Service",
-      "Restaurant & Bar (Igbo & Continental)",
-      "Air Conditioning in All Rooms"
-    ],
-    images: [
-      "assets/images/Gold sand beach, Afikpo.webp",
-      "assets/images/Canoeing on the Unwana river.webp",
-      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80"
-    ],
-    videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
-    roomTiers: [
-      { name: "Riverfront Eco-Cabin", pricePerNight: 28000, description: "Rustic waterfront cabin with private bamboo deck & river sunrise." },
-      { name: "Waterfront Luxury Chalet", pricePerNight: 50000, description: "Air-conditioned chalet directly facing the golden sand beach." },
-      { name: "Sunset Family Villa (2-Bedroom)", pricePerNight: 95000, description: "2 ensuite bedrooms, kitchenette, private patio & beach access." }
-    ],
-    status: "Available"
-  },
-  {
-    id: "hotel-3",
-    name: "Queen's Heritage Lodge & Serviced Apartments",
-    type: "Serviced Apartment",
-    location: "Government Station Area, Afikpo",
-    badge: "🏡 Top Value Stay",
-    rating: 4.7,
-    reviewsCount: 84,
-    description: "Perfectly suited for families, cultural troupes, and festival groups looking for self-catering comfort, fully equipped modern kitchens, spacious living rooms, and round-the-clock power and security.",
-    amenities: [
-      "Free High-Speed Wi-Fi",
-      "24/7 Solar & Generator Power",
-      "Carnival Village Shuttle Service",
-      "Air Conditioning in All Rooms",
-      "24/7 Gated Armed Security"
-    ],
-    images: [
-      "assets/images/queens host enterprise.webp",
-      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"
-    ],
-    videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
-    roomTiers: [
-      { name: "Standard Serviced Studio", pricePerNight: 22000, description: "Queen bed, smart TV, kitchenette, and dedicated workspace." },
-      { name: "1-Bedroom Executive Apartment", pricePerNight: 42000, description: "Separate parlor, dining area, full kitchen & balcony." },
-      { name: "3-Bedroom Carnival Delegation Suite", pricePerNight: 85000, description: "Accommodates up to 6 guests with 3 ensuite bedrooms & large lounge." }
-    ],
-    status: "Available"
   }
 ];
 
+const REMOVED_PRELOADED_HOTEL_IDS = new Set(["hotel-2", "hotel-3"]);
 const STORAGE_KEY_ACCOMMODATIONS = "aic_accommodations_data";
+const STORAGE_KEY_CUSTOM_ACCOMMODATIONS = "aic_custom_accommodations";
+const STORAGE_KEY_DELETED_ACCOMMODATIONS = "aic_deleted_accommodation_ids";
 
+// Synchronous fast getter (cached for instant initial render)
 function getAccommodations() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_ACCOMMODATIONS);
@@ -564,7 +507,12 @@ function getAccommodations() {
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+      // Purge removed preloaded hotels so users with older cached data update immediately
+      const filtered = parsed.filter(h => h && h.id && !REMOVED_PRELOADED_HOTEL_IDS.has(h.id));
+      if (filtered.length !== parsed.length) {
+        saveAccommodations(filtered);
+      }
+      return filtered.length > 0 ? filtered : DEFAULT_ACCOMMODATIONS;
     }
     return DEFAULT_ACCOMMODATIONS;
   } catch (e) {
@@ -583,6 +531,68 @@ function saveAccommodations(hotels) {
 
 function restoreDefaultAccommodations() {
   localStorage.setItem(STORAGE_KEY_ACCOMMODATIONS, JSON.stringify(DEFAULT_ACCOMMODATIONS));
+  localStorage.removeItem(STORAGE_KEY_CUSTOM_ACCOMMODATIONS);
+  localStorage.removeItem(STORAGE_KEY_DELETED_ACCOMMODATIONS);
+}
+
+// Asynchronous Cloud & Local Reconciled Fetcher (Matches blog fetchBlogPosts pattern)
+async function fetchAccommodations() {
+  const deletedIds = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_ACCOMMODATIONS) || "[]"));
+  REMOVED_PRELOADED_HOTEL_IDS.forEach(id => deletedIds.add(id));
+
+  const localCustom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_ACCOMMODATIONS) || "[]")
+    .filter(h => h && h.id && !deletedIds.has(h.id));
+
+  // Map starting with the default seed hotels
+  const hotelsMap = new Map();
+  DEFAULT_ACCOMMODATIONS.forEach(h => {
+    if (!deletedIds.has(h.id)) {
+      hotelsMap.set(h.id, h);
+    }
+  });
+
+  // Override or add local custom edits
+  localCustom.forEach(h => {
+    if (!deletedIds.has(h.id)) {
+      hotelsMap.set(h.id, h);
+    }
+  });
+
+  // Also read existing local cache
+  try {
+    const cached = JSON.parse(localStorage.getItem(STORAGE_KEY_ACCOMMODATIONS) || "[]");
+    if (Array.isArray(cached)) {
+      cached.forEach(h => {
+        if (h && h.id && !deletedIds.has(h.id) && !hotelsMap.has(h.id)) {
+          hotelsMap.set(h.id, h);
+        }
+      });
+    }
+  } catch (e) {}
+
+  // Sync with cloud Google Apps Script (Google Sheets)
+  try {
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=get_accommodations`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === "success" && Array.isArray(data.accommodations)) {
+        data.accommodations.forEach(h => {
+          if (h && h.id && !deletedIds.has(h.id)) {
+            hotelsMap.set(h.id, h);
+          }
+        });
+      }
+    }
+  } catch (err) {
+    console.log("Using cached/local accommodations feed:", err);
+  }
+
+  const result = Array.from(hotelsMap.values()).filter(h => !deletedIds.has(h.id));
+  try {
+    localStorage.setItem(STORAGE_KEY_ACCOMMODATIONS, JSON.stringify(result));
+  } catch (e) {}
+
+  return result;
 }
 
 // =============================================================
@@ -1513,16 +1523,13 @@ function updateCartUI() {
             <h5 class="font-bold text-gray-900 truncate text-xs">${item.name}</h5>
             <p class="text-[11px] text-gray-500">${item.variant ? item.variant + ' • ' : ''}₦${item.price.toLocaleString()}</p>
             <div class="flex items-center gap-2 mt-1">
-              <button onclick="window.changeCartQty(${idx}, -1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center">-</button>
               <button onclick="window.changeCartQty(${idx}, -1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center cursor-pointer">-</button>
               <span class="text-xs font-bold">${item.qty}</span>
-              <button onclick="window.changeCartQty(${idx}, 1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center">+</button>
               <button onclick="window.changeCartQty(${idx}, 1)" class="w-5 h-5 rounded-full bg-gray-100 hover:bg-gray-200 text-xs font-bold flex items-center justify-center cursor-pointer">+</button>
             </div>
           </div>
           <div class="text-right">
             <strong class="text-xs text-gray-900 block">₦${(item.price * item.qty).toLocaleString()}</strong>
-            <button onclick="window.removeFromCart(${idx})" class="text-[11px] text-red-500 hover:text-red-700 mt-1">Remove</button>
             <button onclick="window.removeFromCart(${idx})" class="text-[11px] text-red-500 hover:text-red-700 mt-1 cursor-pointer">Remove</button>
           </div>
         </div>
@@ -2709,6 +2716,13 @@ function setupAccommodationDisplay() {
 
   // Initial Render
   renderHotels();
+
+  // Background Cloud Sync with Google Sheets
+  fetchAccommodations().then(() => {
+    renderHotels();
+  }).catch(err => {
+    console.log("Background accommodations sync notice:", err);
+  });
 }
 
 // Upgraded Accommodation Booking Reservation Logic
@@ -2739,9 +2753,14 @@ function setupAccommodationBooking() {
     const hotels = getAccommodations();
     if (!hotelSelect) return;
 
+    const currentVal = hotelSelect.value;
     hotelSelect.innerHTML = hotels.map(hotel => `
       <option value="${hotel.name}">${hotel.name} (${hotel.type})</option>
     `).join("");
+
+    if (currentVal && Array.from(hotelSelect.options).some(o => o.value === currentVal)) {
+      hotelSelect.value = currentVal;
+    }
 
     updateRoomDropdown();
   }
@@ -2804,6 +2823,11 @@ function setupAccommodationBooking() {
   }
 
   populateHotelsDropdown();
+
+  // Background Cloud Sync to update dropdown with freshly added hotels
+  fetchAccommodations().then(() => {
+    populateHotelsDropdown();
+  }).catch(() => {});
 
   // Form Submission
   form.addEventListener("submit", async (e) => {
@@ -3158,18 +3182,18 @@ function setupAccommodationAdmin() {
   // Restore Defaults Button
   if (restoreDefaultsBtn) {
     restoreDefaultsBtn.addEventListener("click", () => {
-      if (confirm("Restore the 3 official default partner hotels & apartments? Any custom listings will be replaced.")) {
+      if (confirm("Restore the official default partner hotel listing? Any custom listings will be replaced.")) {
         restoreDefaultAccommodations();
         renderAdminHotels();
         resetEditor();
-        showAlert("Default accommodations restored successfully!", "success");
+        showAlert("Default accommodation restored successfully!", "success");
       }
     });
   }
 
   // Save Hotel Form Submission
   if (editorForm) {
-    editorForm.addEventListener("submit", (e) => {
+    editorForm.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const name = document.getElementById("hotel-name-input")?.value.trim();
@@ -3223,51 +3247,86 @@ function setupAccommodationAdmin() {
         });
       }
 
-      let hotels = getAccommodations();
-      const editId = editIdInput ? editIdInput.value : "";
-
-      if (editId) {
-        // Update existing
-        const idx = hotels.findIndex(h => h.id === editId);
-        if (idx >= 0) {
-          hotels[idx] = {
-            ...hotels[idx],
-            name,
-            type,
-            location,
-            badge,
-            description,
-            amenities,
-            images: [...currentEditorImages],
-            videoUrl: currentEditorVideoUrl,
-            roomTiers: roomTiers
-          };
-          showAlert(`Updated "${name}" successfully!`, "success");
-        }
-      } else {
-        // Create new
-        const newHotel = {
-          id: "hotel-" + Date.now(),
-          name,
-          type,
-          location,
-          badge: badge || "Verified Partner",
-          rating: 4.8,
-          reviewsCount: 1,
-          description,
-          amenities,
-          images: [...currentEditorImages],
-          videoUrl: currentEditorVideoUrl,
-          roomTiers: roomTiers,
-          status: "Available"
-        };
-        hotels.unshift(newHotel);
-        showAlert(`Published "${name}" with ${currentEditorImages.length} photo(s) & ${roomTiers.length} room tier(s)!`, "success");
+      const submitBtn = editorForm.querySelector("button[type='submit']") || document.getElementById("save-hotel-btn");
+      const origBtnText = submitBtn ? submitBtn.textContent : "Publish Hotel Listing";
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Saving to Google Sheets...";
       }
 
+      let hotels = getAccommodations();
+      const editId = editIdInput ? editIdInput.value.trim() : "";
+      const propertyId = editId || ("hotel-" + Date.now());
+
+      const payload = {
+        formType: "save_accommodation_property",
+        id: propertyId,
+        name,
+        type,
+        location,
+        badge: badge || "Verified Partner",
+        rating: 4.8,
+        reviewsCount: 1,
+        description,
+        amenities,
+        images: [...currentEditorImages],
+        videoUrl: currentEditorVideoUrl,
+        roomTiers: roomTiers,
+        status: "Available"
+      };
+
+      // Un-delete if this ID was previously marked deleted
+      let deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_ACCOMMODATIONS) || "[]");
+      if (deletedIds.includes(propertyId)) {
+        deletedIds = deletedIds.filter(d => d !== propertyId);
+        localStorage.setItem(STORAGE_KEY_DELETED_ACCOMMODATIONS, JSON.stringify(deletedIds));
+      }
+
+      // 1. Save locally for instant UI update
+      const custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_ACCOMMODATIONS) || "[]");
+      const customIdx = custom.findIndex(h => h.id === propertyId);
+      if (customIdx >= 0) {
+        custom[customIdx] = payload;
+      } else {
+        custom.unshift(payload);
+      }
+      localStorage.setItem(STORAGE_KEY_CUSTOM_ACCOMMODATIONS, JSON.stringify(custom));
+
+      const existingIdx = hotels.findIndex(h => h.id === propertyId);
+      if (existingIdx >= 0) {
+        hotels[existingIdx] = payload;
+      } else {
+        hotels.unshift(payload);
+      }
       saveAccommodations(hotels);
       renderAdminHotels();
-      resetEditor();
+      showAlert(editId ? `Updated "${name}" successfully!` : `Published "${name}" with ${currentEditorImages.length} photo(s)!`, "success");
+
+      // 2. Post to Google Apps Script (AccommodationCatalog sheet + Drive photo upload)
+      try {
+        const res = await postToAppsScript(payload);
+        if (res && res.status === "success") {
+          // If Drive returned permanent URLs for uploaded base64 photos, update them
+          if (res.images && Array.isArray(res.images)) {
+            payload.images = res.images;
+            const updatedHotels = getAccommodations().map(h => h.id === propertyId ? { ...h, images: res.images } : h);
+            saveAccommodations(updatedHotels);
+            renderAdminHotels();
+          }
+          showAlert(res.message || `Property "${name}" saved and synced to Google Sheets!`, "success");
+        } else {
+          showAlert(res?.message || `Property "${name}" saved locally! Cloud sync will retry.`, "warning");
+        }
+      } catch (err) {
+        console.warn("Could not sync accommodation to Google Sheets immediately:", err);
+        showAlert(`Property "${name}" saved locally on this device.`, "info");
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = origBtnText;
+        }
+        resetEditor();
+      }
     });
   }
 
@@ -3378,16 +3437,37 @@ function setupAccommodationAdmin() {
   };
 
   // Delete Hotel Action
-  window.deleteAdminHotel = function(id) {
+  window.deleteAdminHotel = async function(id) {
     const hotel = getAccommodations().find(h => h.id === id);
     if (!hotel) return;
 
     if (confirm(`Are you sure you want to remove "${hotel.name}" from public listings?`)) {
+      // 1. Permanently track deleted ID so it cannot be revived by seed lists
+      let deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_ACCOMMODATIONS) || "[]");
+      if (!deletedIds.includes(id)) {
+        deletedIds.push(id);
+        localStorage.setItem(STORAGE_KEY_DELETED_ACCOMMODATIONS, JSON.stringify(deletedIds));
+      }
+
+      // 2. Remove from local custom accommodations
+      let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_ACCOMMODATIONS) || "[]");
+      custom = custom.filter(h => h.id !== id);
+      localStorage.setItem(STORAGE_KEY_CUSTOM_ACCOMMODATIONS, JSON.stringify(custom));
+
+      // 3. Remove from local accommodations cache and update view
       let hotels = getAccommodations();
       hotels = hotels.filter(h => h.id !== id);
       saveAccommodations(hotels);
       renderAdminHotels();
-      showAlert(`Deleted "${hotel.name}".`, "warning");
+      showAlert(`Deleted "${hotel.name}". Updating Google Sheets...`, "info");
+
+      // 4. Delete from Google Apps Script cloud database (Google Sheets)
+      try {
+        const res = await postToAppsScript({ formType: "delete_accommodation_property", id: id });
+        showAlert(res?.message || `Deleted "${hotel.name}" permanently from Google Sheets.`, "success");
+      } catch (e) {
+        console.warn("Cloud delete failed, property removed locally:", e);
+      }
     }
   };
 
@@ -3396,6 +3476,11 @@ function setupAccommodationAdmin() {
   if (roomTiersContainer && roomTiersContainer.children.length === 0) {
     addRoomTierRow({ name: "Deluxe Suite", pricePerNight: 35000, description: "King bed, scenic view, Wi-Fi & AC" });
   }
+
+  // Cloud sync admin list
+  fetchAccommodations().then(() => {
+    renderAdminHotels();
+  }).catch(() => {});
 }
 
 // =============================================================
@@ -5395,7 +5480,6 @@ function initAICApp() {
   try { setupPageantRegistration(); } catch (e) { console.error("Pageant reg init error:", e); }
   try { setupPageantVoting(); } catch (e) { console.error("Pageant vote init error:", e); }
   try { setupMediaUpload(); } catch (e) { console.error("Media upload init error:", e); }
-  try { setupAccommodationBooking(); } catch (e) { console.error("Accommodation init error:", e); }
   try { setupAccommodationDisplay(); } catch (e) { console.error("Accommodation display init error:", e); }
   try { setupAccommodationBooking(); } catch (e) { console.error("Accommodation booking init error:", e); }
   try { setupAccommodationAdmin(); } catch (e) { console.error("Accommodation admin init error:", e); }

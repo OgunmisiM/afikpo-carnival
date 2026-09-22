@@ -40,6 +40,7 @@ const CONFIG = {
   pageantVoteSheet: "PageantVotes",
   mediaSheet: "MediaSubmissions",
   accommodationSheet: "Accommodations",
+  accommodationCatalogSheet: "AccommodationCatalog",
   tourGuideSheet: "TourGuides",
   blogSheet: "BlogPosts",
   gallerySheet: "GalleryItems"
@@ -47,6 +48,7 @@ const CONFIG = {
 
 /**
  * Handle GET requests - Serves dynamic content (Blog Posts, Pageant Votes, Gallery Items)
+ * Handle GET requests - Serves dynamic content (Blog Posts, Accommodations, Pageant Votes, Gallery Items)
  */
 function doGet(e) {
   try {
@@ -54,6 +56,8 @@ function doGet(e) {
     
     if (action === "get_blog_posts") {
       return getBlogPostsResponse();
+    } else if (action === "get_accommodations") {
+      return getAccommodationsResponse();
     } else if (action === "get_gallery_items") {
       return getGalleryItemsResponse();
     } else if (action === "get_pending_gallery_items") {
@@ -109,6 +113,10 @@ function doPost(e) {
         return handleMediaSubmission(requestData);
       case "accommodation_reservation":
         return handleAccommodationReservation(requestData);
+      case "save_accommodation_property":
+        return handleSaveAccommodationProperty(requestData);
+      case "delete_accommodation_property":
+        return handleDeleteAccommodationProperty(requestData);
       case "tour_guide_request":
         return handleTourGuideRequest(requestData);
       case "save_blog_post":
@@ -627,6 +635,104 @@ function handleDeleteGalleryItem(data) {
   return createResponse("success", "Gallery item removed from database.");
 }
 
+// 16. Save Accommodation Property (Hotels, Chalets, Apartments)
+function handleSaveAccommodationProperty(data) {
+  const required = ["name", "type", "location", "description"];
+  for (let f of required) {
+    if (!data[f] || data[f].toString().trim() === "") {
+      return createResponse("error", `Missing required hotel field: ${f}`);
+    }
+  }
+
+  const sheet = getSheetByName(CONFIG.accommodationCatalogSheet, [
+    "ID", "Name", "Type", "Location", "Badge", "Rating", "ReviewsCount", "Description",
+    "Amenities", "Images", "VideoUrl", "RoomTiers", "Status", "Timestamp"
+  ]);
+
+  const propertyId = data.id || ("hotel-" + Date.now());
+  const rating = data.rating || 4.8;
+  const reviewsCount = data.reviewsCount || 1;
+  const status = data.status || "Available";
+  const timestamp = new Date().toISOString();
+
+  // Process images: if any image in data.images is base64, save to Google Drive
+  let processedImages = [];
+  if (Array.isArray(data.images)) {
+    processedImages = data.images.map((img, idx) => {
+      if (typeof img === "string" && img.startsWith("data:")) {
+        try {
+          const driveUrl = saveMediaToDrive(img, `${propertyId}_photo_${idx + 1}.jpg`, "image/jpeg");
+          return driveUrl || img;
+        } catch (e) {
+          Logger.log("Drive upload error for hotel photo: " + e.toString());
+          return img;
+        }
+      }
+      return img;
+    });
+  }
+
+  const amenitiesJson = typeof data.amenities === "string" ? data.amenities : JSON.stringify(data.amenities || []);
+  const imagesJson = JSON.stringify(processedImages);
+  const roomTiersJson = typeof data.roomTiers === "string" ? data.roomTiers : JSON.stringify(data.roomTiers || []);
+
+  const values = sheet.getDataRange().getValues();
+  let existingRow = -1;
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][0] == propertyId) {
+      existingRow = i + 1; // 1-indexed row
+      break;
+    }
+  }
+
+  const rowData = [
+    propertyId,
+    data.name,
+    data.type,
+    data.location,
+    data.badge || "Verified Partner",
+    rating,
+    reviewsCount,
+    data.description,
+    amenitiesJson,
+    imagesJson,
+    data.videoUrl || "",
+    roomTiersJson,
+    status,
+    timestamp
+  ];
+
+  if (existingRow > 0) {
+    sheet.getRange(existingRow, 1, 1, rowData.length).setValues([rowData]);
+    return createResponse("success", "Accommodation property updated successfully in Google Sheets!", { id: propertyId, images: processedImages });
+  } else {
+    sheet.appendRow(rowData);
+    return createResponse("success", "Accommodation property published successfully to Google Sheets!", { id: propertyId, images: processedImages });
+  }
+}
+
+// 17. Delete Accommodation Property
+function handleDeleteAccommodationProperty(data) {
+  if (!data.id) {
+    return createResponse("error", "Missing accommodation property ID to delete");
+  }
+
+  const sheet = getSheetByName(CONFIG.accommodationCatalogSheet, [
+    "ID", "Name", "Type", "Location", "Badge", "Rating", "ReviewsCount", "Description",
+    "Amenities", "Images", "VideoUrl", "RoomTiers", "Status", "Timestamp"
+  ]);
+
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    if (values[i][0] == data.id) {
+      sheet.deleteRow(i + 1);
+      return createResponse("success", "Accommodation property deleted from Google Sheets.");
+    }
+  }
+
+  return createResponse("success", "Accommodation property removed or marked deleted.");
+}
+
 // Helper: Save Base64 File to Google Drive Folder & return public direct URL
 function saveMediaToDrive(base64Input, fileName, mimeType) {
   try {
@@ -781,6 +887,53 @@ function getPendingGalleryItemsResponse() {
     status: "success",
     count: items.length,
     items: items
+  });
+}
+
+function getAccommodationsResponse() {
+  const sheet = getSheetByName(CONFIG.accommodationCatalogSheet, [
+    "ID", "Name", "Type", "Location", "Badge", "Rating", "ReviewsCount", "Description",
+    "Amenities", "Images", "VideoUrl", "RoomTiers", "Status", "Timestamp"
+  ]);
+
+  const values = sheet.getDataRange().getValues();
+  const accommodations = [];
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    if (row[0]) {
+      let amenities = [];
+      try { amenities = JSON.parse(row[8]); } catch(e) { amenities = String(row[8] || "").split(",").map(s => s.trim()).filter(Boolean); }
+
+      let images = [];
+      try { images = JSON.parse(row[9]); } catch(e) { images = [row[9]].filter(Boolean); }
+
+      let roomTiers = [];
+      try { roomTiers = JSON.parse(row[11]); } catch(e) { roomTiers = []; }
+
+      accommodations.push({
+        id: String(row[0]),
+        name: row[1] || "",
+        type: row[2] || "Luxury Hotel & Suites",
+        location: row[3] || "Afikpo City",
+        badge: row[4] || "",
+        rating: Number(row[5]) || 4.8,
+        reviewsCount: Number(row[6]) || 1,
+        description: row[7] || "",
+        amenities: Array.isArray(amenities) ? amenities : [],
+        images: Array.isArray(images) ? images : [],
+        videoUrl: row[10] || "",
+        roomTiers: Array.isArray(roomTiers) ? roomTiers : [],
+        status: row[12] || "Available",
+        timestamp: row[13] || 0
+      });
+    }
+  }
+
+  return createJsonResponse({
+    status: "success",
+    count: accommodations.length,
+    accommodations: accommodations
   });
 }
 
