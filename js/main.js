@@ -455,6 +455,137 @@ async function postToAppsScript(data) {
 }
 
 // =============================================================
+// DEFAULT ACCOMMODATIONS DATASET (Hotels, Resorts & Apartments)
+// =============================================================
+const DEFAULT_ACCOMMODATIONS = [
+  {
+    id: "hotel-1",
+    name: "Mater Hills Luxury Suites & Convention",
+    type: "Luxury Hotel & Suites",
+    location: "Central Afikpo • 5 mins to Main Carnival Arena",
+    badge: "⭐ 5-Star VIP Partner",
+    rating: 4.9,
+    reviewsCount: 142,
+    description: "Experience peerless luxury in the heart of Afikpo. Featuring panoramic hillside views, gourmet Igbo and continental dining, secure executive suites, and a dedicated 24/7 carnival shuttle service directly to the festival village.",
+    amenities: [
+      "Free High-Speed Wi-Fi",
+      "24/7 Solar & Generator Power",
+      "Carnival Village Shuttle Service",
+      "Swimming Pool",
+      "Restaurant & Bar (Igbo & Continental)",
+      "Air Conditioning in All Rooms",
+      "24/7 Gated Armed Security"
+    ],
+    images: [
+      "assets/images/ba_integrated_services.webp",
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80"
+    ],
+    videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
+    roomTiers: [
+      { name: "Executive Deluxe Room", pricePerNight: 35000, description: "King bed, scenic hill view, complimentary breakfast & fast Wi-Fi." },
+      { name: "Diplomatic Suite", pricePerNight: 65000, description: "Spacious suite with private lounge, balcony & 24/7 butler service." },
+      { name: "Presidential Carnival Penthouse", pricePerNight: 120000, description: "Ultra-luxury top-floor penthouse, VIP lounge access & private jacuzzi." }
+    ],
+    status: "Available"
+  },
+  {
+    id: "hotel-2",
+    name: "Unwana Beachfront Eco-Resort & Chalets",
+    type: "Beachfront Eco-Resort",
+    location: "Unwana Riverfront & Beach Sandstrip, Afikpo",
+    badge: "🌊 Beachfront Haven",
+    rating: 4.8,
+    reviewsCount: 98,
+    description: "Wake up to gentle river breezes and golden sand beaches. Ideal for tourists and carnival revellers seeking serenity, private beach cabanas, canoeing regattas, and fresh grilled river catfish under the stars.",
+    amenities: [
+      "River / Beachfront View",
+      "Free High-Speed Wi-Fi",
+      "24/7 Solar & Generator Power",
+      "Carnival Village Shuttle Service",
+      "Restaurant & Bar (Igbo & Continental)",
+      "Air Conditioning in All Rooms"
+    ],
+    images: [
+      "assets/images/Gold sand beach, Afikpo.webp",
+      "assets/images/Canoeing on the Unwana river.webp",
+      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80"
+    ],
+    videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
+    roomTiers: [
+      { name: "Riverfront Eco-Cabin", pricePerNight: 28000, description: "Rustic waterfront cabin with private bamboo deck & river sunrise." },
+      { name: "Waterfront Luxury Chalet", pricePerNight: 50000, description: "Air-conditioned chalet directly facing the golden sand beach." },
+      { name: "Sunset Family Villa (2-Bedroom)", pricePerNight: 95000, description: "2 ensuite bedrooms, kitchenette, private patio & beach access." }
+    ],
+    status: "Available"
+  },
+  {
+    id: "hotel-3",
+    name: "Queen's Heritage Lodge & Serviced Apartments",
+    type: "Serviced Apartment",
+    location: "Government Station Area, Afikpo",
+    badge: "🏡 Top Value Stay",
+    rating: 4.7,
+    reviewsCount: 84,
+    description: "Perfectly suited for families, cultural troupes, and festival groups looking for self-catering comfort, fully equipped modern kitchens, spacious living rooms, and round-the-clock power and security.",
+    amenities: [
+      "Free High-Speed Wi-Fi",
+      "24/7 Solar & Generator Power",
+      "Carnival Village Shuttle Service",
+      "Air Conditioning in All Rooms",
+      "24/7 Gated Armed Security"
+    ],
+    images: [
+      "assets/images/queens host enterprise.webp",
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"
+    ],
+    videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
+    roomTiers: [
+      { name: "Standard Serviced Studio", pricePerNight: 22000, description: "Queen bed, smart TV, kitchenette, and dedicated workspace." },
+      { name: "1-Bedroom Executive Apartment", pricePerNight: 42000, description: "Separate parlor, dining area, full kitchen & balcony." },
+      { name: "3-Bedroom Carnival Delegation Suite", pricePerNight: 85000, description: "Accommodates up to 6 guests with 3 ensuite bedrooms & large lounge." }
+    ],
+    status: "Available"
+  }
+];
+
+const STORAGE_KEY_ACCOMMODATIONS = "aic_accommodations_data";
+
+function getAccommodations() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_ACCOMMODATIONS);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY_ACCOMMODATIONS, JSON.stringify(DEFAULT_ACCOMMODATIONS));
+      return DEFAULT_ACCOMMODATIONS;
+    }
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed;
+    }
+    return DEFAULT_ACCOMMODATIONS;
+  } catch (e) {
+    console.warn("Could not read accommodations from localStorage:", e);
+    return DEFAULT_ACCOMMODATIONS;
+  }
+}
+
+function saveAccommodations(hotels) {
+  try {
+    localStorage.setItem(STORAGE_KEY_ACCOMMODATIONS, JSON.stringify(hotels));
+  } catch (e) {
+    console.error("Error saving accommodations:", e);
+  }
+}
+
+function restoreDefaultAccommodations() {
+  localStorage.setItem(STORAGE_KEY_ACCOMMODATIONS, JSON.stringify(DEFAULT_ACCOMMODATIONS));
+}
+
+// =============================================================
 // 1. REGISTRATION FORM (Performers & Troupes)
 // =============================================================
 function setupRegistrationForm() {
@@ -592,6 +723,7 @@ function updatePendingOrdersBadges() {
   const orders = getPendingOrders();
   const ticketCount = orders.filter(o => o.type === "ticket").length;
   const storeCount = orders.filter(o => o.type === "merchandise").length;
+  const accommodationCount = orders.filter(o => o.type === "accommodation").length;
   const totalCount = orders.length;
 
   document.querySelectorAll(".pending-tokens-badge").forEach(el => {
@@ -605,6 +737,10 @@ function updatePendingOrdersBadges() {
   document.querySelectorAll(".pending-store-badge").forEach(el => {
     el.textContent = storeCount;
     el.classList.toggle("hidden", storeCount === 0);
+  });
+  document.querySelectorAll(".pending-accommodation-badge").forEach(el => {
+    el.textContent = accommodationCount;
+    el.classList.toggle("hidden", accommodationCount === 0);
   });
 }
 
@@ -655,12 +791,43 @@ Hello Afikpo Carnival & Resorts Team, I have placed an order for carnival mercha
   return `https://wa.me/${AIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
+function buildAccommodationWhatsAppUrl(order) {
+  const text = 
+`🏨 *AFIKPO INTERNATIONAL CARNIVAL 2026*
+*HOTEL & ACCOMMODATION RESERVATION*
+════════════════════════════════
+📌 *Booking Token:* ${order.token}
+🟡 *Status:* PENDING WHATSAPP CONFIRMATION
+👤 *Guest Name:* ${order.customerName}
+📱 *Phone:* ${order.phone}
+📧 *Email:* ${order.email}
+════════════════════════════════
+🏢 *Property:* ${order.hotelName}
+🛏️ *Room Category:* ${order.roomType}
+💵 *Nightly Rate:* ${order.nightlyRate || "Standard Festival Rate"}
+📅 *Check-In:* ${order.checkIn || "To be confirmed"}
+📅 *Check-Out:* ${order.checkOut || "To be confirmed"}
+🌙 *Duration:* ${order.nightsCount || 1} Night(s)
+👥 *Guests:* ${order.guestsCount || "1 Guest"}
+💰 *Estimated Total:* ${order.totalAmount}
+📝 *Special Requests:* ${order.specialRequests || "None"}
+════════════════════════════════
+Hello Afikpo Carnival Hospitality Desk, I have submitted a room reservation on the official website. My booking token is *${order.token}*. Please confirm room availability, check-in logistics, and payment details. Thank you!`;
+
+  return `https://wa.me/${AIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
 function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
   const existing = document.getElementById("pending-order-modal");
   if (existing) existing.remove();
 
   const isTicket = order.type === "ticket";
-  const whatsappUrl = isTicket ? buildTicketWhatsAppUrl(order) : buildStoreWhatsAppUrl(order);
+  const isAccommodation = order.type === "accommodation";
+  const whatsappUrl = isTicket 
+    ? buildTicketWhatsAppUrl(order) 
+    : isAccommodation 
+      ? buildAccommodationWhatsAppUrl(order) 
+      : buildStoreWhatsAppUrl(order);
 
   const modal = document.createElement("div");
   modal.id = "pending-order-modal";
@@ -692,6 +859,39 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
         </div>
         <div class="flex justify-between py-2 pt-3">
           <span class="text-sm font-extrabold text-gray-900">Total Payable:</span>
+          <strong class="text-xl font-black text-green-600">${order.totalAmount}</strong>
+        </div>
+      </div>
+    `;
+  } else if (isAccommodation) {
+    detailsHtml = `
+      <div class="space-y-2.5 text-xs text-gray-700">
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Guest Name:</span>
+          <strong class="text-gray-900 font-bold">${order.customerName}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Property:</span>
+          <strong class="text-orange-600 font-black">${order.hotelName}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Room Category:</span>
+          <strong class="text-gray-900 font-bold">${order.roomType}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Dates & Duration:</span>
+          <strong class="text-gray-900 font-semibold">${order.checkIn} to ${order.checkOut} (${order.nightsCount} Night${Number(order.nightsCount) > 1 ? 's' : ''})</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Guests Count:</span>
+          <strong class="text-gray-900 font-semibold">${order.guestsCount}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Nightly Rate:</span>
+          <strong class="text-gray-900 font-semibold">${order.nightlyRate}</strong>
+        </div>
+        <div class="flex justify-between py-2 pt-3">
+          <span class="text-sm font-extrabold text-gray-900">Estimated Total:</span>
           <strong class="text-xl font-black text-green-600">${order.totalAmount}</strong>
         </div>
       </div>
@@ -741,6 +941,7 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
         </div>
         <h3 class="text-2xl font-black text-gray-900">
           ${isTicket ? "Festival Pass Reservation" : "Merchandise Order Placed"}
+          ${isTicket ? "Festival Pass Reservation" : isAccommodation ? "Hotel Room Reservation" : "Merchandise Order Placed"}
         </h3>
         <p class="text-xs text-gray-500 mt-1">
           Your request has been registered with the official token below. Complete the final step on WhatsApp!
@@ -892,6 +1093,11 @@ function createPendingOrdersDrawer() {
         <button onclick="window.filterPendingDrawer('all')" class="filter-btn-all font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition">All</button>
         <button onclick="window.filterPendingDrawer('ticket')" class="filter-btn-ticket font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition">🎟️ Tickets</button>
         <button onclick="window.filterPendingDrawer('merchandise')" class="filter-btn-merchandise font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition">📦 Store Merch</button>
+      <div class="flex gap-2 mt-3 text-[11px] overflow-x-auto pb-1">
+        <button onclick="window.filterPendingDrawer('all')" class="filter-btn-all font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition whitespace-nowrap">All</button>
+        <button onclick="window.filterPendingDrawer('ticket')" class="filter-btn-ticket font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition whitespace-nowrap">🎟️ Tickets</button>
+        <button onclick="window.filterPendingDrawer('accommodation')" class="filter-btn-accommodation font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition whitespace-nowrap">🏨 Hotels</button>
+        <button onclick="window.filterPendingDrawer('merchandise')" class="filter-btn-merchandise font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition whitespace-nowrap">📦 Store Merch</button>
       </div>
     </div>
 
@@ -924,10 +1130,12 @@ function renderPendingOrdersList(filterType) {
   if (drawer) {
     drawer.querySelectorAll("[class*='filter-btn-']").forEach(btn => {
       btn.className = `font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition cursor-pointer`;
+      btn.className = `font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition cursor-pointer whitespace-nowrap`;
     });
     const activeBtn = drawer.querySelector(`.filter-btn-${currentDrawerFilter}`);
     if (activeBtn) {
       activeBtn.className = `font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition cursor-pointer`;
+      activeBtn.className = `font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition cursor-pointer whitespace-nowrap`;
     }
   }
 
@@ -936,7 +1144,7 @@ function renderPendingOrdersList(filterType) {
       <div class="text-center py-12 text-gray-400">
         <span class="text-4xl block mb-2">🏷️</span>
         <p class="text-sm font-bold text-gray-600">No pending tokens found</p>
-        <p class="text-xs text-gray-400 mt-1">When you reserve passes or pick store items, your pending token will appear here!</p>
+        <p class="text-xs text-gray-400 mt-1">When you reserve passes, book hotels, or pick store items, your pending token will appear here!</p>
       </div>
     `;
     return;
@@ -944,9 +1152,22 @@ function renderPendingOrdersList(filterType) {
 
   list.innerHTML = filtered.map(order => {
     const isTicket = order.type === "ticket";
-    const title = isTicket ? order.ticketType : (order.itemsSummary || "Merchandise Order");
-    const subText = isTicket ? `${order.ticketCount} Attendee(s) • ${order.visitDate || 'Dec 2026'}` : `${order.deliveryMethod || 'Pickup'} • ${order.customerName}`;
-    const whatsappUrl = isTicket ? buildTicketWhatsAppUrl(order) : buildStoreWhatsAppUrl(order);
+    const isAccommodation = order.type === "accommodation";
+    const title = isTicket 
+      ? order.ticketType 
+      : isAccommodation 
+        ? `${order.hotelName} — ${order.roomType}` 
+        : (order.itemsSummary || "Merchandise Order");
+    const subText = isTicket 
+      ? `${order.ticketCount} Attendee(s) • ${order.visitDate || 'Dec 2026'}` 
+      : isAccommodation 
+        ? `${order.nightsCount || 1} Night(s) (${order.checkIn || ''} to ${order.checkOut || ''}) • ${order.customerName}`
+        : `${order.deliveryMethod || 'Pickup'} • ${order.customerName}`;
+    const whatsappUrl = isTicket 
+      ? buildTicketWhatsAppUrl(order) 
+      : isAccommodation 
+        ? buildAccommodationWhatsAppUrl(order) 
+        : buildStoreWhatsAppUrl(order);
 
     return `
       <div class="p-4 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition">
@@ -1969,46 +2190,1212 @@ function setupMediaUpload() {
 
 // =============================================================
 // 9. ACCOMMODATION RESERVATION
+// 9. ACCOMMODATION & HOSPITALITY (Display, Carousels, CMS & Booking)
 // =============================================================
+
+// Global Video Tour Modal Controls
+window.openVideoModal = function(encodedUrl, hotelTitle) {
+  const url = decodeURIComponent(encodedUrl);
+  const modal = document.getElementById("video-tour-modal");
+  const container = document.getElementById("video-modal-content");
+  const titleEl = document.getElementById("video-modal-title");
+
+  if (!modal || !container) return;
+
+  if (titleEl) titleEl.textContent = `${hotelTitle} — Video Tour`;
+  container.innerHTML = "";
+
+  const isEmbed = url.includes("youtube.com") || url.includes("youtu.be") || url.includes("vimeo.com") || url.includes("embed");
+
+  if (isEmbed) {
+    let embedUrl = url;
+    if (url.includes("watch?v=")) {
+      embedUrl = url.replace("watch?v=", "embed/");
+    } else if (url.includes("youtu.be/")) {
+      const id = url.split("youtu.be/")[1].split("?")[0];
+      embedUrl = `https://www.youtube.com/embed/${id}?autoplay=1`;
+    }
+    container.innerHTML = `
+      <iframe 
+        src="${embedUrl}" 
+        title="${hotelTitle} Video Tour" 
+        class="w-full h-full border-0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+        allowfullscreen
+      ></iframe>
+    `;
+  } else {
+    container.innerHTML = `
+      <video controls autoplay class="w-full h-full object-contain bg-black">
+        <source src="${url}" type="video/mp4" />
+        <source src="${url}" type="video/webm" />
+        Your browser does not support the video tag.
+      </video>
+    `;
+  }
+
+  modal.classList.remove("hidden");
+};
+
+window.closeVideoModal = function() {
+  const modal = document.getElementById("video-tour-modal");
+  const container = document.getElementById("video-modal-content");
+  if (container) container.innerHTML = "";
+  if (modal) modal.classList.add("hidden");
+};
+
+// Global Booking Bridge from Hotel Cards
+window.selectHotelForBooking = function(hotelName) {
+  window.selectHotelAndTierForBooking(hotelName, null);
+};
+
+window.selectHotelAndTierForBooking = function(hotelName, roomTierName) {
+  const hotelSelect = document.getElementById("hotel-select-field") || document.getElementById("hotel-select");
+  const roomSelect = document.getElementById("room-type-select-field") || document.getElementById("room-select");
+
+  if (hotelSelect) {
+    hotelSelect.value = hotelName;
+    hotelSelect.dispatchEvent(new Event("change"));
+  }
+
+  if (roomSelect && roomTierName) {
+    setTimeout(() => {
+      roomSelect.value = roomTierName;
+      roomSelect.dispatchEvent(new Event("change"));
+    }, 50);
+  }
+
+  const card = document.getElementById("hotel-reservation-card") || document.getElementById("booking-reservation-form-section");
+  if (card) {
+    card.scrollIntoView({ behavior: "smooth" });
+    card.classList.add("ring-4", "ring-orange-500/40");
+    setTimeout(() => card.classList.remove("ring-4", "ring-orange-500/40"), 1600);
+  }
+};
+
+// Public Accommodations Grid & Carousel Renderer
+function setupAccommodationDisplay() {
+  const grid = document.getElementById("hotels-grid");
+  if (!grid) return;
+
+  const countBadge = document.getElementById("hotels-count-badge") || document.getElementById("hotel-count-badge");
+  const emptyState = document.getElementById("no-hotels-message") || document.getElementById("hotels-empty-state");
+  const searchInput = document.getElementById("hotel-search-input");
+  const categoryPills = document.querySelectorAll(".hotel-pill, .hotel-category-pill");
+  const videoModal = document.getElementById("video-tour-modal");
+
+  if (videoModal) {
+    videoModal.addEventListener("click", (e) => {
+      if (e.target === videoModal) window.closeVideoModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !videoModal.classList.contains("hidden")) {
+        window.closeVideoModal();
+      }
+    });
+  }
+
+  let activeCategory = "all";
+  let searchQuery = "";
+
+  window.resetHotelFilters = function() {
+    activeCategory = "all";
+    searchQuery = "";
+    if (searchInput) searchInput.value = "";
+    const clearBtn = document.getElementById("clear-hotel-search-btn");
+    if (clearBtn) clearBtn.classList.add("hidden");
+    categoryPills.forEach(pill => {
+      const isAll = (pill.dataset.type === "all" || pill.dataset.category === "all");
+      pill.classList.toggle("bg-orange-600", isAll);
+      pill.classList.toggle("text-white", isAll);
+      pill.classList.toggle("bg-gray-100", !isAll);
+      pill.classList.toggle("text-gray-700", !isAll);
+      pill.classList.toggle("active", isAll);
+    });
+    renderHotels();
+  };
+
+  function renderHotels() {
+    const hotels = getAccommodations();
+
+    const filtered = hotels.filter(hotel => {
+      // Category filter
+      if (activeCategory !== "all") {
+        const typeLower = (hotel.type || "").toLowerCase();
+        const descLower = (hotel.description || "").toLowerCase();
+        const catLower = activeCategory.toLowerCase();
+
+        if (catLower.includes("luxury") && (!typeLower.includes("luxury") && !typeLower.includes("suite"))) return false;
+        if (catLower.includes("beach") && (!typeLower.includes("beach") && !typeLower.includes("resort") && !descLower.includes("beach"))) return false;
+        if (catLower.includes("apartment") && (!typeLower.includes("apartment") && !typeLower.includes("serviced"))) return false;
+        if (catLower.includes("lodge") && (!typeLower.includes("lodge") && !typeLower.includes("villa"))) return false;
+      }
+
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesName = (hotel.name || "").toLowerCase().includes(query);
+        const matchesType = (hotel.type || "").toLowerCase().includes(query);
+        const matchesLoc = (hotel.location || "").toLowerCase().includes(query);
+        const matchesDesc = (hotel.description || "").toLowerCase().includes(query);
+        const matchesAmenities = Array.isArray(hotel.amenities) && hotel.amenities.some(a => a.toLowerCase().includes(query));
+        const matchesRooms = Array.isArray(hotel.roomTiers) && hotel.roomTiers.some(r => r.name.toLowerCase().includes(query));
+        if (!matchesName && !matchesType && !matchesLoc && !matchesDesc && !matchesAmenities && !matchesRooms) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    if (countBadge) {
+      countBadge.textContent = filtered.length;
+    }
+
+    if (filtered.length === 0) {
+      grid.innerHTML = "";
+      grid.classList.add("hidden");
+      if (emptyState) emptyState.classList.remove("hidden");
+      return;
+    }
+
+    grid.classList.remove("hidden");
+    if (emptyState) emptyState.classList.add("hidden");
+
+    grid.innerHTML = filtered.map((hotel) => {
+      const images = Array.isArray(hotel.images) && hotel.images.length > 0 
+        ? hotel.images 
+        : ["https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"];
+      const hasMultipleImages = images.length > 1;
+      const roomTiers = Array.isArray(hotel.roomTiers) && hotel.roomTiers.length > 0
+        ? hotel.roomTiers
+        : [{ name: "Standard Room", pricePerNight: 25000, description: "Comfortable accommodation with air conditioning & Wi-Fi." }];
+      
+      const firstTier = roomTiers[0];
+      const amenities = Array.isArray(hotel.amenities) ? hotel.amenities : [];
+      const safeHotelName = (hotel.name || "").replace(/'/g, "\\'");
+
+      // Media Header markup (Carousel or Single Image)
+      let mediaHeaderHtml = "";
+      if (hasMultipleImages) {
+        mediaHeaderHtml = `
+          <div class="relative h-64 overflow-hidden group/carousel select-none hotel-carousel-container" data-current-slide="0">
+            <!-- Slide Images -->
+            <div class="w-full h-full relative">
+              ${images.map((img, i) => `
+                <img 
+                  src="${img}" 
+                  alt="${hotel.name} - Photo ${i + 1}" 
+                  class="hotel-carousel-img absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${i === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'}" 
+                  data-index="${i}"
+                  loading="${i === 0 ? 'eager' : 'lazy'}"
+                />
+              `).join("")}
+            </div>
+
+            <!-- Gradient overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10 pointer-events-none"></div>
+
+            <!-- Badge -->
+            ${hotel.badge ? `
+              <span class="absolute top-3 left-3 z-20 bg-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                ${hotel.badge}
+              </span>
+            ` : ''}
+
+            <!-- Video Tour Button -->
+            ${hotel.videoUrl ? `
+              <button 
+                type="button" 
+                onclick="window.openVideoModal('${encodeURIComponent(hotel.videoUrl)}', '${safeHotelName}')" 
+                class="absolute top-3 right-3 z-20 bg-black/70 hover:bg-orange-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full backdrop-blur-md transition flex items-center gap-1.5 shadow-md cursor-pointer"
+                title="Watch Virtual Video Tour"
+              >
+                <span>🎥</span> <span>Tour</span>
+              </button>
+            ` : ''}
+
+            <!-- Previous & Next Controls -->
+            <button 
+              type="button" 
+              class="hotel-prev-btn absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-orange-600 text-white text-lg font-bold flex items-center justify-center opacity-70 group-hover/carousel:opacity-100 transition shadow cursor-pointer leading-none"
+              aria-label="Previous Photo"
+            >‹</button>
+            <button 
+              type="button" 
+              class="hotel-next-btn absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/60 hover:bg-orange-600 text-white text-lg font-bold flex items-center justify-center opacity-70 group-hover/carousel:opacity-100 transition shadow cursor-pointer leading-none"
+              aria-label="Next Photo"
+            >›</button>
+
+            <!-- Bottom Dots & Slide Indicator -->
+            <div class="absolute bottom-3 left-3 right-3 z-20 flex items-center justify-between pointer-events-none">
+              <div class="flex items-center gap-1.5 pointer-events-auto">
+                ${images.map((_, i) => `
+                  <button 
+                    type="button" 
+                    class="hotel-dot-btn h-1.5 rounded-full transition-all cursor-pointer ${i === 0 ? 'bg-orange-500 w-5' : 'bg-white/60 hover:bg-white w-2'}" 
+                    data-goto="${i}" 
+                    aria-label="Slide ${i + 1}"
+                  ></button>
+                `).join("")}
+              </div>
+              <span class="hotel-counter-badge bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                1 / ${images.length}
+              </span>
+            </div>
+          </div>
+        `;
+      } else {
+        mediaHeaderHtml = `
+          <div class="relative h-64 overflow-hidden">
+            <img src="${images[0]}" alt="${hotel.name}" class="w-full h-full object-cover" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            ${hotel.badge ? `
+              <span class="absolute top-3 left-3 bg-orange-600 text-white font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow-md">
+                ${hotel.badge}
+              </span>
+            ` : ''}
+            ${hotel.videoUrl ? `
+              <button 
+                type="button" 
+                onclick="window.openVideoModal('${encodeURIComponent(hotel.videoUrl)}', '${safeHotelName}')" 
+                class="absolute top-3 right-3 bg-black/70 hover:bg-orange-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full backdrop-blur-md transition flex items-center gap-1.5 shadow-md cursor-pointer"
+              >
+                <span>🎥</span> <span>Tour</span>
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      // Card Body & Room Tier Selector
+      return `
+        <div class="hotel-card bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 flex flex-col justify-between hover:shadow-2xl transition duration-300" data-hotel-id="${hotel.id}">
+          <div>
+            ${mediaHeaderHtml}
+
+            <div class="p-6 md:p-7">
+              <!-- Type & Rating -->
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="text-[11px] font-black uppercase tracking-wider text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full">
+                  ${hotel.type || "Carnival Stay"}
+                </span>
+                <div class="flex items-center text-amber-500 text-xs font-bold gap-1">
+                  <span>★</span>
+                  <span>${hotel.rating || "4.8"}</span>
+                  <span class="text-gray-400 font-normal">(${hotel.reviewsCount || 100}+)</span>
+                </div>
+              </div>
+
+              <!-- Name & Location -->
+              <h3 class="text-xl font-black text-gray-900 leading-tight mb-1.5">${hotel.name}</h3>
+              <p class="text-xs text-gray-500 flex items-center gap-1.5 mb-3">
+                <span class="text-orange-600">📍</span>
+                <span>${hotel.location || "Afikpo, Ebonyi State"}</span>
+              </p>
+
+              <!-- Description -->
+              <p class="text-xs text-gray-600 leading-relaxed line-clamp-3 mb-4">
+                ${hotel.description || ""}
+              </p>
+
+              <!-- Amenities Tags -->
+              ${amenities.length > 0 ? `
+                <div class="flex flex-wrap gap-1.5 mb-5">
+                  ${amenities.slice(0, 4).map(a => `
+                    <span class="text-[10px] font-semibold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg">
+                      ${a}
+                    </span>
+                  `).join("")}
+                  ${amenities.length > 4 ? `
+                    <span class="text-[10px] font-semibold bg-gray-50 text-gray-400 px-2 py-1 rounded-lg">
+                      +${amenities.length - 4} more
+                    </span>
+                  ` : ''}
+                </div>
+              ` : ''}
+
+              <!-- Interactive Room Category Selector -->
+              <div class="p-3.5 bg-gray-50/80 rounded-2xl border border-gray-200/80">
+                <label class="block text-[10px] font-black uppercase text-gray-500 tracking-wider mb-1.5">
+                  Choose Room Category
+                </label>
+                <select class="card-room-select w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-900 focus:ring-2 focus:ring-orange-600 outline-none cursor-pointer">
+                  ${roomTiers.map((tier, tIdx) => `
+                    <option value="${tier.name}" data-price="${tier.pricePerNight}" data-desc="${(tier.description || '').replace(/"/g, '&quot;')}" ${tIdx === 0 ? 'selected' : ''}>
+                      ${tier.name} — ₦${Number(tier.pricePerNight).toLocaleString()} / night
+                    </option>
+                  `).join("")}
+                </select>
+                <p class="card-tier-note text-[11px] text-gray-500 mt-1.5 italic truncate">
+                  ${firstTier.description || ''}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Bottom Bar: Live Rate & Reserve CTA -->
+          <div class="px-6 md:px-7 pb-6 pt-3 border-t border-gray-100 flex items-center justify-between gap-3 bg-gray-50/30">
+            <div>
+              <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block">Nightly Rate</span>
+              <div class="flex items-baseline gap-1">
+                <strong class="card-price-display text-xl md:text-2xl font-black text-green-600">
+                  ₦${Number(firstTier.pricePerNight).toLocaleString()}
+                </strong>
+                <span class="text-xs text-gray-400 font-medium">/ night</span>
+              </div>
+            </div>
+            <button 
+              type="button" 
+              class="card-reserve-btn bg-orange-600 hover:bg-orange-700 text-white font-black text-xs px-5 py-3 rounded-xl transition shadow-lg shadow-orange-200 cursor-pointer flex items-center gap-1.5"
+            >
+              <span>Reserve</span>
+              <span>→</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // Initialize Card Carousels & Room Selectors
+    initCardCarousels();
+    initCardRoomSelectors();
+  }
+
+  // Multi-Image Carousel Controller for Hotel Cards
+  function initCardCarousels() {
+    const containers = grid.querySelectorAll(".hotel-carousel-container");
+
+    containers.forEach(container => {
+      const images = container.querySelectorAll(".hotel-carousel-img");
+      const dots = container.querySelectorAll(".hotel-dot-btn");
+      const counter = container.querySelector(".hotel-counter-badge");
+      const prevBtn = container.querySelector(".hotel-prev-btn");
+      const nextBtn = container.querySelector(".hotel-next-btn");
+      const total = images.length;
+
+      if (total <= 1) return;
+
+      let current = 0;
+
+      function goToSlide(n) {
+        current = (n + total) % total;
+        container.dataset.currentSlide = current;
+
+        images.forEach((img, i) => {
+          img.classList.toggle("opacity-100", i === current);
+          img.classList.toggle("z-10", i === current);
+          img.classList.toggle("opacity-0", i !== current);
+          img.classList.toggle("z-0", i !== current);
+        });
+
+        dots.forEach((dot, i) => {
+          dot.className = `hotel-dot-btn h-1.5 rounded-full transition-all cursor-pointer ${i === current ? 'bg-orange-500 w-5' : 'bg-white/60 hover:bg-white w-2'}`;
+        });
+
+        if (counter) {
+          counter.textContent = `${current + 1} / ${total}`;
+        }
+      }
+
+      if (prevBtn) {
+        prevBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          goToSlide(current - 1);
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          goToSlide(current + 1);
+        });
+      }
+
+      dots.forEach(dot => {
+        dot.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const targetIndex = parseInt(dot.dataset.goto, 10);
+          goToSlide(targetIndex);
+        });
+      });
+
+      // Touch swipe support for mobile users
+      let touchStartX = 0;
+      let touchEndX = 0;
+
+      container.addEventListener("touchstart", (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+      }, { passive: true });
+
+      container.addEventListener("touchend", (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        const diff = touchEndX - touchStartX;
+        if (Math.abs(diff) > 40) {
+          if (diff < 0) goToSlide(current + 1);
+          else goToSlide(current - 1);
+        }
+      }, { passive: true });
+    });
+  }
+
+  // Interactive Room Tier Selectors on Hotel Cards
+  function initCardRoomSelectors() {
+    const cards = grid.querySelectorAll(".hotel-card");
+
+    cards.forEach(card => {
+      const hotelId = card.dataset.hotelId;
+      const hotel = getAccommodations().find(h => h.id === hotelId);
+      const roomSelect = card.querySelector(".card-room-select");
+      const priceDisplay = card.querySelector(".card-price-display");
+      const noteDisplay = card.querySelector(".card-tier-note");
+      const reserveBtn = card.querySelector(".card-reserve-btn");
+
+      if (roomSelect) {
+        roomSelect.addEventListener("change", () => {
+          const opt = roomSelect.options[roomSelect.selectedIndex];
+          const price = Number(opt.dataset.price || 0);
+          const desc = opt.dataset.desc || "";
+
+          if (priceDisplay) priceDisplay.textContent = `₦${price.toLocaleString()}`;
+          if (noteDisplay) noteDisplay.textContent = desc;
+        });
+      }
+
+      if (reserveBtn && hotel) {
+        reserveBtn.addEventListener("click", () => {
+          const selectedTierName = roomSelect ? roomSelect.value : (hotel.roomTiers?.[0]?.name || "");
+          window.selectHotelAndTierForBooking(hotel.name, selectedTierName);
+        });
+      }
+    });
+  }
+
+  // Category Pills Filtering Listener
+  categoryPills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      activeCategory = pill.dataset.type || pill.dataset.category || "all";
+      categoryPills.forEach(p => {
+        const isCurrent = p === pill;
+        p.classList.toggle("bg-orange-600", isCurrent);
+        p.classList.toggle("text-white", isCurrent);
+        p.classList.toggle("bg-gray-100", !isCurrent);
+        p.classList.toggle("text-gray-700", !isCurrent);
+        p.classList.toggle("active", isCurrent);
+      });
+      renderHotels();
+    });
+  });
+
+  // Search Input Listener
+  const clearSearchBtn = document.getElementById("clear-hotel-search-btn");
+  if (searchInput) {
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value.trim();
+      if (clearSearchBtn) clearSearchBtn.classList.toggle("hidden", searchQuery.length === 0);
+      renderHotels();
+    });
+  }
+
+  if (clearSearchBtn && searchInput) {
+    clearSearchBtn.addEventListener("click", () => {
+      searchInput.value = "";
+      searchQuery = "";
+      clearSearchBtn.classList.add("hidden");
+      renderHotels();
+      searchInput.focus();
+    });
+  }
+
+  // Initial Render
+  renderHotels();
+}
+
+// Upgraded Accommodation Booking Reservation Logic
 function setupAccommodationBooking() {
   const form = document.getElementById("accommodation-reservation-form") || document.getElementById("accommodation-booking-form");
   const hotelSelect = document.getElementById("hotel-select-field") || document.getElementById("hotel-select");
+  const roomSelect = document.getElementById("room-type-select-field") || document.getElementById("room-select");
+  const checkInInput = document.getElementById("book-checkin-date") || (form ? form.querySelector("input[name='checkInDate']") : null);
+  const checkOutInput = document.getElementById("book-checkout-date") || (form ? form.querySelector("input[name='checkOutDate']") : null);
 
   window.selectHotelForBooking = function(hotelName) {
     if (hotelSelect) hotelSelect.value = hotelName;
     const card = document.getElementById("hotel-reservation-card") || document.getElementById("booking-reservation-form-section");
     if (card) card.scrollIntoView({ behavior: "smooth" });
   };
+  const calcNights = document.getElementById("calc-nights-label");
+  const calcRate = document.getElementById("calc-rate-label");
+  const calcTotal = document.getElementById("calc-total-label");
 
   if (!form) return;
 
+  // Set intelligent defaults for festival dates (e.g. Dec 26 - Dec 29, 2026)
+  if (checkInInput && !checkInInput.value) checkInInput.value = "2026-12-26";
+  if (checkOutInput && !checkOutInput.value) checkOutInput.value = "2026-12-29";
+
+  // Populate Hotels Dropdown
+  function populateHotelsDropdown() {
+    const hotels = getAccommodations();
+    if (!hotelSelect) return;
+
+    hotelSelect.innerHTML = hotels.map(hotel => `
+      <option value="${hotel.name}">${hotel.name} (${hotel.type})</option>
+    `).join("");
+
+    updateRoomDropdown();
+  }
+
+  // Populate Room Categories Dropdown based on selected hotel
+  function updateRoomDropdown() {
+    if (!hotelSelect || !roomSelect) return;
+    const hotelName = hotelSelect.value;
+    const hotel = getAccommodations().find(h => h.name === hotelName) || getAccommodations()[0];
+
+    if (!hotel || !Array.isArray(hotel.roomTiers) || hotel.roomTiers.length === 0) {
+      roomSelect.innerHTML = `<option value="Standard Room" data-price="25000">Standard Room — ₦25,000 / night</option>`;
+    } else {
+      roomSelect.innerHTML = hotel.roomTiers.map(tier => `
+        <option value="${tier.name}" data-price="${tier.pricePerNight}">
+          ${tier.name} — ₦${Number(tier.pricePerNight).toLocaleString()} / night
+        </option>
+      `).join("");
+    }
+
+    recalculateBookingBill();
+  }
+
+  // Real-time Night & Bill Calculator
+  function recalculateBookingBill() {
+    let nights = 1;
+    if (checkInInput && checkOutInput && checkInInput.value && checkOutInput.value) {
+      const d1 = new Date(checkInInput.value);
+      const d2 = new Date(checkOutInput.value);
+      const diffDays = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+      nights = diffDays > 0 ? diffDays : 1;
+    }
+
+    let rate = 25000;
+    if (roomSelect && roomSelect.selectedIndex >= 0) {
+      const opt = roomSelect.options[roomSelect.selectedIndex];
+      rate = Number(opt.dataset.price || 25000);
+    }
+
+    const total = nights * rate;
+
+    if (calcNights) calcNights.textContent = `${nights} Night${nights > 1 ? 's' : ''} Stay`;
+    if (calcRate) calcRate.textContent = `Rate: ₦${rate.toLocaleString()} / night`;
+    if (calcTotal) calcTotal.textContent = `₦${total.toLocaleString()}`;
+
+    return { nights, rate, total };
+  }
+
+  if (hotelSelect) {
+    hotelSelect.addEventListener("change", updateRoomDropdown);
+  }
+  if (roomSelect) {
+    roomSelect.addEventListener("change", recalculateBookingBill);
+  }
+  if (checkInInput) {
+    checkInInput.addEventListener("change", recalculateBookingBill);
+  }
+  if (checkOutInput) {
+    checkOutInput.addEventListener("change", recalculateBookingBill);
+  }
+
+  populateHotelsDropdown();
+
+  // Form Submission
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const btn = form.querySelector("button[type='submit']");
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "Submitting Reservation...";
+    const submitBtn = form.querySelector("button[type='submit']");
+    const origText = submitBtn ? submitBtn.textContent : "Submit";
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Generating Reservation Token...";
+    }
 
-    const payload = {
-      formType: "accommodation_reservation",
-      hotelName: form.querySelector("select[name='hotelName']").value,
-      roomType: form.querySelector("select[name='roomType']").value,
-      checkIn: form.querySelector("input[name='checkInDate']") ? form.querySelector("input[name='checkInDate']").value : "",
-      checkOut: form.querySelector("input[name='checkOutDate']") ? form.querySelector("input[name='checkOutDate']").value : "",
-      guestsCount: form.querySelector("input[name='guestsCount']") ? form.querySelector("input[name='guestsCount']").value : "",
-      guestName: form.querySelector("input[name='guestName']").value,
-      email: form.querySelector("input[name='email']").value,
-      phone: form.querySelector("input[name='phone']").value,
-      specialRequests: form.querySelector("textarea[name='specialRequests']") ? form.querySelector("textarea[name='specialRequests']").value : ""
+    const { nights, rate, total } = recalculateBookingBill();
+
+    const hotelName = hotelSelect ? hotelSelect.value : (form.querySelector("select[name='hotelName']")?.value || "Festival Partner Hotel");
+    const roomType = roomSelect ? roomSelect.value : (form.querySelector("select[name='roomType']")?.value || "Standard Room");
+    const checkIn = checkInInput ? checkInInput.value : "";
+    const checkOut = checkOutInput ? checkOutInput.value : "";
+    const guestsCount = form.querySelector("input[name='guestsCount']")?.value || "1 Guest";
+    const guestName = form.querySelector("input[name='guestName']")?.value || "Guest";
+    const email = form.querySelector("input[name='email']")?.value || "";
+    const phone = form.querySelector("input[name='phone']")?.value || "";
+    const specialRequests = form.querySelector("textarea[name='specialRequests']")?.value || "";
+
+    // Generate Official HTL Reservation Token
+    const token = "HTL-" + Math.floor(10000 + Math.random() * 90000);
+
+    const order = {
+      token: token,
+      type: "accommodation",
+      hotelName: hotelName,
+      roomType: roomType,
+      nightlyRate: `₦${rate.toLocaleString()}`,
+      checkIn: checkIn,
+      checkOut: checkOut,
+      nightsCount: nights,
+      guestsCount: guestsCount,
+      totalAmount: `₦${total.toLocaleString()}`,
+      customerName: guestName,
+      email: email,
+      phone: phone,
+      specialRequests: specialRequests,
+      date: new Date().toLocaleDateString(),
+      status: "PENDING_WHATSAPP_CONFIRMATION"
     };
 
-    const res = await postToAppsScript(payload);
-    showAlert(res.message || "Accommodation request submitted! We will contact you with booking confirmation.", "success");
-    form.reset();
+    // Save locally to pending orders
+    savePendingOrder(order);
 
-    btn.disabled = false;
-    btn.textContent = origText;
+    // Asynchronously log to Apps Script
+    try {
+      const payload = {
+        formType: "accommodation_reservation",
+        token: token,
+        hotelName: hotelName,
+        roomType: roomType,
+        checkIn: checkIn,
+        checkOut: checkOut,
+        nightsCount: nights,
+        guestsCount: guestsCount,
+        totalAmount: `₦${total.toLocaleString()}`,
+        guestName: guestName,
+        email: email,
+        phone: phone,
+        specialRequests: specialRequests
+      };
+      postToAppsScript(payload).catch(err => console.warn("Background log notice:", err));
+    } catch (err) {
+      console.warn("Apps script dispatch note:", err);
+    }
+
+    showAlert(`Reservation created! Token: ${token}. Finalize on WhatsApp.`, "success");
+
+    // Show modal & auto-open WhatsApp
+    showPendingOrderModal(order, true);
+
+    form.reset();
+    populateHotelsDropdown();
+
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = origText;
+    }
   });
+}
+
+// Accommodation & Hotel Admin CMS (PIN Authenticated)
+function setupAccommodationAdmin() {
+  const authSection = document.getElementById("hotel-admin-auth-section");
+  const authForm = document.getElementById("hotel-admin-login-form");
+  const pinInput = document.getElementById("hotel-admin-pin-input");
+  const dashboardSection = document.getElementById("hotel-admin-dashboard-section");
+  const logoutBtn = document.getElementById("hotel-admin-logout-btn");
+  const restoreDefaultsBtn = document.getElementById("restore-default-hotels-btn");
+  const newHotelBtn = document.getElementById("new-hotel-btn");
+
+  const editorCard = document.getElementById("hotel-editor-card");
+  const editorForm = document.getElementById("hotel-editor-form");
+  const editorHeading = document.getElementById("hotel-editor-heading");
+  const editIdInput = document.getElementById("edit-hotel-id");
+  const saveHotelBtn = document.getElementById("save-hotel-btn");
+  const cancelEditBtn = document.getElementById("cancel-hotel-edit-btn");
+
+  const liveCountBadge = document.getElementById("live-hotels-count");
+  const liveHotelsList = document.getElementById("admin-hotels-list");
+
+  // Media Controls
+  const imagesFileInput = document.getElementById("hotel-images-file-input");
+  const imageUrlInput = document.getElementById("hotel-image-url-input");
+  const addImageUrlBtn = document.getElementById("add-image-url-btn");
+  const imagesPreviewGrid = document.getElementById("images-preview-grid");
+  const imagesCountBadge = document.getElementById("images-count-badge");
+
+  const videoUrlInput = document.getElementById("hotel-video-url-input");
+  const videoFileInput = document.getElementById("hotel-video-file-input");
+  const videoPreviewContainer = document.getElementById("video-preview-container");
+  const videoPreviewLabel = document.getElementById("video-preview-label");
+  const removeVideoBtn = document.getElementById("remove-video-btn");
+
+  // Room Tiers Repeater Controls
+  const roomTiersContainer = document.getElementById("room-tiers-container");
+  const addRoomTierBtn = document.getElementById("add-room-tier-btn");
+
+  if (!authSection && !dashboardSection) return;
+
+  const ACCEPTED_PINS = ["2026", "afikpo2026", "admin123"];
+
+  // Local state for images & video of the current hotel in editor
+  let currentEditorImages = [];
+  let currentEditorVideoUrl = "";
+
+  // Auth Status Checker
+  function checkAuthStatus() {
+    const isAuthed = sessionStorage.getItem("aic_hotel_admin_authed") === "true";
+    if (isAuthed) {
+      if (authSection) authSection.classList.add("hidden");
+      if (dashboardSection) dashboardSection.classList.remove("hidden");
+      if (logoutBtn) logoutBtn.classList.remove("hidden");
+      renderAdminHotels();
+    } else {
+      if (authSection) authSection.classList.remove("hidden");
+      if (dashboardSection) dashboardSection.classList.add("hidden");
+      if (logoutBtn) logoutBtn.classList.add("hidden");
+    }
+  }
+
+  // PIN Login Submission
+  if (authForm) {
+    authForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const enteredPin = (pinInput ? pinInput.value.trim().toLowerCase() : "");
+      if (ACCEPTED_PINS.includes(enteredPin)) {
+        sessionStorage.setItem("aic_hotel_admin_authed", "true");
+        showAlert("Access granted to Hospitality CMS!", "success");
+        checkAuthStatus();
+      } else {
+        showAlert("Incorrect PIN. Accepted PINs include 2026.", "error");
+        if (pinInput) {
+          pinInput.value = "";
+          pinInput.focus();
+        }
+      }
+    });
+  }
+
+  // Logout Handler
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      sessionStorage.removeItem("aic_hotel_admin_authed");
+      showAlert("Logged out from Hospitality CMS.", "info");
+      checkAuthStatus();
+    });
+  }
+
+  // Images Preview Renderer
+  function renderImagesPreview() {
+    if (!imagesPreviewGrid) return;
+    if (imagesCountBadge) imagesCountBadge.textContent = currentEditorImages.length;
+
+    if (currentEditorImages.length === 0) {
+      imagesPreviewGrid.innerHTML = `<span class="text-xs text-gray-400 italic">No photos added yet. Upload files or enter image URLs above.</span>`;
+      return;
+    }
+
+    imagesPreviewGrid.innerHTML = currentEditorImages.map((img, idx) => `
+      <div class="relative group/thumb w-20 h-20 rounded-xl overflow-hidden border border-gray-200 shadow-sm flex-shrink-0">
+        <img src="${img}" alt="Preview ${idx + 1}" class="w-full h-full object-cover" />
+        <button 
+          type="button" 
+          onclick="window.removeEditorImage(${idx})" 
+          class="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/80 hover:bg-red-600 text-white text-[11px] font-bold flex items-center justify-center transition cursor-pointer"
+          title="Remove Photo"
+        >✕</button>
+        <span class="absolute bottom-1 left-1 bg-black/60 text-white text-[9px] font-bold px-1 rounded">#${idx + 1}</span>
+      </div>
+    `).join("");
+  }
+
+  window.removeEditorImage = function(idx) {
+    currentEditorImages.splice(idx, 1);
+    renderImagesPreview();
+  };
+
+  // Add Image URL
+  if (addImageUrlBtn && imageUrlInput) {
+    addImageUrlBtn.addEventListener("click", () => {
+      const url = imageUrlInput.value.trim();
+      if (!url) return;
+      currentEditorImages.push(url);
+      imageUrlInput.value = "";
+      renderImagesPreview();
+    });
+  }
+
+  // Multi-Image File Input Listener
+  if (imagesFileInput) {
+    imagesFileInput.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []);
+      if (files.length === 0) return;
+
+      for (const file of files) {
+        try {
+          const compressedDataUrl = await compressImageFile(file, 1200, 800, 0.82);
+          currentEditorImages.push(compressedDataUrl);
+        } catch (err) {
+          console.warn("Could not compress image file, reading as base64:", err);
+          const reader = new FileReader();
+          reader.onload = (re) => {
+            currentEditorImages.push(re.target.result);
+            renderImagesPreview();
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+      renderImagesPreview();
+      imagesFileInput.value = "";
+    });
+  }
+
+  // Video Inputs
+  if (videoUrlInput) {
+    videoUrlInput.addEventListener("input", (e) => {
+      currentEditorVideoUrl = e.target.value.trim();
+      updateVideoPreview();
+    });
+  }
+
+  if (videoFileInput) {
+    videoFileInput.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (re) => {
+        currentEditorVideoUrl = re.target.result;
+        if (videoPreviewLabel) videoPreviewLabel.textContent = `Attached: ${file.name}`;
+        updateVideoPreview();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function updateVideoPreview() {
+    if (!videoPreviewContainer) return;
+    if (currentEditorVideoUrl) {
+      videoPreviewContainer.classList.remove("hidden");
+      if (videoPreviewLabel && !videoPreviewLabel.textContent.includes("Attached:")) {
+        videoPreviewLabel.textContent = `Video attached (${currentEditorVideoUrl.slice(0, 36)}...)`;
+      }
+    } else {
+      videoPreviewContainer.classList.add("hidden");
+    }
+  }
+
+  if (removeVideoBtn) {
+    removeVideoBtn.addEventListener("click", () => {
+      currentEditorVideoUrl = "";
+      if (videoUrlInput) videoUrlInput.value = "";
+      if (videoFileInput) videoFileInput.value = "";
+      updateVideoPreview();
+    });
+  }
+
+  // Room Tiers Dynamic Repeater
+  function addRoomTierRow(tier = { name: "", pricePerNight: "", description: "" }) {
+    if (!roomTiersContainer) return;
+
+    const row = document.createElement("div");
+    row.className = "room-tier-row bg-white p-3.5 rounded-xl border border-gray-200 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center";
+    row.innerHTML = `
+      <div class="sm:col-span-5">
+        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Room Category Name</label>
+        <input type="text" class="tier-name-input w-full p-2.5 bg-gray-50 rounded-lg border border-gray-200 text-xs font-bold" placeholder="e.g. Executive Suite" value="${tier.name || ''}" required />
+      </div>
+      <div class="sm:col-span-3">
+        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Price / Night (₦)</label>
+        <input type="number" min="1000" class="tier-price-input w-full p-2.5 bg-gray-50 rounded-lg border border-gray-200 text-xs font-bold text-green-700" placeholder="e.g. 35000" value="${tier.pricePerNight || ''}" required />
+      </div>
+      <div class="sm:col-span-3">
+        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Features / Bedding</label>
+        <input type="text" class="tier-desc-input w-full p-2.5 bg-gray-50 rounded-lg border border-gray-200 text-xs" placeholder="e.g. King Bed, Balcony" value="${tier.description || ''}" />
+      </div>
+      <div class="sm:col-span-1 flex items-end justify-center pt-2 sm:pt-4">
+        <button type="button" class="remove-tier-btn text-red-500 hover:text-red-700 font-black text-sm p-1.5 cursor-pointer" title="Remove Room Tier">✕</button>
+      </div>
+    `;
+
+    row.querySelector(".remove-tier-btn").addEventListener("click", () => {
+      if (roomTiersContainer.querySelectorAll(".room-tier-row").length > 1) {
+        row.remove();
+      } else {
+        showAlert("A hotel must have at least one room category.", "warning");
+      }
+    });
+
+    roomTiersContainer.appendChild(row);
+  }
+
+  if (addRoomTierBtn) {
+    addRoomTierBtn.addEventListener("click", () => addRoomTierRow());
+  }
+
+  // Reset Editor Form
+  function resetEditor() {
+    if (!editorForm) return;
+    editorForm.reset();
+    if (editIdInput) editIdInput.value = "";
+    if (editorHeading) editorHeading.textContent = "Add New Hotel / Apartment";
+    if (saveHotelBtn) saveHotelBtn.textContent = "Publish Hotel Listing";
+
+    currentEditorImages = [];
+    currentEditorVideoUrl = "";
+    renderImagesPreview();
+    updateVideoPreview();
+
+    if (roomTiersContainer) {
+      roomTiersContainer.innerHTML = "";
+      addRoomTierRow({ name: "Deluxe Suite", pricePerNight: 35000, description: "Spacious suite with air conditioning, king bed & Wi-Fi." });
+    }
+  }
+
+  if (cancelEditBtn) {
+    cancelEditBtn.addEventListener("click", resetEditor);
+  }
+
+  if (newHotelBtn) {
+    newHotelBtn.addEventListener("click", () => {
+      resetEditor();
+      if (editorCard) editorCard.scrollIntoView({ behavior: "smooth" });
+    });
+  }
+
+  // Restore Defaults Button
+  if (restoreDefaultsBtn) {
+    restoreDefaultsBtn.addEventListener("click", () => {
+      if (confirm("Restore the 3 official default partner hotels & apartments? Any custom listings will be replaced.")) {
+        restoreDefaultAccommodations();
+        renderAdminHotels();
+        resetEditor();
+        showAlert("Default accommodations restored successfully!", "success");
+      }
+    });
+  }
+
+  // Save Hotel Form Submission
+  if (editorForm) {
+    editorForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("hotel-name-input")?.value.trim();
+      const type = document.getElementById("hotel-type-select")?.value;
+      const location = document.getElementById("hotel-location-input")?.value.trim();
+      const badge = document.getElementById("hotel-badge-input")?.value.trim();
+      const description = document.getElementById("hotel-description-input")?.value.trim();
+
+      if (!name || !location || !description) {
+        showAlert("Please fill in all required property information.", "error");
+        return;
+      }
+
+      // Check images
+      if (currentEditorImages.length === 0) {
+        showAlert("Please add at least 1 photo for the property gallery.", "error");
+        return;
+      }
+
+      // Check room tiers
+      const tierRows = roomTiersContainer.querySelectorAll(".room-tier-row");
+      const roomTiers = [];
+      tierRows.forEach(row => {
+        const tierName = row.querySelector(".tier-name-input")?.value.trim();
+        const tierPrice = Number(row.querySelector(".tier-price-input")?.value || 0);
+        const tierDesc = row.querySelector(".tier-desc-input")?.value.trim();
+        if (tierName && tierPrice > 0) {
+          roomTiers.push({
+            name: tierName,
+            pricePerNight: tierPrice,
+            description: tierDesc
+          });
+        }
+      });
+
+      if (roomTiers.length === 0) {
+        showAlert("Please specify at least 1 room category and nightly rate.", "error");
+        return;
+      }
+
+      // Amenities
+      const amenities = [];
+      document.querySelectorAll("#amenities-checkboxes input[type='checkbox']:checked").forEach(cb => {
+        amenities.push(cb.value);
+      });
+      const extraAmenities = document.getElementById("hotel-extra-amenities-input")?.value.trim();
+      if (extraAmenities) {
+        extraAmenities.split(",").forEach(item => {
+          const trimmed = item.trim();
+          if (trimmed && !amenities.includes(trimmed)) amenities.push(trimmed);
+        });
+      }
+
+      let hotels = getAccommodations();
+      const editId = editIdInput ? editIdInput.value : "";
+
+      if (editId) {
+        // Update existing
+        const idx = hotels.findIndex(h => h.id === editId);
+        if (idx >= 0) {
+          hotels[idx] = {
+            ...hotels[idx],
+            name,
+            type,
+            location,
+            badge,
+            description,
+            amenities,
+            images: [...currentEditorImages],
+            videoUrl: currentEditorVideoUrl,
+            roomTiers: roomTiers
+          };
+          showAlert(`Updated "${name}" successfully!`, "success");
+        }
+      } else {
+        // Create new
+        const newHotel = {
+          id: "hotel-" + Date.now(),
+          name,
+          type,
+          location,
+          badge: badge || "Verified Partner",
+          rating: 4.8,
+          reviewsCount: 1,
+          description,
+          amenities,
+          images: [...currentEditorImages],
+          videoUrl: currentEditorVideoUrl,
+          roomTiers: roomTiers,
+          status: "Available"
+        };
+        hotels.unshift(newHotel);
+        showAlert(`Published "${name}" with ${currentEditorImages.length} photo(s) & ${roomTiers.length} room tier(s)!`, "success");
+      }
+
+      saveAccommodations(hotels);
+      renderAdminHotels();
+      resetEditor();
+    });
+  }
+
+  // Render Admin Live Hotels List
+  function renderAdminHotels() {
+    if (!liveHotelsList) return;
+    const hotels = getAccommodations();
+
+    if (liveCountBadge) liveCountBadge.textContent = hotels.length;
+
+    if (hotels.length === 0) {
+      liveHotelsList.innerHTML = `
+        <div class="text-center py-12 text-gray-400">
+          <p class="text-base font-bold text-gray-600">No properties in database</p>
+          <p class="text-xs text-gray-400 mt-1">Click "Restore Defaults" or "Add New Hotel" to create listings.</p>
+        </div>
+      `;
+      return;
+    }
+
+    liveHotelsList.innerHTML = hotels.map(hotel => {
+      const cover = hotel.images?.[0] || "assets/images/Afikpo image 1.webp";
+      const imagesCount = hotel.images?.length || 0;
+      const hasVideo = Boolean(hotel.videoUrl);
+      const tiers = Array.isArray(hotel.roomTiers) ? hotel.roomTiers : [];
+
+      return `
+        <div class="p-5 rounded-2xl bg-gray-50 border border-gray-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 hover:bg-gray-100/70 transition">
+          <div class="flex items-start sm:items-center gap-4">
+            <img src="${cover}" alt="${hotel.name}" class="w-20 h-20 rounded-xl object-cover flex-shrink-0 border border-gray-200 shadow-sm" />
+            <div>
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <h3 class="text-base font-black text-gray-900">${hotel.name}</h3>
+                <span class="text-[10px] font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full uppercase">${hotel.type}</span>
+                ${hotel.badge ? `<span class="text-[10px] font-bold bg-gray-200 text-gray-800 px-2 py-0.5 rounded-full">${hotel.badge}</span>` : ''}
+              </div>
+              <p class="text-xs text-gray-500 mb-2">📍 ${hotel.location}</p>
+              <div class="flex items-center gap-3 text-[11px] text-gray-600 flex-wrap">
+                <span>📸 <strong>${imagesCount}</strong> Photo${imagesCount === 1 ? '' : 's'} (Carousel)</span>
+                ${hasVideo ? `<span class="text-purple-600 font-bold">🎥 Video Tour Attached</span>` : `<span class="text-gray-400">No Video</span>`}
+                <span class="text-green-700 font-bold">🛏️ ${tiers.length} Room Tier${tiers.length === 1 ? '' : 's'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end md:self-center">
+            <button 
+              type="button" 
+              onclick="window.editAdminHotel('${hotel.id}')" 
+              class="bg-white hover:bg-orange-50 text-orange-600 font-bold px-4 py-2 rounded-xl border border-gray-200 text-xs transition shadow-sm cursor-pointer"
+            >
+              Edit Property
+            </button>
+            <button 
+              type="button" 
+              onclick="window.deleteAdminHotel('${hotel.id}')" 
+              class="bg-white hover:bg-red-50 text-red-600 font-bold px-4 py-2 rounded-xl border border-gray-200 text-xs transition shadow-sm cursor-pointer"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  // Edit Hotel Action
+  window.editAdminHotel = function(id) {
+    const hotel = getAccommodations().find(h => h.id === id);
+    if (!hotel) return;
+
+    if (editIdInput) editIdInput.value = hotel.id;
+    if (editorHeading) editorHeading.textContent = `Edit Hotel: ${hotel.name}`;
+    if (saveHotelBtn) saveHotelBtn.textContent = "Update Hotel Listing";
+
+    document.getElementById("hotel-name-input").value = hotel.name || "";
+    document.getElementById("hotel-type-select").value = hotel.type || "Luxury Hotel & Suites";
+    document.getElementById("hotel-location-input").value = hotel.location || "";
+    document.getElementById("hotel-badge-input").value = hotel.badge || "";
+    document.getElementById("hotel-description-input").value = hotel.description || "";
+
+    // Amenities checkboxes
+    document.querySelectorAll("#amenities-checkboxes input[type='checkbox']").forEach(cb => {
+      cb.checked = Array.isArray(hotel.amenities) && hotel.amenities.includes(cb.value);
+    });
+
+    // Images
+    currentEditorImages = Array.isArray(hotel.images) ? [...hotel.images] : [];
+    renderImagesPreview();
+
+    // Video
+    currentEditorVideoUrl = hotel.videoUrl || "";
+    if (videoUrlInput) videoUrlInput.value = hotel.videoUrl || "";
+    updateVideoPreview();
+
+    // Room Tiers
+    if (roomTiersContainer) {
+      roomTiersContainer.innerHTML = "";
+      if (Array.isArray(hotel.roomTiers) && hotel.roomTiers.length > 0) {
+        hotel.roomTiers.forEach(tier => addRoomTierRow(tier));
+      } else {
+        addRoomTierRow({ name: "Deluxe Suite", pricePerNight: 35000, description: "Comfortable suite" });
+      }
+    }
+
+    if (editorCard) editorCard.scrollIntoView({ behavior: "smooth" });
+    showAlert(`Loaded "${hotel.name}" into editor.`, "info");
+  };
+
+  // Delete Hotel Action
+  window.deleteAdminHotel = function(id) {
+    const hotel = getAccommodations().find(h => h.id === id);
+    if (!hotel) return;
+
+    if (confirm(`Are you sure you want to remove "${hotel.name}" from public listings?`)) {
+      let hotels = getAccommodations();
+      hotels = hotels.filter(h => h.id !== id);
+      saveAccommodations(hotels);
+      renderAdminHotels();
+      showAlert(`Deleted "${hotel.name}".`, "warning");
+    }
+  };
+
+  // Run initial check and set up initial blank room tier
+  checkAuthStatus();
+  if (roomTiersContainer && roomTiersContainer.children.length === 0) {
+    addRoomTierRow({ name: "Deluxe Suite", pricePerNight: 35000, description: "King bed, scenic view, Wi-Fi & AC" });
+  }
 }
 
 // =============================================================
@@ -3963,9 +5350,9 @@ function setupCountdownTimer() {
 
   if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
 
-  // Afikpo International Carnival 2026 Maiden Edition: December 26, 2026, 09:00:00 (GMT+1)
-  // Cross-browser safe Date parameters: (Year, MonthIndex 0-11, Day, Hours, Minutes, Seconds)
-  const festivalDate = new Date(2026, 11, 26, 9, 0, 0).getTime();
+  // Afikpo International Carnival 2026 Maiden Edition: December 26, 2026, 09:00:00 WAT (GMT+1)
+  // Using explicit timezone offset (+01:00) ensures consistent, identical countdown across all visitor timezones worldwide.
+  const festivalDate = new Date("2026-12-26T09:00:00+01:00").getTime();
 
   function updateTimer() {
     const now = Date.now();
@@ -3990,7 +5377,7 @@ function setupCountdownTimer() {
     secondsEl.textContent = String(seconds).padStart(2, "0");
   }
 
-  // Initial immediate execution
+  // Initial immediate execution to eliminate initial zero-flash
   updateTimer();
   setInterval(updateTimer, 1000);
 }
@@ -4009,6 +5396,9 @@ function initAICApp() {
   try { setupPageantVoting(); } catch (e) { console.error("Pageant vote init error:", e); }
   try { setupMediaUpload(); } catch (e) { console.error("Media upload init error:", e); }
   try { setupAccommodationBooking(); } catch (e) { console.error("Accommodation init error:", e); }
+  try { setupAccommodationDisplay(); } catch (e) { console.error("Accommodation display init error:", e); }
+  try { setupAccommodationBooking(); } catch (e) { console.error("Accommodation booking init error:", e); }
+  try { setupAccommodationAdmin(); } catch (e) { console.error("Accommodation admin init error:", e); }
   try { setupTourGuideRequest(); } catch (e) { console.error("Tour guide init error:", e); }
   try { setupVendorRegistration(); } catch (e) { console.error("Vendor init error:", e); }
   try { setupBlogFeed(); } catch (e) { console.error("Blog feed init error:", e); }

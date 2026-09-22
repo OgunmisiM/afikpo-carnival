@@ -115,27 +115,30 @@ nav {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1.5rem;
-  min-width: 100px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 1.25rem;
+  width: 100%;
+  min-width: 0;
+  padding: 1.25rem 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 640px) {
   .timer-box-refined {
-    min-width: 140px;
-    padding: 2rem;
+    padding: 1.75rem 1rem;
+    border-radius: 1.5rem;
   }
 }
 
 .timer-box-refined:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-5px);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-4px);
+  border-color: rgba(249, 115, 22, 0.6);
+  box-shadow: 0 16px 30px -10px rgba(234, 88, 12, 0.35);
 }
 
 .timer-number {
@@ -144,8 +147,15 @@ nav {
   line-height: 1;
   font-weight: 900;
   color: #ffffff;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
   font-variant-numeric: tabular-nums; /* Prevents jumping during countdown */
+  letter-spacing: -0.02em;
+}
+
+@media (min-width: 640px) {
+  .timer-number {
+    font-size: 3rem;
+  }
 }
 
 @media (min-width: 768px) {
@@ -156,17 +166,16 @@ nav {
 
 .timer-label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #ffedd5;
-  opacity: 0.8;
+  letter-spacing: 0.15em;
+  color: #fdba74; /* Soft warm amber */
 }
 
 @media (min-width: 768px) {
   .timer-label {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
   }
 }
 
@@ -178,13 +187,6 @@ nav {
     font-size: 2.25rem;
     line-height: 2.5rem;
   }
-
-  #mobile-menu a {
-    font-size: 1.5rem;
-    font-weight: 700;
-    border-bottom: 1px solid #f3f4f6;
-    padding-bottom: 0.75rem;
-  }
 }
 
 /* TABLET & UP (768px +) */
@@ -195,8 +197,8 @@ nav {
   }
 }
 
-/* DESKTOP (1280px +) */
-@media (min-width: 1280px) {
+/* DESKTOP (1024px +) - Hide mobile elements on large screens */
+@media (min-width: 1024px) {
   #mobile-menu-button {
     display: none !important;
   }

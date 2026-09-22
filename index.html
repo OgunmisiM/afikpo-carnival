@@ -299,24 +299,30 @@
       </div>
     </header>
 
-    <!-- Countdown Timer -->
-    <section class="relative py-20 bg-orange-600 overflow-hidden">
+    <!-- Countdown Timer Section -->
+    <section class="relative py-20 bg-gradient-to-b from-gray-950 via-neutral-900 to-black overflow-hidden text-white border-y border-white/10">
+      <!-- Ambient Festive Radial Glows -->
+      <div class="absolute -top-32 left-1/2 -translate-x-1/2 w-[650px] h-[350px] bg-gradient-to-r from-orange-600/25 via-red-600/20 to-amber-500/25 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 right-10 w-72 h-72 bg-orange-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
       <div class="relative z-10 max-w-5xl mx-auto px-4 text-center">
-        <h2
-          class="text-3xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-md"
-        >
+        <!-- Live Countdown Indicator Pill -->
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-orange-400 text-xs font-bold uppercase tracking-widest mb-5 shadow-sm">
+          <span class="w-2.5 h-2.5 rounded-full bg-orange-500 animate-pulse"></span>
+          <span>Official Countdown • December 26 – 31, 2026</span>
+        </div>
+
+        <h2 class="text-3xl md:text-5xl lg:text-6xl font-black text-white mb-4 tracking-tight drop-shadow-md">
           Countdown to AIC 2026
         </h2>
-        <p
-          class="text-orange-100 text-lg md:text-xl font-medium mb-10 max-w-2xl mx-auto"
-        >
-          The cultural extravaganza of the year is almost here. Join the global
-          celebration of Afikpo heritage!
+        <p class="text-gray-300 text-base md:text-xl font-normal mb-10 max-w-2xl mx-auto leading-relaxed">
+          The maiden cultural celebration of the century is almost here. Join the global gathering of Afikpo heritage, masquerade pageantry, and African royalty!
         </p>
 
+        <!-- Symmetrical 4-Card Grid (2x2 on Mobile, 4x1 on Tablet/Desktop) -->
         <div
           id="countdown-timer"
-          class="flex justify-center text-2xl md:text-5xl font-extrabold flex-wrap gap-4 md:gap-8 mt-6"
+          class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-w-3xl mx-auto mt-6"
         >
           <div class="timer-box-refined">
             <span id="days" class="timer-number">00</span>
@@ -324,30 +330,36 @@
           </div>
           <div class="timer-box-refined">
             <span id="hours" class="timer-number">00</span>
-            <span class="timer-label">Hrs</span>
+            <span class="timer-label">Hours</span>
           </div>
           <div class="timer-box-refined">
             <span id="minutes" class="timer-number">00</span>
-            <span class="timer-label">Min</span>
+            <span class="timer-label">Minutes</span>
           </div>
-          <div class="timer-box-refined border-orange-400">
-            <span id="seconds" class="timer-number text-orange-300">00</span>
-            <span class="timer-label text-orange-200">Sec</span>
+          <div class="timer-box-refined border-orange-500/40">
+            <span id="seconds" class="timer-number">00</span>
+            <span class="timer-label flex items-center justify-center gap-1.5">
+              <span>Seconds</span>
+              <span class="inline-block w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping"></span>
+            </span>
           </div>
         </div>
 
-        <div class="mt-12 flex flex-wrap justify-center gap-4">
+        <!-- Call to Actions -->
+        <div class="mt-12 flex flex-col sm:flex-row justify-center items-center gap-4">
           <a
             href="tickets.html"
-            class="inline-block bg-white text-orange-700 px-10 py-4 rounded-full font-bold text-lg hover:bg-orange-50 transition-all shadow-xl hover:scale-105"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white px-9 py-4 rounded-full font-bold text-base transition-all shadow-xl shadow-orange-950/50 hover:scale-105 active:scale-95"
           >
-            Get Tickets
+            <span>Reserve Carnival Passes</span>
+            <span>🎟️</span>
           </a>
           <a
             href="registration.html"
-            class="inline-block bg-orange-800 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-orange-900 transition-all shadow-xl hover:scale-105"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/25 px-9 py-4 rounded-full font-bold text-base backdrop-blur-md transition-all shadow-lg hover:scale-105 active:scale-95"
           >
-            Register to Participate
+            <span>Register to Participate</span>
+            <span>🎭</span>
           </a>
         </div>
       </div>
@@ -719,6 +731,7 @@
             <li><a href="pageant-registration.html" class="hover:text-white">Pageant Registration</a></li>
             <li><a href="media-upload.html" class="hover:text-white">Submit Media / Docs</a></li>
             <li><a href="blog-admin.html" class="hover:text-white">Blog Admin CMS</a></li>
+            <li><a href="accommodation-admin.html" class="hover:text-white">Hotels Admin CMS</a></li>
           </ul>
         </div>
         <div>
