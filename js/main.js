@@ -53,69 +53,12 @@ function compressImageFile(file, maxWidth = 1200, maxHeight = 675, quality = 0.8
   });
 }
 
-// Default Seed Data for Blog Posts (3 Prehardcoded, Fully Editable Posts)
-const DEFAULT_BLOG_POSTS = [
-  {
-    id: "post-1",
-    title: "Afikpo International Carnival 2026: The Maiden Edition Unveiled",
-    slug: "afikpo-international-carnival-2026-maiden-edition-unveiled",
-    category: "Culture & Heritage",
-    author: "AIC Media Board",
-    date: "Sep 1, 2026",
-    coverImage: "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80",
-    excerpt: "Get ready for the most anticipated cultural convergence in West Africa as Afikpo opens its arms to global tourists, masquerades, and musicians in December 2026.",
-    content: `
-      <p class="mb-4">The stage is set, the drums are echoing across the rolling hills of Ehugbo, and the historic town of Afikpo prepares to host the inaugural <strong>Afikpo International Carnival 2026</strong> this December.</p>
-      <h3 class="text-2xl font-bold text-gray-900 mt-8 mb-4">A Festival Like No Other</h3>
-      <p class="mb-4">Afikpo, historically renowned for its timeless masquerade tradition, intricate wood carvings, golden sand beaches along the Ozizza and Unwana rivers, and rich age-grade wrestling festivals, is taking center stage globally.</p>
-      <blockquote class="border-l-4 border-orange-600 pl-4 py-2 my-6 bg-orange-50 italic text-gray-800">
-        "Our vision is to showcase Afikpo's peerless cultural heritage to the world while creating an economic and tourism renaissance in Ebonyi State." — AIC Organizing Committee
-      </blockquote>
-      <h3 class="text-2xl font-bold text-gray-900 mt-8 mb-4">What to Expect</h3>
-      <ul class="list-disc list-inside space-y-2 mb-6 text-gray-700">
-        <li><strong>Grand Cultural Street Parade:</strong> Thousands of dancers, age grades, and masquerades showcasing centuries of tradition.</li>
-        <li><strong>Carnival Village Live Concerts:</strong> Top African musical headliners and indigenous performers.</li>
-        <li><strong>Queen of Afikpo Pageant:</strong> Empowering young women through cultural ambassadorship.</li>
-        <li><strong>Culinary & Crafts Fair:</strong> Taste authentic Ofe Achara, Utazi delicacies, and discover handmade Afikpo terracotta and beadwork.</li>
-      </ul>
-      <p class="mb-4">Visitors from across the globe are invited to secure their Carnival Village tickets, reserve accommodation early, and explore the breathtaking tourism circuits of Afikpo.</p>
-    `,
-    status: "Published"
-  },
-  {
-    id: "post-2",
-    title: "Discovering Unwana Golden Sand Beach & Ozizza Riverfront",
-    slug: "discovering-unwana-golden-sand-beach-ozizza-riverfront",
-    category: "Tourism & Travel",
-    author: "Tourism Desk",
-    date: "Aug 28, 2026",
-    coverImage: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-    excerpt: "Explore the scenic riverine beauty of Unwana and Ozizza beaches — the official relaxation zones and watersport arenas of AIC 2026.",
-    content: `
-      <p class="mb-4">Tucked along the serene waterways of Ebonyi State lies one of Eastern Nigeria's most picturesque natural getaways: <strong>Unwana Golden Sand Beach</strong>.</p>
-      <h3 class="text-2xl font-bold text-gray-900 mt-8 mb-4">The Beachside Carnival Arena</h3>
-      <p class="mb-4">During AIC 2026, Unwana Beach transforms into a vibrant festival zone with canoeing regattas, beach volleyball tournaments, live acoustic sunset sessions, and barbecue feasts featuring fresh river fish and palm wine.</p>
-      <p class="mb-4">Whether you are arriving for high-energy carnival performances or seeking a peaceful retreat watching traditional canoes cruise against the sunset, our certified local tour guides are ready to make your experience unforgettable.</p>
-    `,
-    status: "Published"
-  },
-  {
-    id: "post-3",
-    title: "The Sacred Art of Afikpo Mask Carvers & Traditional Wrestling",
-    slug: "sacred-art-afikpo-mask-carvers-traditional-wrestling",
-    category: "Art & Tradition",
-    author: "Cultural Heritage Board",
-    date: "Aug 20, 2026",
-    coverImage: "https://images.unsplash.com/photo-1569383746724-6f1b882b8f46?auto=format&fit=crop&w=1200&q=80",
-    excerpt: "Delve into the sacred craftsmanship behind the iconic Eze Lúgúlú and Ikpó masks, and the exhilarating adrenaline of the Mgba wrestling festival.",
-    content: `
-      <p class="mb-4">Afikpo’s mask-making tradition is celebrated in museums from Paris to New York. The delicate geometry, contrast of chalk and charcoal pigments, and symbolic horns represent deep ancestral philosophies.</p>
-      <h3 class="text-2xl font-bold text-gray-900 mt-8 mb-4">Age-Grade Wrestling (Mgba)</h3>
-      <p class="mb-4">Wrestling in Afikpo is more than a sport; it is an initiation into honor, resilience, and brotherhood. Spectators will witness master wrestlers from various Afikpo villages compete in festive arenas to the rhythmic beat of the <em>Alawiyó</em> drums.</p>
-    `,
-    status: "Published"
-  }
-];
+// Default Seed Data for Blog Posts (Emptied - only custom user posts are displayed)
+const DEFAULT_BLOG_POSTS = [];
+const REMOVED_PRELOADED_BLOG_IDS = new Set(["post-1", "post-2", "post-3"]);
+const STORAGE_KEY_BLOG_POSTS = "aic_blog_posts";
+const STORAGE_KEY_CUSTOM_BLOG_POSTS = "aic_custom_blog_posts";
+const STORAGE_KEY_DELETED_BLOG_IDS = "aic_deleted_post_ids";
 
 // Default 18 Authentic Visual Gallery Items for Afikpo International Carnival 2026
 const DEFAULT_GALLERY_ITEMS = [
@@ -3549,51 +3492,59 @@ function setupVendorRegistration() {
 // 12. DYNAMIC BLOG SYSTEM (Reader, Search, Categories)
 // =============================================================
 async function fetchBlogPosts() {
-  const deletedIds = new Set(JSON.parse(localStorage.getItem("aic_deleted_post_ids") || "[]"));
-  const localPosts = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]").filter(p => !deletedIds.has(p.id));
+  const deletedIds = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_BLOG_IDS) || "[]"));
+  REMOVED_PRELOADED_BLOG_IDS.forEach(id => deletedIds.add(id));
 
-  // Map starting with the 3 prehardcoded default posts
+  const localCustom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_BLOG_POSTS) || "[]")
+    .filter(p => p && p.id && !deletedIds.has(p.id) && !REMOVED_PRELOADED_BLOG_IDS.has(p.id));
+
   const postsMap = new Map();
-  DEFAULT_BLOG_POSTS.forEach(p => {
-    if (!deletedIds.has(p.id)) {
+
+  // Add local custom edits
+  localCustom.forEach(p => {
+    if (!deletedIds.has(p.id) && !REMOVED_PRELOADED_BLOG_IDS.has(p.id)) {
       postsMap.set(p.id, p);
     }
   });
 
-  // Override default posts with locally edited versions and add new user posts
-  localPosts.forEach(p => {
-    if (!deletedIds.has(p.id)) {
-      postsMap.set(p.id, p);
+  // Also read existing local cache
+  try {
+    const cached = JSON.parse(localStorage.getItem(STORAGE_KEY_BLOG_POSTS) || "[]");
+    if (Array.isArray(cached)) {
+      cached.forEach(p => {
+        if (p && p.id && !deletedIds.has(p.id) && !REMOVED_PRELOADED_BLOG_IDS.has(p.id) && !postsMap.has(p.id)) {
+          postsMap.set(p.id, p);
+        }
+      });
     }
-  });
+  } catch (e) {}
 
   // Sync with cloud Google Apps Script posts with server reconciliation
   try {
     const res = await fetch(`${APPS_SCRIPT_URL}?action=get_blog_posts`);
-    const data = await res.json();
-    if (data.status === "success" && Array.isArray(data.posts)) {
-      const serverPostIds = new Set(data.posts.map(p => p.id));
-      const defaultIds = new Set(DEFAULT_BLOG_POSTS.map(p => p.id));
-      const now = Date.now();
-
-      // Reconcile local storage: automatically drop posts deleted on the server
-      const reconciledLocal = localPosts.filter(p => {
-        if (defaultIds.has(p.id)) return true; // keep core default post customizations
-        return serverPostIds.has(p.id) || (p.timestamp && (now - p.timestamp < 60000));
-      });
-      localStorage.setItem("aic_blog_posts", JSON.stringify(reconciledLocal));
-
-      data.posts.forEach(p => {
-        if (!deletedIds.has(p.id)) {
-          postsMap.set(p.id, p);
-        }
-      });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.status === "success" && Array.isArray(data.posts)) {
+        data.posts.forEach(p => {
+          if (p && p.id && !deletedIds.has(p.id) && !REMOVED_PRELOADED_BLOG_IDS.has(p.id)) {
+            postsMap.set(p.id, p);
+          }
+        });
+      }
     }
   } catch (err) {
     console.log("Using cached/local blog posts feed:", err);
   }
 
-  return Array.from(postsMap.values()).filter(p => !deletedIds.has(p.id));
+  const result = Array.from(postsMap.values()).filter(p => !deletedIds.has(p.id) && !REMOVED_PRELOADED_BLOG_IDS.has(p.id));
+  try {
+    localStorage.setItem(STORAGE_KEY_BLOG_POSTS, JSON.stringify(result));
+    // Purge removed preloaded posts from custom storage as well
+    const cleanedCustom = localCustom.filter(p => !REMOVED_PRELOADED_BLOG_IDS.has(p.id));
+    localStorage.setItem(STORAGE_KEY_CUSTOM_BLOG_POSTS, JSON.stringify(cleanedCustom));
+  } catch (e) {}
+
+  return result;
 }
 
 // Reading Time Calculator helper
@@ -3764,10 +3715,10 @@ async function setupBlogPostDetail() {
   if (!container) return;
 
   const urlParams = new URLSearchParams(window.location.search);
-  const postId = urlParams.get("id") || urlParams.get("slug") || "post-1";
+  const postId = urlParams.get("id") || urlParams.get("slug");
 
   const posts = await fetchBlogPosts();
-  const post = posts.find(p => p.id === postId || p.slug === postId) || posts[0];
+  const post = postId ? posts.find(p => p.id === postId || p.slug === postId) : posts[0];
 
   if (!post) {
     container.innerHTML = `
@@ -4123,6 +4074,15 @@ function setupBlogAdmin() {
   const loadAdminArticles = async () => {
     if (!articlesList) return;
     const posts = await fetchBlogPosts();
+    if (posts.length === 0) {
+      articlesList.innerHTML = `
+        <div class="text-center py-12 text-gray-400">
+          <p class="text-base font-bold text-gray-600">No articles published yet</p>
+          <p class="text-xs text-gray-400 mt-1">Use the form above to write and publish your first story.</p>
+        </div>
+      `;
+      return;
+    }
     articlesList.innerHTML = posts.map(p => `
       <div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-200 hover:bg-white transition gap-4">
         <div class="flex items-center gap-3">
@@ -4269,20 +4229,30 @@ function setupBlogAdmin() {
     if (!confirm("Are you sure you want to delete this article?")) return;
 
     // 1. Permanently track deleted ID so it cannot be revived by seed lists
-    let deletedIds = JSON.parse(localStorage.getItem("aic_deleted_post_ids") || "[]");
+    let deletedIds = JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_BLOG_IDS) || "[]");
     if (!deletedIds.includes(id)) {
       deletedIds.push(id);
-      localStorage.setItem("aic_deleted_post_ids", JSON.stringify(deletedIds));
+      localStorage.setItem(STORAGE_KEY_DELETED_BLOG_IDS, JSON.stringify(deletedIds));
     }
 
-    // 2. Remove from local custom list
-    let custom = JSON.parse(localStorage.getItem("aic_custom_blog_posts") || "[]");
+    // 2. Remove from local custom list and cached list
+    let custom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_BLOG_POSTS) || "[]");
     custom = custom.filter(p => p.id !== id);
-    localStorage.setItem("aic_custom_blog_posts", JSON.stringify(custom));
+    localStorage.setItem(STORAGE_KEY_CUSTOM_BLOG_POSTS, JSON.stringify(custom));
+
+    let cached = JSON.parse(localStorage.getItem(STORAGE_KEY_BLOG_POSTS) || "[]");
+    cached = cached.filter(p => p.id !== id);
+    localStorage.setItem(STORAGE_KEY_BLOG_POSTS, JSON.stringify(cached));
+
+    loadAdminArticles();
 
     // 3. Delete from Google Apps Script cloud database
-    await postToAppsScript({ formType: "delete_blog_post", id: id });
-    showAlert("Article deleted permanently.", "success");
+    try {
+      const res = await postToAppsScript({ formType: "delete_blog_post", id: id });
+      showAlert(res?.message || "Article deleted permanently from Google Sheets.", "success");
+    } catch (err) {
+      showAlert("Article removed locally.", "info");
+    }
     loadAdminArticles();
   };
 

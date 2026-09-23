@@ -504,6 +504,15 @@ function handleTourGuideRequest(data) {
 
 // 12. Save Blog Post (Create or Update from Frontend Admin)
 function handleSaveBlogPost(data) {
+  if (!data || typeof data !== "object") {
+    Logger.log("Notice: handleSaveBlogPost executed directly in editor without parameters. Initializing BlogPosts sheet...");
+    const sheet = getSheetByName(CONFIG.blogSheet, [
+      "ID", "Title", "Slug", "Category", "Author", "Date", "CoverImage", "Excerpt", "Content", "Status"
+    ]);
+    Logger.log("✅ BlogPosts sheet ready with headers: " + sheet.getName());
+    return createResponse("success", "BlogPosts sheet initialized successfully. To test, run testBlogSetup().");
+  }
+
   const required = ["title", "category", "author", "content"];
   for (let f of required) {
     if (!data[f] || data[f].toString().trim() === "") {
@@ -548,7 +557,7 @@ function handleSaveBlogPost(data) {
 
 // 13. Delete Blog Post
 function handleDeleteBlogPost(data) {
-  if (!data.id) {
+  if (!data || !data.id) {
     return createResponse("error", "Missing post ID to delete");
   }
 
@@ -1051,4 +1060,19 @@ function testAccommodationSetup() {
 
   Logger.log("🚀 SUCCESS! Accommodation catalog and reservation sheets are active and ready.");
   return "SUCCESS: Accommodation sheets are initialized and ready.";
+}
+
+/**
+ * Test function to verify Blog Google Sheets setup and permissions.
+ * You can select and RUN this function directly inside the Google Apps Script editor.
+ * It automatically initializes the dedicated 'BlogPosts' sheet.
+ */
+function testBlogSetup() {
+  Logger.log("Checking BlogPosts sheet...");
+  const sheet = getSheetByName(CONFIG.blogSheet, [
+    "ID", "Title", "Slug", "Category", "Author", "Date", "CoverImage", "Excerpt", "Content", "Status"
+  ]);
+  Logger.log("✅ BlogPosts sheet ready with headers: " + sheet.getName());
+  Logger.log("🚀 SUCCESS! Blog sheet is active and ready.");
+  return "SUCCESS: Blog sheet is initialized and ready.";
 }
