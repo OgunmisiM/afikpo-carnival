@@ -457,42 +457,9 @@ async function postToAppsScript(data) {
 // =============================================================
 // DEFAULT ACCOMMODATIONS DATASET (Hotels, Resorts & Apartments)
 // =============================================================
-const DEFAULT_ACCOMMODATIONS = [
-  {
-    id: "hotel-1",
-    name: "Mater Hills Luxury Suites & Convention",
-    type: "Luxury Hotel & Suites",
-    location: "Central Afikpo • 5 mins to Main Carnival Arena",
-    badge: "⭐ 5-Star VIP Partner",
-    rating: 4.9,
-    reviewsCount: 142,
-    description: "Experience peerless luxury in the heart of Afikpo. Featuring panoramic hillside views, gourmet Igbo and continental dining, secure executive suites, and a dedicated 24/7 carnival shuttle service directly to the festival village.",
-    amenities: [
-      "Free High-Speed Wi-Fi",
-      "24/7 Solar & Generator Power",
-      "Carnival Village Shuttle Service",
-      "Swimming Pool",
-      "Restaurant & Bar (Igbo & Continental)",
-      "Air Conditioning in All Rooms",
-      "24/7 Gated Armed Security"
-    ],
-    images: [
-      "assets/images/ba_integrated_services.webp",
-      "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80",
-      "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80"
-    ],
-    videoUrl: "https://www.youtube.com/embed/ScMzIvxBSi4",
-    roomTiers: [
-      { name: "Executive Deluxe Room", pricePerNight: 35000, description: "King bed, scenic hill view, complimentary breakfast & fast Wi-Fi." },
-      { name: "Diplomatic Suite", pricePerNight: 65000, description: "Spacious suite with private lounge, balcony & 24/7 butler service." },
-      { name: "Presidential Carnival Penthouse", pricePerNight: 120000, description: "Ultra-luxury top-floor penthouse, VIP lounge access & private jacuzzi." }
-    ],
-    status: "Available"
-  }
-];
+const DEFAULT_ACCOMMODATIONS = [];
 
-const REMOVED_PRELOADED_HOTEL_IDS = new Set(["hotel-2", "hotel-3"]);
+const REMOVED_PRELOADED_HOTEL_IDS = new Set(["hotel-1", "hotel-2", "hotel-3"]);
 const STORAGE_KEY_ACCOMMODATIONS = "aic_accommodations_data";
 const STORAGE_KEY_CUSTOM_ACCOMMODATIONS = "aic_custom_accommodations";
 const STORAGE_KEY_DELETED_ACCOMMODATIONS = "aic_deleted_accommodation_ids";
@@ -500,24 +467,40 @@ const STORAGE_KEY_DELETED_ACCOMMODATIONS = "aic_deleted_accommodation_ids";
 // Synchronous fast getter (cached for instant initial render)
 function getAccommodations() {
   try {
+    const deletedIds = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY_DELETED_ACCOMMODATIONS) || "[]"));
+    REMOVED_PRELOADED_HOTEL_IDS.forEach(id => deletedIds.add(id));
+
+    let hotels = [];
     const raw = localStorage.getItem(STORAGE_KEY_ACCOMMODATIONS);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY_ACCOMMODATIONS, JSON.stringify(DEFAULT_ACCOMMODATIONS));
-      return DEFAULT_ACCOMMODATIONS;
-    }
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      // Purge removed preloaded hotels so users with older cached data update immediately
-      const filtered = parsed.filter(h => h && h.id && !REMOVED_PRELOADED_HOTEL_IDS.has(h.id));
-      if (filtered.length !== parsed.length) {
-        saveAccommodations(filtered);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        hotels = parsed;
       }
-      return filtered.length > 0 ? filtered : DEFAULT_ACCOMMODATIONS;
     }
-    return DEFAULT_ACCOMMODATIONS;
+
+    // Merge in custom accommodations if not already included
+    const customRaw = localStorage.getItem(STORAGE_KEY_CUSTOM_ACCOMMODATIONS);
+    if (customRaw) {
+      const custom = JSON.parse(customRaw);
+      if (Array.isArray(custom)) {
+        custom.forEach(c => {
+          if (c && c.id && !hotels.some(h => h.id === c.id)) {
+            hotels.unshift(c);
+          }
+        });
+      }
+    }
+
+    // Purge removed preloaded hotels so users with older cached data update immediately
+    const filtered = hotels.filter(h => h && h.id && !deletedIds.has(h.id) && !REMOVED_PRELOADED_HOTEL_IDS.has(h.id));
+    if (filtered.length !== hotels.length) {
+      saveAccommodations(filtered);
+    }
+    return filtered;
   } catch (e) {
     console.warn("Could not read accommodations from localStorage:", e);
-    return DEFAULT_ACCOMMODATIONS;
+    return [];
   }
 }
 
@@ -541,19 +524,19 @@ async function fetchAccommodations() {
   REMOVED_PRELOADED_HOTEL_IDS.forEach(id => deletedIds.add(id));
 
   const localCustom = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_ACCOMMODATIONS) || "[]")
-    .filter(h => h && h.id && !deletedIds.has(h.id));
+    .filter(h => h && h.id && !deletedIds.has(h.id) && !REMOVED_PRELOADED_HOTEL_IDS.has(h.id));
 
-  // Map starting with the default seed hotels
+  // Map starting with the default seed hotels (empty)
   const hotelsMap = new Map();
   DEFAULT_ACCOMMODATIONS.forEach(h => {
-    if (!deletedIds.has(h.id)) {
+    if (!deletedIds.has(h.id) && !REMOVED_PRELOADED_HOTEL_IDS.has(h.id)) {
       hotelsMap.set(h.id, h);
     }
   });
 
   // Override or add local custom edits
   localCustom.forEach(h => {
-    if (!deletedIds.has(h.id)) {
+    if (!deletedIds.has(h.id) && !REMOVED_PRELOADED_HOTEL_IDS.has(h.id)) {
       hotelsMap.set(h.id, h);
     }
   });
@@ -563,7 +546,7 @@ async function fetchAccommodations() {
     const cached = JSON.parse(localStorage.getItem(STORAGE_KEY_ACCOMMODATIONS) || "[]");
     if (Array.isArray(cached)) {
       cached.forEach(h => {
-        if (h && h.id && !deletedIds.has(h.id) && !hotelsMap.has(h.id)) {
+        if (h && h.id && !deletedIds.has(h.id) && !REMOVED_PRELOADED_HOTEL_IDS.has(h.id) && !hotelsMap.has(h.id)) {
           hotelsMap.set(h.id, h);
         }
       });
@@ -577,7 +560,7 @@ async function fetchAccommodations() {
       const data = await res.json();
       if (data.status === "success" && Array.isArray(data.accommodations)) {
         data.accommodations.forEach(h => {
-          if (h && h.id && !deletedIds.has(h.id)) {
+          if (h && h.id && !deletedIds.has(h.id) && !REMOVED_PRELOADED_HOTEL_IDS.has(h.id)) {
             hotelsMap.set(h.id, h);
           }
         });
@@ -587,7 +570,7 @@ async function fetchAccommodations() {
     console.log("Using cached/local accommodations feed:", err);
   }
 
-  const result = Array.from(hotelsMap.values()).filter(h => !deletedIds.has(h.id));
+  const result = Array.from(hotelsMap.values()).filter(h => !deletedIds.has(h.id) && !REMOVED_PRELOADED_HOTEL_IDS.has(h.id));
   try {
     localStorage.setItem(STORAGE_KEY_ACCOMMODATIONS, JSON.stringify(result));
   } catch (e) {}
@@ -3182,11 +3165,11 @@ function setupAccommodationAdmin() {
   // Restore Defaults Button
   if (restoreDefaultsBtn) {
     restoreDefaultsBtn.addEventListener("click", () => {
-      if (confirm("Restore the official default partner hotel listing? Any custom listings will be replaced.")) {
+      if (confirm("Reset accommodation directory? Custom listings will be cleared.")) {
         restoreDefaultAccommodations();
         renderAdminHotels();
         resetEditor();
-        showAlert("Default accommodation restored successfully!", "success");
+        showAlert("Accommodation directory reset.", "info");
       }
     });
   }
@@ -3341,7 +3324,7 @@ function setupAccommodationAdmin() {
       liveHotelsList.innerHTML = `
         <div class="text-center py-12 text-gray-400">
           <p class="text-base font-bold text-gray-600">No properties in database</p>
-          <p class="text-xs text-gray-400 mt-1">Click "Restore Defaults" or "Add New Hotel" to create listings.</p>
+          <p class="text-xs text-gray-400 mt-1">Click "Add New Hotel" to create listings.</p>
         </div>
       `;
       return;
@@ -5435,9 +5418,9 @@ function setupCountdownTimer() {
 
   if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
 
-  // Afikpo International Carnival 2026 Maiden Edition: December 26, 2026, 09:00:00 WAT (GMT+1)
-  // Using explicit timezone offset (+01:00) ensures consistent, identical countdown across all visitor timezones worldwide.
-  const festivalDate = new Date("2026-12-26T09:00:00+01:00").getTime();
+  // Afikpo International Carnival 2026 Maiden Edition: December 26, 2026, 09:00:00 WAT (GMT+1 = 08:00:00 UTC)
+  // Date.UTC ensures 100% universal browser consistency across all operating systems and timezones.
+  const festivalDate = Date.UTC(2026, 11, 26, 8, 0, 0);
 
   function updateTimer() {
     const now = Date.now();

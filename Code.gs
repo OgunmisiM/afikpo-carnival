@@ -427,6 +427,16 @@ function handleMediaSubmission(data) {
 
 // 10. Accommodation Reservation
 function handleAccommodationReservation(data) {
+  if (!data || typeof data !== "object") {
+    Logger.log("Notice: handleAccommodationReservation executed without parameters. Initializing AccommodationReservations sheet...");
+    const sheet = getSheetByName(CONFIG.accommodationSheet, [
+      "Timestamp", "Reservation Reference", "Hotel/Resort Name", "Guest Name", "Email", "Phone",
+      "Room Type", "Check-In Date", "Check-Out Date", "Guests Count", "Total Est. Price (NGN)", "Special Requests"
+    ]);
+    Logger.log("✅ AccommodationReservations sheet ready: " + sheet.getName());
+    return createResponse("success", "Accommodation reservations sheet initialized.");
+  }
+
   const required = ["hotelName", "guestName", "email", "phone", "checkIn", "checkOut", "roomType"];
   for (let f of required) {
     if (!data[f]) {
@@ -637,6 +647,16 @@ function handleDeleteGalleryItem(data) {
 
 // 16. Save Accommodation Property (Hotels, Chalets, Apartments)
 function handleSaveAccommodationProperty(data) {
+  if (!data || typeof data !== "object") {
+    Logger.log("Notice: handleSaveAccommodationProperty called without data (likely manual Run from Apps Script editor). Initializing catalog sheet headers...");
+    const sheet = getSheetByName(CONFIG.accommodationCatalogSheet, [
+      "ID", "Name", "Type", "Location", "Badge", "Rating", "ReviewsCount", "Description",
+      "Amenities", "Images", "VideoUrl", "RoomTiers", "Status", "Timestamp"
+    ]);
+    Logger.log("✅ AccommodationCatalog sheet ready with headers: " + sheet.getName());
+    return createResponse("success", "AccommodationCatalog sheet initialized successfully. To test saving a property, run testAccommodationSetup().");
+  }
+
   const required = ["name", "type", "location", "description"];
   for (let f of required) {
     if (!data[f] || data[f].toString().trim() === "") {
@@ -713,7 +733,7 @@ function handleSaveAccommodationProperty(data) {
 
 // 17. Delete Accommodation Property
 function handleDeleteAccommodationProperty(data) {
-  if (!data.id) {
+  if (!data || !data.id) {
     return createResponse("error", "Missing accommodation property ID to delete");
   }
 
@@ -1007,4 +1027,28 @@ function testDriveAndGallerySetup() {
 
   Logger.log("🚀 SUCCESS! Dedicated Google Drive folder and Sheets are active and ready for live uploads.");
   return "SUCCESS: Folder URL is " + folder.getUrl();
+}
+
+/**
+ * Test function to verify Accommodation Google Sheets setup and permissions.
+ * You can select and RUN this function directly inside the Google Apps Script editor.
+ * It automatically initializes the dedicated 'AccommodationCatalog' and 'AccommodationReservations' sheets.
+ */
+function testAccommodationSetup() {
+  Logger.log("Checking Accommodation Catalog and Reservation sheets...");
+
+  const catalogSheet = getSheetByName(CONFIG.accommodationCatalogSheet, [
+    "ID", "Name", "Type", "Location", "Badge", "Rating", "ReviewsCount", "Description",
+    "Amenities", "Images", "VideoUrl", "RoomTiers", "Status", "Timestamp"
+  ]);
+  Logger.log("✅ AccommodationCatalog sheet ready: " + catalogSheet.getName());
+
+  const reservationSheet = getSheetByName(CONFIG.accommodationSheet, [
+    "Timestamp", "Reservation Reference", "Hotel/Resort Name", "Guest Name", "Email", "Phone",
+    "Room Type", "Check-In Date", "Check-Out Date", "Guests Count", "Total Est. Price (NGN)", "Special Requests"
+  ]);
+  Logger.log("✅ AccommodationReservations sheet ready: " + reservationSheet.getName());
+
+  Logger.log("🚀 SUCCESS! Accommodation catalog and reservation sheets are active and ready.");
+  return "SUCCESS: Accommodation sheets are initialized and ready.";
 }
