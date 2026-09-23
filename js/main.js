@@ -753,17 +753,43 @@ Hello Afikpo Carnival Hospitality Desk, I have submitted a room reservation on t
   return `https://wa.me/${AIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
+function buildTourGuideWhatsAppUrl(order) {
+  const text = 
+`🧭 *AFIKPO INTERNATIONAL CARNIVAL 2026*
+*PERSONAL TOUR GUIDE REQUEST*
+════════════════════════════════
+📌 *Request Reference:* ${order.token}
+🟡 *Status:* PENDING WHATSAPP CONFIRMATION
+👤 *Client Name:* ${order.customerName}
+📱 *Phone / WhatsApp:* ${order.phone}
+📧 *Email:* ${order.email}
+════════════════════════════════
+🗺️ *Destination / Circuit:* ${order.circuitName}
+📅 *Preferred Tour Date:* ${order.tourDate}
+⏳ *Duration:* ${order.duration}
+👥 *Group Size:* ${order.groupSize}
+🗣️ *Language Preference:* ${order.language}
+📍 *Pickup Location / Notes:* ${order.pickupLocation || "Afikpo City Center"}
+════════════════════════════════
+Hello Afikpo Carnival Tour & Escort Desk, I have just requested a Personal Tour Guide on the official website. My reference token is *${order.token}*. Please confirm escort availability and matching logistics. Thank you!`;
+
+  return `https://wa.me/${AIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+}
+
 function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
   const existing = document.getElementById("pending-order-modal");
   if (existing) existing.remove();
 
   const isTicket = order.type === "ticket";
   const isAccommodation = order.type === "accommodation";
+  const isTourGuide = order.type === "tour_guide";
   const whatsappUrl = isTicket 
     ? buildTicketWhatsAppUrl(order) 
     : isAccommodation 
       ? buildAccommodationWhatsAppUrl(order) 
-      : buildStoreWhatsAppUrl(order);
+      : isTourGuide
+        ? buildTourGuideWhatsAppUrl(order)
+        : buildStoreWhatsAppUrl(order);
 
   const modal = document.createElement("div");
   modal.id = "pending-order-modal";
@@ -832,6 +858,39 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
         </div>
       </div>
     `;
+  } else if (isTourGuide) {
+    detailsHtml = `
+      <div class="space-y-2.5 text-xs text-gray-700">
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Client Name:</span>
+          <strong class="text-gray-900 font-bold">${order.customerName}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Selected Destination:</span>
+          <strong class="text-orange-600 font-black">${order.circuitName}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Tour Date & Duration:</span>
+          <strong class="text-gray-900 font-semibold">${order.tourDate} (${order.duration})</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Group Size & Language:</span>
+          <strong class="text-gray-900 font-semibold">${order.groupSize} (${order.language})</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Contact Phone:</span>
+          <strong class="text-gray-900 font-semibold">${order.phone}</strong>
+        </div>
+        <div class="flex justify-between py-1.5 border-b border-gray-100">
+          <span class="text-gray-500 font-medium">Pickup / Notes:</span>
+          <strong class="text-gray-900 font-semibold text-right max-w-[60%] truncate">${order.pickupLocation || 'Afikpo Center'}</strong>
+        </div>
+        <div class="flex justify-between py-2 pt-3">
+          <span class="text-sm font-extrabold text-gray-900">Guide Service Status:</span>
+          <strong class="text-base font-black text-amber-700">🟡 Pending WhatsApp Matching</strong>
+        </div>
+      </div>
+    `;
   } else {
     const itemsListHtml = Array.isArray(order.itemsList)
       ? order.itemsList.map(item => `<li class="py-1 text-xs text-gray-800 font-medium flex items-center justify-between"><span>${item}</span></li>`).join("")
@@ -873,11 +932,10 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
       <div class="text-center pb-5 border-b border-gray-100">
         <div class="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-wider mb-3">
           <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
-          <span>🟡 PENDING PAYMENT CONFIRMATION</span>
+          <span>${isTourGuide ? "🟡 PENDING WHATSAPP MATCHING" : "🟡 PENDING PAYMENT CONFIRMATION"}</span>
         </div>
         <h3 class="text-2xl font-black text-gray-900">
-          ${isTicket ? "Festival Pass Reservation" : "Merchandise Order Placed"}
-          ${isTicket ? "Festival Pass Reservation" : isAccommodation ? "Hotel Room Reservation" : "Merchandise Order Placed"}
+          ${isTicket ? "Festival Pass Reservation" : isAccommodation ? "Hotel Room Reservation" : isTourGuide ? "Tour Guide Escort Request" : "Merchandise Order Placed"}
         </h3>
         <p class="text-xs text-gray-500 mt-1">
           Your request has been registered with the official token below. Complete the final step on WhatsApp!
@@ -1025,14 +1083,11 @@ function createPendingOrdersDrawer() {
           Check
         </button>
       </div>
-      <div class="flex gap-2 mt-3 text-[11px]">
-        <button onclick="window.filterPendingDrawer('all')" class="filter-btn-all font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition">All</button>
-        <button onclick="window.filterPendingDrawer('ticket')" class="filter-btn-ticket font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition">🎟️ Tickets</button>
-        <button onclick="window.filterPendingDrawer('merchandise')" class="filter-btn-merchandise font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition">📦 Store Merch</button>
       <div class="flex gap-2 mt-3 text-[11px] overflow-x-auto pb-1">
         <button onclick="window.filterPendingDrawer('all')" class="filter-btn-all font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition whitespace-nowrap">All</button>
         <button onclick="window.filterPendingDrawer('ticket')" class="filter-btn-ticket font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition whitespace-nowrap">🎟️ Tickets</button>
         <button onclick="window.filterPendingDrawer('accommodation')" class="filter-btn-accommodation font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition whitespace-nowrap">🏨 Hotels</button>
+        <button onclick="window.filterPendingDrawer('tour_guide')" class="filter-btn-tour_guide font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition whitespace-nowrap">🧭 Tour Guides</button>
         <button onclick="window.filterPendingDrawer('merchandise')" class="filter-btn-merchandise font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition whitespace-nowrap">📦 Store Merch</button>
       </div>
     </div>
@@ -1065,12 +1120,10 @@ function renderPendingOrdersList(filterType) {
   const drawer = document.getElementById("pending-orders-drawer");
   if (drawer) {
     drawer.querySelectorAll("[class*='filter-btn-']").forEach(btn => {
-      btn.className = `font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition cursor-pointer`;
       btn.className = `font-semibold px-3 py-1 rounded-lg bg-white border border-gray-200 text-gray-700 hover:bg-gray-100 transition cursor-pointer whitespace-nowrap`;
     });
     const activeBtn = drawer.querySelector(`.filter-btn-${currentDrawerFilter}`);
     if (activeBtn) {
-      activeBtn.className = `font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition cursor-pointer`;
       activeBtn.className = `font-bold px-3 py-1 rounded-lg bg-orange-600 text-white transition cursor-pointer whitespace-nowrap`;
     }
   }
@@ -1089,21 +1142,28 @@ function renderPendingOrdersList(filterType) {
   list.innerHTML = filtered.map(order => {
     const isTicket = order.type === "ticket";
     const isAccommodation = order.type === "accommodation";
+    const isTourGuide = order.type === "tour_guide";
     const title = isTicket 
       ? order.ticketType 
       : isAccommodation 
         ? `${order.hotelName} — ${order.roomType}` 
-        : (order.itemsSummary || "Merchandise Order");
+        : isTourGuide
+          ? `🧭 Tour Guide: ${order.circuitName}`
+          : (order.itemsSummary || "Merchandise Order");
     const subText = isTicket 
       ? `${order.ticketCount} Attendee(s) • ${order.visitDate || 'Dec 2026'}` 
       : isAccommodation 
         ? `${order.nightsCount || 1} Night(s) (${order.checkIn || ''} to ${order.checkOut || ''}) • ${order.customerName}`
-        : `${order.deliveryMethod || 'Pickup'} • ${order.customerName}`;
+        : isTourGuide
+          ? `${order.tourDate} (${order.duration}) • ${order.groupSize} • ${order.customerName}`
+          : `${order.deliveryMethod || 'Pickup'} • ${order.customerName}`;
     const whatsappUrl = isTicket 
       ? buildTicketWhatsAppUrl(order) 
       : isAccommodation 
         ? buildAccommodationWhatsAppUrl(order) 
-        : buildStoreWhatsAppUrl(order);
+        : isTourGuide
+          ? buildTourGuideWhatsAppUrl(order)
+          : buildStoreWhatsAppUrl(order);
 
     return `
       <div class="p-4 rounded-2xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition">
@@ -3427,29 +3487,81 @@ function setupTourGuideRequest() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = form.querySelector("button[type='submit']");
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "Booking Tour Guide...";
+    const origText = btn ? btn.textContent : "Submit";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Processing Request...";
+    }
 
-    const payload = {
-      formType: "tour_guide_request",
-      circuitName: form.querySelector("select[name='circuitName']").value,
-      duration: form.querySelector("select[name='duration']").value,
-      tourDate: form.querySelector("input[name='tourDate']").value,
-      groupSize: form.querySelector("input[name='groupSize']").value,
-      language: form.querySelector("select[name='language']").value,
-      touristName: form.querySelector("input[name='clientName']") ? form.querySelector("input[name='clientName']").value : "",
-      email: form.querySelector("input[name='email']").value,
-      phone: form.querySelector("input[name='phone']").value,
-      pickupLocation: form.querySelector("textarea[name='pickupNotes']") ? form.querySelector("textarea[name='pickupNotes']").value : ""
+    const circuitName = form.querySelector("select[name='circuitName']").value;
+    const duration = form.querySelector("select[name='duration']").value;
+    const tourDate = form.querySelector("input[name='tourDate']").value;
+    const groupSize = form.querySelector("input[name='groupSize']").value;
+    const language = form.querySelector("select[name='language']").value;
+    const touristName = form.querySelector("input[name='clientName']") ? form.querySelector("input[name='clientName']").value : "";
+    const email = form.querySelector("input[name='email']").value;
+    const phone = form.querySelector("input[name='phone']").value;
+    const pickupLocation = form.querySelector("textarea[name='pickupNotes']") ? form.querySelector("textarea[name='pickupNotes']").value : "";
+
+    // Generate Official Tour Guide Request Token
+    const token = "TOUR-" + Math.floor(10000 + Math.random() * 90000);
+
+    const order = {
+      token: token,
+      type: "tour_guide",
+      circuitName: circuitName,
+      duration: duration,
+      tourDate: tourDate,
+      groupSize: groupSize,
+      language: language,
+      customerName: touristName,
+      touristName: touristName,
+      email: email,
+      phone: phone,
+      pickupLocation: pickupLocation,
+      totalAmount: "Confirmed on WhatsApp",
+      status: "🟡 Pending WhatsApp Matching",
+      createdAt: new Date().toISOString()
     };
 
-    const res = await postToAppsScript(payload);
-    showAlert(res.message || "Tour guide request submitted! We will assign your certified local escort.", "success");
+    // Save locally for persistent pending token tracking in drawer
+    savePendingOrder(order);
+
+    // Asynchronously log to Google Apps Script (Google Sheets)
+    try {
+      postToAppsScript({
+        formType: "tour_guide_request",
+        token: token,
+        referenceId: token,
+        circuitName: circuitName,
+        duration: duration,
+        tourDate: tourDate,
+        groupSize: groupSize,
+        language: language,
+        touristName: touristName,
+        email: email,
+        phone: phone,
+        pickupLocation: pickupLocation
+      }).catch(err => console.warn("Tour guide cloud sync notice:", err));
+    } catch (err) {
+      console.warn("Apps Script dispatch note:", err);
+    }
+
+    showAlert(`Tour Guide Request Token generated: ${token}. Redirecting to WhatsApp...`, "success");
+
+    // Launch WhatsApp directly & show confirmation modal
+    showPendingOrderModal(order, true);
+
     form.reset();
 
-    btn.disabled = false;
-    btn.textContent = origText;
+    // Reset date input back to default carnival date
+    const dateInput = form.querySelector("input[name='tourDate']");
+    if (dateInput) dateInput.value = "2026-12-28";
+
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
   });
 }
 

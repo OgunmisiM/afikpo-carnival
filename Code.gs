@@ -483,7 +483,7 @@ function handleTourGuideRequest(data) {
     "Selected Tour Circuit", "Tour Date", "Duration", "Group Size", "Language", "Pickup Location / Hotel"
   ]);
 
-  const tourId = "AIC-TOUR-" + Math.floor(100000 + Math.random() * 900000);
+  const tourId = data.token || data.tourId || data.referenceId || ("AIC-TOUR-" + Math.floor(100000 + Math.random() * 900000));
 
   sheet.appendRow([
     new Date().toLocaleString(),
