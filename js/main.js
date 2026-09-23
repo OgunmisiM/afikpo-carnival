@@ -787,7 +787,7 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
         </div>
         <div class="flex justify-between py-1.5 border-b border-gray-100">
           <span class="text-gray-500 font-medium">Attendance Period:</span>
-          <strong class="text-gray-900 font-semibold">${order.visitDate || 'Carnival Week Dec 26-31, 2026'}</strong>
+          <strong class="text-gray-900 font-semibold">${order.visitDate || 'Carnival Week Dec 28-31, 2026'}</strong>
         </div>
         <div class="flex justify-between py-1.5 border-b border-gray-100">
           <span class="text-gray-500 font-medium">Contact Phone:</span>
@@ -1333,7 +1333,7 @@ function setupTicketPurchase() {
     const phone = form.querySelector("input[name='phone']").value;
     const visitDate = (visitDateHidden && visitDateHidden.value)
       ? visitDateHidden.value
-      : (form.querySelector("input[name='visitDate']") ? form.querySelector("input[name='visitDate']").value : "Carnival Week Dec 26-31, 2026");
+      : (form.querySelector("input[name='visitDate']") ? form.querySelector("input[name='visitDate']").value : "Carnival Week Dec 28-31, 2026");
     const tierLabel = tierSelect && tierSelect.options[tierSelect.selectedIndex]
       ? tierSelect.options[tierSelect.selectedIndex].text
       : (tier.toUpperCase() + " Pass");
@@ -1348,7 +1348,7 @@ function setupTicketPurchase() {
       ticketTier: tier,
       ticketCount: qty,
       totalAmount: "₦" + totalAmount.toLocaleString(),
-      visitDate: visitDate || "Carnival Week Dec 26-31, 2026",
+      visitDate: visitDate || "Carnival Week Dec 28-31, 2026",
       status: "🟡 Pending WhatsApp Payment",
       createdAt: new Date().toISOString()
     };
@@ -2670,9 +2670,9 @@ function setupAccommodationBooking() {
 
   if (!form) return;
 
-  // Set intelligent defaults for festival dates (e.g. Dec 26 - Dec 29, 2026)
-  if (checkInInput && !checkInInput.value) checkInInput.value = "2026-12-26";
-  if (checkOutInput && !checkOutInput.value) checkOutInput.value = "2026-12-29";
+  // Set intelligent defaults for festival dates (e.g. Dec 28 - Dec 31, 2026)
+  if (checkInInput && !checkInInput.value) checkInInput.value = "2026-12-28";
+  if (checkOutInput && !checkOutInput.value) checkOutInput.value = "2026-12-31";
 
   // Populate Hotels Dropdown
   function populateHotelsDropdown() {
@@ -5388,9 +5388,9 @@ function setupCountdownTimer() {
 
   if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
 
-  // Afikpo International Carnival 2026 Maiden Edition: December 26, 2026, 09:00:00 WAT (GMT+1 = 08:00:00 UTC)
+  // Afikpo International Carnival 2026 Maiden Edition: December 28, 2026, 09:00:00 WAT (GMT+1 = 08:00:00 UTC)
   // Date.UTC ensures 100% universal browser consistency across all operating systems and timezones.
-  const festivalDate = Date.UTC(2026, 11, 26, 8, 0, 0);
+  const festivalDate = Date.UTC(2026, 11, 28, 8, 0, 0);
 
   function updateTimer() {
     const now = Date.now();

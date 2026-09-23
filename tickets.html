@@ -363,7 +363,7 @@
                 </svg>
                 <span>Planned Attendance Date (Calendar)</span>
               </label>
-              <span class="text-[11px] font-bold text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-100">Festival Dates: Dec 26 – 31, 2026</span>
+              <span class="text-[11px] font-bold text-orange-600 bg-orange-50 px-2.5 py-0.5 rounded-full border border-orange-100">Festival Dates: Dec 28 – 31, 2026</span>
             </div>
 
             <!-- Calendar Date Picker Inputs (Arrival & Departure) -->
@@ -376,7 +376,7 @@
                   type="date" 
                   id="ticket-start-date" 
                   name="visitStartDate" 
-                  value="2026-12-26" 
+                  value="2026-12-28" 
                   min="2026-12-01" 
                   max="2027-01-10" 
                   class="w-full p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm font-semibold text-gray-800 focus:ring-2 focus:ring-orange-600 outline-none cursor-pointer"
@@ -401,15 +401,15 @@
             </div>
 
             <!-- Hidden field for synced submission text -->
-            <input type="hidden" id="ticket-visit-date" name="visitDate" value="Dec 26, 2026 to Dec 31, 2026 (6 Days Pass)" />
+            <input type="hidden" id="ticket-visit-date" name="visitDate" value="Dec 28, 2026 to Dec 31, 2026 (4 Days Pass)" />
 
             <!-- Dynamic Selection Summary Display -->
             <div id="ticket-date-summary-box" class="p-3.5 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between text-xs text-amber-900">
               <div class="flex items-center gap-2">
                 <span class="text-base">📅</span>
-                <span>Selected Attendance: <strong id="ticket-date-summary" class="font-bold text-amber-950">Dec 26, 2026 to Dec 31, 2026</strong></span>
+                <span>Selected Attendance: <strong id="ticket-date-summary" class="font-bold text-amber-950">Dec 28, 2026 to Dec 31, 2026</strong></span>
               </div>
-              <span id="ticket-days-count" class="text-[10px] font-black uppercase tracking-wider bg-white px-2.5 py-1 rounded-md border border-amber-200 text-amber-800 font-bold">6 Days Pass</span>
+              <span id="ticket-days-count" class="text-[10px] font-black uppercase tracking-wider bg-white px-2.5 py-1 rounded-md border border-amber-200 text-amber-800 font-bold">4 Days Pass</span>
             </div>
           </div>
 
@@ -474,7 +474,7 @@
       </div>
     </footer>
 
-    <script src="js/main.js"></script>
+    <script src="js/main.js?v=2.6"></script>
   </body>
 </html>
 
