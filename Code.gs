@@ -479,8 +479,8 @@ function handleTourGuideRequest(data) {
   }
 
   const sheet = getSheetByName(CONFIG.tourGuideSheet, [
-    "Timestamp", "Request ID", "Tourist Name", "Email", "Phone / WhatsApp",
-    "Selected Tour Circuit", "Tour Date", "Duration", "Group Size", "Language", "Pickup Location / Hotel"
+    "Timestamp", "Request ID", "Tourist Name", "Email", "Phone / WhatsApp", 
+    "Tour Date", "Group Size", "Language", "Pickup Location / Hotel"
   ]);
 
   const tourId = data.token || data.tourId || data.referenceId || ("AIC-TOUR-" + Math.floor(100000 + Math.random() * 900000));
@@ -491,9 +491,7 @@ function handleTourGuideRequest(data) {
     data.touristName,
     data.email,
     data.phone,
-    data.circuitName,
     data.tourDate,
-    data.duration || "Full Day",
     data.groupSize || 1,
     data.language || "English",
     data.pickupLocation || "Afikpo City Center"
