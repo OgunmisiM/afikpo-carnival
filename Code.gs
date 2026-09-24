@@ -471,28 +471,63 @@ function handleAccommodationReservation(data) {
 
 // 11. Personal Tour Guide Request
 function handleTourGuideRequest(data) {
-  const required = ["touristName", "email", "phone", "circuitName", "tourDate"];
-  for (let f of required) {
-    if (!data[f]) {
-      return createResponse("error", `Missing tour guide field: ${f}`);
+  const defaultHeaders = [
+    "Timestamp", "Request ID", "Tourist Name", "Email", "Phone / WhatsApp",
+    "Tour Date", "Group Size", "Language", "Pickup Location / Hotel"
+  ];
+
+  if (!data || typeof data !== "object") {
+    Logger.log("Notice: handleTourGuideRequest called without data (likely manual Run from Apps Script editor). Initializing TourGuides sheet...");
+    const sheet = getSheetByName(CONFIG.tourGuideSheet, defaultHeaders);
+    Logger.log("✅ TourGuides sheet ready with headers: " + sheet.getName());
+    return createResponse("success", "TourGuides sheet initialized successfully.");
+  }
+
+  const touristName = data.touristName || data.clientName || data.name || "Valued Visitor";
+  const phone = data.phone || data.whatsapp || "";
+  const email = data.email || "";
+
+  if (!phone && !email) {
+    return createResponse("error", "Please provide a contact phone/WhatsApp or email address.");
+  }
+
+  const sheet = getSheetByName(CONFIG.tourGuideSheet, defaultHeaders);
+  const tourId = data.token || data.tourId || data.referenceId || ("AIC-TOUR-" + Math.floor(100000 + Math.random() * 900000));
+
+  // Dynamically inspect existing headers to preserve column alignment if old columns exist
+  const lastCol = sheet.getLastColumn();
+  if (lastCol > 0) {
+    const existingHeaders = sheet.getRange(1, 1, 1, lastCol).getValues()[0].map(function(h) { return String(h).trim().toLowerCase(); });
+    const hasDestination = existingHeaders.some(function(h) { return h.indexOf("destination") !== -1 || h.indexOf("circuit") !== -1; });
+    const hasDuration = existingHeaders.some(function(h) { return h.indexOf("duration") !== -1; });
+
+    if (hasDestination && hasDuration) {
+      sheet.appendRow([
+        new Date().toLocaleString(),
+        tourId,
+        touristName,
+        email,
+        phone,
+        data.circuitName || data.destination || "General Cultural & Festival Escort",
+        data.duration || "Full Day (8 Hours)",
+        data.tourDate || "2026-12-28",
+        data.groupSize || "1 Person",
+        data.language || "English",
+        data.pickupLocation || "Afikpo City Center"
+      ]);
+      return createResponse("success", `Tour guide requested! Reference ID: ${tourId}. Your certified Afikpo guide will connect with you.`, { tourId: tourId });
     }
   }
 
-  const sheet = getSheetByName(CONFIG.tourGuideSheet, [
-    "Timestamp", "Request ID", "Tourist Name", "Email", "Phone / WhatsApp", 
-    "Tour Date", "Group Size", "Language", "Pickup Location / Hotel"
-  ]);
-
-  const tourId = data.token || data.tourId || data.referenceId || ("AIC-TOUR-" + Math.floor(100000 + Math.random() * 900000));
-
+  // Streamlined 9-column format matching form fields
   sheet.appendRow([
     new Date().toLocaleString(),
     tourId,
-    data.touristName,
-    data.email,
-    data.phone,
-    data.tourDate,
-    data.groupSize || 1,
+    touristName,
+    email,
+    phone,
+    data.tourDate || "2026-12-28",
+    data.groupSize || "1 Person",
     data.language || "English",
     data.pickupLocation || "Afikpo City Center"
   ]);

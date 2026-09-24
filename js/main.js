@@ -764,9 +764,7 @@ function buildTourGuideWhatsAppUrl(order) {
 📱 *Phone / WhatsApp:* ${order.phone}
 📧 *Email:* ${order.email}
 ════════════════════════════════
-🗺️ *Destination / Circuit:* ${order.circuitName}
 📅 *Preferred Tour Date:* ${order.tourDate}
-⏳ *Duration:* ${order.duration}
 👥 *Group Size:* ${order.groupSize}
 🗣️ *Language Preference:* ${order.language}
 📍 *Pickup Location / Notes:* ${order.pickupLocation || "Afikpo City Center"}
@@ -866,12 +864,8 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
           <strong class="text-gray-900 font-bold">${order.customerName}</strong>
         </div>
         <div class="flex justify-between py-1.5 border-b border-gray-100">
-          <span class="text-gray-500 font-medium">Selected Destination:</span>
-          <strong class="text-orange-600 font-black">${order.circuitName}</strong>
-        </div>
-        <div class="flex justify-between py-1.5 border-b border-gray-100">
-          <span class="text-gray-500 font-medium">Tour Date & Duration:</span>
-          <strong class="text-gray-900 font-semibold">${order.tourDate} (${order.duration})</strong>
+          <span class="text-gray-500 font-medium">Tour Date:</span>
+          <strong class="text-orange-600 font-bold">${order.tourDate}</strong>
         </div>
         <div class="flex justify-between py-1.5 border-b border-gray-100">
           <span class="text-gray-500 font-medium">Group Size & Language:</span>
@@ -1148,14 +1142,14 @@ function renderPendingOrdersList(filterType) {
       : isAccommodation 
         ? `${order.hotelName} — ${order.roomType}` 
         : isTourGuide
-          ? `🧭 Tour Guide: ${order.circuitName}`
+          ? `🧭 Tour Guide: ${order.customerName}`
           : (order.itemsSummary || "Merchandise Order");
     const subText = isTicket 
       ? `${order.ticketCount} Attendee(s) • ${order.visitDate || 'Dec 2026'}` 
       : isAccommodation 
         ? `${order.nightsCount || 1} Night(s) (${order.checkIn || ''} to ${order.checkOut || ''}) • ${order.customerName}`
         : isTourGuide
-          ? `${order.tourDate} (${order.duration}) • ${order.groupSize} • ${order.customerName}`
+          ? `${order.tourDate} • ${order.groupSize} (${order.language || 'English'})`
           : `${order.deliveryMethod || 'Pickup'} • ${order.customerName}`;
     const whatsappUrl = isTicket 
       ? buildTicketWhatsAppUrl(order) 
@@ -3487,80 +3481,85 @@ function setupTourGuideRequest() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = form.querySelector("button[type='submit']");
-    const origText = btn ? btn.textContent : "Submit";
+    const origHtml = btn ? btn.innerHTML : "<span>Request Tour Guide & Continue on WhatsApp</span>";
     if (btn) {
       btn.disabled = true;
-      btn.textContent = "Processing Request...";
+      btn.innerHTML = `<span>Processing Request...</span> <span class="animate-spin inline-block">⏳</span>`;
     }
 
-    const circuitName = form.querySelector("select[name='circuitName']").value;
-    const duration = form.querySelector("select[name='duration']").value;
-    const tourDate = form.querySelector("input[name='tourDate']").value;
-    const groupSize = form.querySelector("input[name='groupSize']").value;
-    const language = form.querySelector("select[name='language']").value;
-    const touristName = form.querySelector("input[name='clientName']") ? form.querySelector("input[name='clientName']").value : "";
-    const email = form.querySelector("input[name='email']").value;
-    const phone = form.querySelector("input[name='phone']").value;
-    const pickupLocation = form.querySelector("textarea[name='pickupNotes']") ? form.querySelector("textarea[name='pickupNotes']").value : "";
-
-    // Generate Official Tour Guide Request Token
-    const token = "TOUR-" + Math.floor(10000 + Math.random() * 90000);
-
-    const order = {
-      token: token,
-      type: "tour_guide",
-      circuitName: circuitName,
-      duration: duration,
-      tourDate: tourDate,
-      groupSize: groupSize,
-      language: language,
-      customerName: touristName,
-      touristName: touristName,
-      email: email,
-      phone: phone,
-      pickupLocation: pickupLocation,
-      totalAmount: "Confirmed on WhatsApp",
-      status: "🟡 Pending WhatsApp Matching",
-      createdAt: new Date().toISOString()
-    };
-
-    // Save locally for persistent pending token tracking in drawer
-    savePendingOrder(order);
-
-    // Asynchronously log to Google Apps Script (Google Sheets)
     try {
-      postToAppsScript({
-        formType: "tour_guide_request",
+      const tourDate = form.querySelector("input[name='tourDate']")?.value || "2026-12-28";
+      const groupSize = form.querySelector("input[name='groupSize']")?.value || "1 Person";
+      const language = form.querySelector("select[name='language']")?.value || "English";
+      const touristName = form.querySelector("input[name='clientName']")?.value 
+        || form.querySelector("input[name='touristName']")?.value 
+        || "Valued Visitor";
+      const email = form.querySelector("input[name='email']")?.value || "";
+      const phone = form.querySelector("input[name='phone']")?.value || "";
+      const pickupLocation = form.querySelector("textarea[name='pickupNotes']")?.value || "";
+
+      // Generate Official Tour Guide Request Token
+      const token = "TOUR-" + Math.floor(10000 + Math.random() * 90000);
+
+      const order = {
         token: token,
-        referenceId: token,
-        circuitName: circuitName,
-        duration: duration,
+        type: "tour_guide",
         tourDate: tourDate,
         groupSize: groupSize,
         language: language,
+        customerName: touristName,
         touristName: touristName,
         email: email,
         phone: phone,
-        pickupLocation: pickupLocation
-      }).catch(err => console.warn("Tour guide cloud sync notice:", err));
+        pickupLocation: pickupLocation,
+        totalAmount: "Confirmed on WhatsApp",
+        status: "🟡 Pending WhatsApp Matching",
+        createdAt: new Date().toISOString()
+      };
+
+      // Save locally for persistent pending token tracking in drawer
+      try {
+        savePendingOrder(order);
+      } catch (err) {
+        console.warn("Local storage save error:", err);
+      }
+
+      // Asynchronously log to Google Apps Script (Google Sheets)
+      try {
+        postToAppsScript({
+          formType: "tour_guide_request",
+          token: token,
+          referenceId: token,
+          tourDate: tourDate,
+          groupSize: groupSize,
+          language: language,
+          touristName: touristName,
+          email: email,
+          phone: phone,
+          pickupLocation: pickupLocation
+        }).catch(err => console.warn("Tour guide cloud sync notice:", err));
+      } catch (err) {
+        console.warn("Apps Script dispatch note:", err);
+      }
+
+      showAlert(`Tour Guide Request Token generated: ${token}. Redirecting to WhatsApp...`, "success");
+
+      // Launch WhatsApp directly & show confirmation modal
+      showPendingOrderModal(order, true);
+
+      form.reset();
+
+      // Reset date input back to default carnival date
+      const dateInput = form.querySelector("input[name='tourDate']");
+      if (dateInput) dateInput.value = "2026-12-28";
     } catch (err) {
-      console.warn("Apps Script dispatch note:", err);
-    }
-
-    showAlert(`Tour Guide Request Token generated: ${token}. Redirecting to WhatsApp...`, "success");
-
-    // Launch WhatsApp directly & show confirmation modal
-    showPendingOrderModal(order, true);
-
-    form.reset();
-
-    // Reset date input back to default carnival date
-    const dateInput = form.querySelector("input[name='tourDate']");
-    if (dateInput) dateInput.value = "2026-12-28";
-
-    if (btn) {
-      btn.disabled = false;
-      btn.textContent = origText;
+      console.error("Tour guide request handling error:", err);
+      showAlert("Notice: An issue occurred processing your request. Please message our concierge on WhatsApp directly.", "warning");
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = origHtml;
+      }
     }
   });
 }
