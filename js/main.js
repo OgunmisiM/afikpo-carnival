@@ -280,7 +280,7 @@ const DEFAULT_GALLERY_ITEMS = [
   }
 ];
 
-// Default Contestants for Queen of Afikpo Pageant Voting
+// Default Contestants for Miss Afikpo International Pageant Voting
 const DEFAULT_CONTESTANTS = [
   {
     id: "1",
@@ -1774,7 +1774,7 @@ function setupPageantRegistration() {
     };
 
     const res = await postToAppsScript(payload);
-    showAlert(res.message || "Contestant application submitted successfully! Welcome to Queen of Afikpo 2026.", "success");
+    showAlert(res.message || "Contestant application submitted successfully! Welcome to Miss Afikpo International 2026.", "success");
     form.reset();
 
     btn.disabled = false;
@@ -1843,7 +1843,7 @@ window.openVoteModal = function(id, name, number) {
       <div class="text-center pb-4 border-b border-gray-100">
         <span class="text-xs font-bold bg-purple-100 text-purple-600 px-3 py-1 rounded-full uppercase">Contestant #${number}</span>
         <h3 class="text-2xl font-black text-gray-900 mt-2">${name}</h3>
-        <p class="text-xs text-gray-500">Queen of Afikpo 2026 Pageant</p>
+        <p class="text-xs text-gray-500">Miss Afikpo International 2026 Pageant</p>
       </div>
 
       <form id="vote-submit-form" class="mt-6 space-y-4">
@@ -4743,7 +4743,7 @@ function setupGallery() {
           <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6 z-20">
             <!-- Category & Date -->
             <div class="flex items-center justify-between text-[11px] text-orange-400 font-bold uppercase tracking-wider mb-1">
-              <span>${item.category || "Afikpo Heritage"}</span>
+              <span>${item.category || "Igbo Heritage"}</span>
               <span class="text-gray-300 text-[10px]">${item.date || "Dec 2026"}</span>
             </div>
 
