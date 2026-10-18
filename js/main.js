@@ -13,8 +13,8 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEbX71MSQ2Kh-7
 const AIC_WHATSAPP_NUMBER = "2348125457981";
 
 // Official Paystack Public Key for Pageant Voting & Online Payments
-// (Replace with your Paystack Public Key: pk_test_... for sandbox testing, or pk_live_... for production)
-const PAYSTACK_PUBLIC_KEY = "pk_test_90a030d39482bda00b1d3640e07796ca1dc69454";
+// (Configured with production live key for direct online payments)
+const PAYSTACK_PUBLIC_KEY = "pk_live_8846990581832fa2b78ae5ba51e10dc405fd1297";
 
 // Default Seed Data for Blog Posts
 // Universal Fallback Cover Image (High-Res Festival Photography)
@@ -103,18 +103,6 @@ const DEFAULT_GALLERY_ITEMS = [
     timestamp: 1700000003000
   },
   {
-    id: "gallery-4",
-    title: "Dancers & Masquerades at Sunset on Ozizza River",
-    category: "Nature, Rivers & Beaches",
-    mediaType: "image",
-    mediaUrl: "assets/images/Afikpo dancers and masquerades at sunset along the Ozizza River.webp",
-    creatorName: "Ozizza Tourism Circuit",
-    date: "Dec 2026",
-    description: "Spectacular sunset gathering of traditional performers and masquerades along the tranquil banks of the Ozizza River.",
-    status: "Published",
-    timestamp: 1700000004000
-  },
-  {
     id: "gallery-5",
     title: "Masquerade Display (Eze Lúgúlú and Ikpó)",
     category: "Cultural Masquerades & Rites",
@@ -125,20 +113,7 @@ const DEFAULT_GALLERY_ITEMS = [
     description: "The majestic Eze Lúgúlú towering masquerade alongside ceremonial Ikpó escorts during the grand festival procession.",
     status: "Published",
     timestamp: 1700000005000
-  },
-  {
-    id: "gallery-6",
-    title: "Canoeing Along Unwana River Waterways",
-    category: "Nature, Rivers & Beaches",
-    mediaType: "image",
-    mediaUrl: "assets/images/Canoeing on the Unwana river.webp",
-    creatorName: "Unwana Beach Explorers",
-    date: "Dec 2026",
-    description: "Traditional wooden canoeing across the serene, reflective waters of the historic Unwana river basin.",
-    status: "Published",
-    timestamp: 1700000006000
-  },
- 
+  }, 
   {
     id: "gallery-8",
     title: "Nkwa Umuagbógó Maiden Dance Festival",
@@ -150,18 +125,6 @@ const DEFAULT_GALLERY_ITEMS = [
     description: "The world-famous Nkwa Umuagbógó maiden dance troupe performing intricate rhythmic steps and acrobatics.",
     status: "Published",
     timestamp: 1700000008000
-  },
-  {
-    id: "gallery-9",
-    title: "Mainstage Live Concert & Festival Village",
-    category: "Concerts & Dance Performances",
-    mediaType: "image",
-    mediaUrl: "assets/images/AIC music.webp",
-    creatorName: "AIC Entertainment Group",
-    date: "Dec 2026",
-    description: "Electrifying live musical concert and night festival lights uniting thousands of tourists and locals at the mainstage.",
-    status: "Published",
-    timestamp: 1700000009000
   },
   {
     id: "gallery-10",
@@ -234,30 +197,6 @@ const DEFAULT_GALLERY_ITEMS = [
     description: "Championship bout in the village ring cheered on by elders, village chiefs, and visiting spectators.",
     status: "Published",
     timestamp: 1700000015000
-  },
-  {
-    id: "gallery-16",
-    title: "Youth Cultural Drumming Workshop",
-    category: "Art & Tradition",
-    mediaType: "image",
-    mediaUrl: "assets/images/Children learning drumming at a youth workshop..webp",
-    creatorName: "AIC Educational Program",
-    date: "Dec 2026",
-    description: "The next generation preserving heritage: children mastering traditional rhythm patterns in hands-on festival workshops.",
-    status: "Published",
-    timestamp: 1700000016000
-  },
-  {
-    id: "gallery-17",
-    title: "Handwoven Textiles & Crafts Fair",
-    category: "Art & Tradition",
-    mediaType: "image",
-    mediaUrl: "assets/images/Handwoven textiles at the Art & Craft exhibition.webp",
-    creatorName: "Ebonyi Artisan Cooperative",
-    date: "Dec 2026",
-    description: "Intricately woven Akwete and traditional ceremonial fabrics on exhibition at the AIC craft marketplace.",
-    status: "Published",
-    timestamp: 1700000017000
   },
   {
     id: "gallery-18",
