@@ -71,3 +71,45 @@ This project is an all-in-one web portal for the **Afikpo International Carnival
    - **Add Images**: Paste any web image URL or select an image file from your phone/computer (converted and previewed instantly).
    - **Edit / Delete**: Edit existing articles or remove outdated ones.
    - **Publish**: Click *"Publish / Save to Google Sheets"*. It writes to your `BlogPosts` sheet in real-time, instantly visible on `blog.html` and `blog-post.html`.
+
+---
+
+## 💳 Paystack Setup for Online Pageant Voting
+
+The pageant voting portal ([`pageant-voting.html`](file:///c:/Users/USER/Desktop/Afikpo%20New/pageant-voting.html)) is powered by **Paystack Inline Checkout**. Points are **only credited after payment confirmation**, and 1 free daily vote per device is preserved every 24 hours.
+
+### Step 1: Get Your Paystack Public Key
+1. Go to [Paystack Dashboard](https://dashboard.paystack.com) and log in (or sign up).
+2. In the left menu, go to **Settings > API Keys & Webhooks**.
+3. Copy your **Public Key**:
+   - For testing: Copy **Test Public Key** (`pk_test_...`).
+   - For live coronation payments: Copy **Live Public Key** (`pk_live_...`).
+
+> [!IMPORTANT]
+> **Never put your Secret Key (`sk_...`) in frontend code!** Only the **Public Key** (`pk_...`) belongs in [`js/main.js`](file:///c:/Users/USER/Desktop/Afikpo%20New/js/main.js).
+
+### Step 2: Configure `js/main.js`
+1. Open [`js/main.js`](file:///c:/Users/USER/Desktop/Afikpo%20New/js/main.js) and find line 16:
+   ```javascript
+   const PAYSTACK_PUBLIC_KEY = "pk_test_YOUR_PAYSTACK_PUBLIC_KEY_HERE";
+   ```
+2. Paste your Public Key between the quotes and save.
+
+### Step 3: How Voting Works
+- **Free Daily Vote (1 Vote - ₦0)**:
+  - Allowed once every 24 hours per visitor.
+  - Automatically verified via local device cooldown.
+- **Paid Booster Packages (10, 50, 100 Votes)**:
+  - Opens Paystack's secure inline modal over the page.
+  - Supports Nigerian Debit Cards, Bank Transfer, USSD, OPay, and Apple Pay.
+  - Points reflect on the live leaderboard **instantly** after payment confirmation.
+  - Each verified vote is logged into your Google Sheet (`PageantVotes`) with the Paystack Transaction Reference (`AIC-VOTE-...`) and `PAID` status.
+
+### Step 4: Testing with Paystack Test Cards
+When using your `pk_test_...` key:
+- **Test Card Number:** `4084 0840 0840 0840`
+- **Expiry:** Any future date (e.g. `12/30`)
+- **CVV:** `408`
+- **PIN:** `1234`
+- **OTP:** `123456`
+

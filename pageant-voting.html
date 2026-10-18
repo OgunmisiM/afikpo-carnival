@@ -8,6 +8,20 @@
     <meta name="description" content="Vote for your favourite contestant for Queen of Afikpo and Face of AIC 2026. Live leaderboard and voting." />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/style.css" />
+    <style>
+      @keyframes tickerScroll {
+        0% { transform: translateX(0%); }
+        100% { transform: translateX(-50%); }
+      }
+      .pageant-ticker {
+        display: inline-flex;
+        white-space: nowrap;
+        animation: tickerScroll 28s linear infinite;
+      }
+      .pageant-ticker-container:hover .pageant-ticker {
+        animation-play-state: paused;
+      }
+    </style>
   </head>
   <body class="bg-gray-50 text-gray-900 font-sans selection:bg-purple-100">
     <!-- Navigation -->
@@ -168,12 +182,40 @@
       </div>
     </header>
 
+    <!-- Animated Qualification Announcement Ticker -->
+    <div class="bg-gradient-to-r from-purple-950 via-purple-900 to-indigo-950 text-white border-y border-purple-500/30 shadow-lg py-3 px-4 overflow-hidden relative pageant-ticker-container">
+      <div class="max-w-7xl mx-auto flex items-center gap-3">
+        <div class="shrink-0 flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-orange-500 text-gray-950 font-black text-[11px] px-3.5 py-1 rounded-full uppercase tracking-wider shadow-sm z-10">
+          <span class="animate-bounce">👑</span>
+          <span>Qualification Notice</span>
+        </div>
+        <div class="overflow-hidden whitespace-nowrap w-full relative">
+          <div class="pageant-ticker font-semibold text-xs md:text-sm text-purple-100 tracking-wide">
+            <span class="px-8 flex items-center gap-3">
+              <span class="text-amber-300 font-extrabold">⭐ OFFICIAL NOTICE:</span>
+              <span>A cumulative total of <strong>400 votes</strong> qualifies a contestant for the next round!</span>
+              <span class="bg-purple-800/80 text-amber-300 font-black text-xs px-2.5 py-0.5 rounded-full border border-purple-500/40">Rate: ₦50 per vote</span>
+              <span>• 1 Free Daily Vote enabled every 24 hours per visitor!</span>
+              <span>• Support your favourite delegate today!</span>
+            </span>
+            <span class="px-8 flex items-center gap-3">
+              <span class="text-amber-300 font-extrabold">⭐ OFFICIAL NOTICE:</span>
+              <span>A cumulative total of <strong>400 votes</strong> qualifies a contestant for the next round!</span>
+              <span class="bg-purple-800/80 text-amber-300 font-black text-xs px-2.5 py-0.5 rounded-full border border-purple-500/40">Rate: ₦50 per vote</span>
+              <span>• 1 Free Daily Vote enabled every 24 hours per visitor!</span>
+              <span>• Support your favourite delegate today!</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Voting Section -->
     <section class="py-16 px-4 max-w-7xl mx-auto">
       <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
         <div>
           <h2 class="text-3xl font-black text-gray-900">Official Contestants Showcase</h2>
-          <p class="text-xs md:text-sm text-gray-500 mt-1">Free daily vote enabled per visitor + paid boost packages</p>
+          <p class="text-xs md:text-sm text-gray-500 mt-1">Free daily vote enabled per visitor + paid boost packages (₦50 per vote). A total of 400 votes qualifies a contestant for the next round.</p>
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
           <input type="text" id="contestant-search" placeholder="Search by name or #number..." class="w-full md:w-64 p-3 rounded-full bg-white border border-gray-200 text-xs focus:ring-2 focus:ring-purple-600 outline-none shadow-sm" />
@@ -245,6 +287,7 @@
       </div>
     </footer>
 
+    <script src="https://js.paystack.co/v2/inline.js"></script>
     <script src="js/main.js"></script>
   </body>
 </html>

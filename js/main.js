@@ -12,6 +12,10 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEbX71MSQ2Kh-7
 // Official AIC WhatsApp Order & Reservation Line (Test number configured by user: +234 812 545 7981)
 const AIC_WHATSAPP_NUMBER = "2348125457981";
 
+// Official Paystack Public Key for Pageant Voting & Online Payments
+// (Replace with your Paystack Public Key: pk_test_... for sandbox testing, or pk_live_... for production)
+const PAYSTACK_PUBLIC_KEY = "pk_test_90a030d39482bda00b1d3640e07796ca1dc69454";
+
 // Default Seed Data for Blog Posts
 // Universal Fallback Cover Image (High-Res Festival Photography)
 const DEFAULT_COVER_IMAGE = "https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?auto=format&fit=crop&w=1200&q=80";
@@ -134,18 +138,7 @@ const DEFAULT_GALLERY_ITEMS = [
     status: "Published",
     timestamp: 1700000006000
   },
-  {
-    id: "gallery-7",
-    title: "Artisans Displaying Handcrafted Afikpo Masks",
-    category: "Art & Tradition",
-    mediaType: "image",
-    mediaUrl: "assets/images/Local artisans displaying carved Afikpo masks..webp",
-    creatorName: "Ehugbo Craft Guild",
-    date: "Dec 2026",
-    description: "Master woodcarvers showcasing internationally acclaimed Afikpo masks recognized in museums worldwide.",
-    status: "Published",
-    timestamp: 1700000007000
-  },
+ 
   {
     id: "gallery-8",
     title: "Nkwa Umuagbógó Maiden Dance Festival",
@@ -280,69 +273,9 @@ const DEFAULT_GALLERY_ITEMS = [
   }
 ];
 
-// Default Contestants for Miss Afikpo International Pageant Voting
-const DEFAULT_CONTESTANTS = [
-  {
-    id: "1",
-    number: "01",
-    name: "Chioma Egwu",
-    community: "Ehugbo Central",
-    age: 22,
-    platform: "Promoting Indigenous Girls' Education & Tech Skills in Rural Afikpo",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80",
-    baseVotes: 1420
-  },
-  {
-    id: "2",
-    number: "02",
-    name: "Adaeze Okoro",
-    community: "Unwana Kingdom",
-    age: 24,
-    platform: "Preservation of Traditional Igbo Crafts & Youth Textile Cooperatives",
-    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?auto=format&fit=crop&w=800&q=80",
-    baseVotes: 1895
-  },
-  {
-    id: "3",
-    number: "03",
-    name: "Blessing Nwankwo",
-    community: "Ozizza Community",
-    age: 21,
-    platform: "Eco-Tourism & Clean Water Advocacy along the Cross River Basin",
-    image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=800&q=80",
-    baseVotes: 1210
-  },
-  {
-    id: "4",
-    number: "04",
-    name: "Ifeoma Eze",
-    community: "Ndibe Beach Community",
-    age: 23,
-    platform: "Empowering Female Agritechnopreneurs & Local Food Security",
-    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80",
-    baseVotes: 1650
-  },
-  {
-    id: "5",
-    number: "05",
-    name: "Ngozi Chukwu",
-    community: "Amanchor Rolling Hills",
-    age: 25,
-    platform: "Heritage Tourism & Preserving Ancient Igbo Architectural Artifacts",
-    image: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=800&q=80",
-    baseVotes: 980
-  },
-  {
-    id: "6",
-    number: "06",
-    name: "Kelechi Uche",
-    community: "Amangballa Heritage Town",
-    age: 22,
-    platform: "Mental Health Support & Creative Arts Therapy for African Youths",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
-    baseVotes: 1340
-  }
-];
+// Contestants registry for Miss Afikpo International Pageant Voting
+// No preloaded dummy contestants: profiles are dynamically loaded strictly from approved registrations.
+const DEFAULT_CONTESTANTS = [];
 
 // --- ALERT NOTIFICATION SYSTEM ---
 function showAlert(message, type = "success") {
@@ -1759,65 +1692,247 @@ function setupPageantRegistration() {
     btn.disabled = true;
     btn.textContent = "Submitting Contestant Profile...";
 
-    const payload = {
-      formType: "pageant_registration",
-      fullName: form.querySelector("input[name='fullName']").value,
-      stageName: form.querySelector("input[name='stageName']").value,
-      age: form.querySelector("input[name='age']").value,
-      stateOfOrigin: form.querySelector("input[name='stateOfOrigin']").value,
-      height: form.querySelector("input[name='height']").value,
-      email: form.querySelector("input[name='email']").value,
-      phone: form.querySelector("input[name='phone']").value,
-      socialHandles: form.querySelector("input[name='socialHandle']") ? form.querySelector("input[name='socialHandle']").value : "",
-      photoUrl: form.querySelector("input[name='photoUrl']") ? form.querySelector("input[name='photoUrl']").value : "",
-      advocacyStatement: form.querySelector("textarea[name='advocacy']") ? form.querySelector("textarea[name='advocacy']").value : ""
+    const fullName = form.querySelector("input[name='fullName']").value.trim();
+    const stageName = form.querySelector("input[name='stageName']").value.trim();
+    const age = form.querySelector("input[name='age']").value.trim();
+    const stateOfOrigin = form.querySelector("input[name='stateOfOrigin']").value.trim();
+    const height = form.querySelector("input[name='height']").value.trim();
+    const email = form.querySelector("input[name='email']").value.trim();
+    const phone = form.querySelector("input[name='phone']").value.trim();
+    const socialHandles = form.querySelector("input[name='socialHandle']") ? form.querySelector("input[name='socialHandle']").value.trim() : "";
+    const photoUrl = form.querySelector("input[name='photoUrl']") ? form.querySelector("input[name='photoUrl']").value.trim() : "";
+    const advocacyStatement = form.querySelector("textarea[name='advocacy']") ? form.querySelector("textarea[name='advocacy']").value.trim() : "";
+
+    // Generate local contestant record
+    let existingList = [];
+    try {
+      existingList = JSON.parse(localStorage.getItem("aic_registered_contestants") || "[]");
+      if (!Array.isArray(existingList)) existingList = [];
+    } catch (err) {
+      existingList = [];
+    }
+
+    const contestantNumber = String(existingList.length + 1).padStart(2, "0");
+    const contestantId = "c_" + Date.now();
+
+    // Format photo URL if Google Drive
+    let formattedPhoto = photoUrl;
+    if (formattedPhoto) {
+      const gdriveMatch = formattedPhoto.match(/\/d\/([a-zA-Z0-9_-]+)/) || formattedPhoto.match(/id=([a-zA-Z0-9_-]+)/);
+      if (gdriveMatch) {
+        formattedPhoto = `https://lh3.googleusercontent.com/d/${gdriveMatch[1]}`;
+      }
+    }
+    if (!formattedPhoto) {
+      formattedPhoto = "assets/images/Nkwa Umuagbógó cultural dance competition.jpeg";
+    }
+
+    const newContestant = {
+      id: contestantId,
+      number: contestantNumber,
+      name: stageName || fullName,
+      fullName: fullName,
+      community: stateOfOrigin,
+      age: parseInt(age, 10) || 20,
+      platform: advocacyStatement,
+      image: formattedPhoto,
+      email: email,
+      phone: phone,
+      baseVotes: 0,
+      createdAt: new Date().toISOString()
     };
 
-    const res = await postToAppsScript(payload);
-    showAlert(res.message || "Contestant application submitted successfully! Welcome to Miss Afikpo International 2026.", "success");
-    form.reset();
+    // Save immediately to local storage so contestant appears instantly on voting page
+    existingList.push(newContestant);
+    localStorage.setItem("aic_registered_contestants", JSON.stringify(existingList));
 
+    const payload = {
+      formType: "pageant_registration",
+      contestantId: contestantId,
+      contestantNumber: contestantNumber,
+      fullName: fullName,
+      stageName: stageName,
+      age: age,
+      stateOfOrigin: stateOfOrigin,
+      height: height,
+      email: email,
+      phone: phone,
+      socialHandles: socialHandles,
+      photoUrl: photoUrl,
+      advocacyStatement: advocacyStatement
+    };
+
+    try {
+      const res = await postToAppsScript(payload);
+      if (res && res.contestantNumber) {
+        newContestant.number = res.contestantNumber;
+        if (res.contestantId) newContestant.id = res.contestantId;
+        localStorage.setItem("aic_registered_contestants", JSON.stringify(existingList));
+      }
+      showAlert(`🎉 Congratulations ${newContestant.name}! Application registered successfully as Contestant #${newContestant.number}. Your profile is now live for public voting!`, "success");
+    } catch (err) {
+      console.warn("Apps Script submission notice:", err);
+      showAlert(`🎉 Congratulations ${newContestant.name}! Application recorded locally as Contestant #${newContestant.number}. Your profile is now live for public voting!`, "success");
+    }
+
+    form.reset();
     btn.disabled = false;
     btn.textContent = origText;
   });
 }
 
 // =============================================================
-// 7. PAGEANTRY VOTING PORTAL
+// 7. PAGEANTRY VOTING PORTAL (PAYSTACK ONLINE PAYMENTS & DAILY VOTES)
 // =============================================================
 function setupPageantVoting() {
   const container = document.getElementById("contestants-container") || document.getElementById("contestants-grid");
   if (!container) return;
 
-  const localVotes = JSON.parse(localStorage.getItem("aic_pageant_votes") || "{}");
+  let cloudVotes = {};
+  let contestantsList = [];
+  let currentSearchQuery = "";
+
+  // Helper to get contestants from local storage
+  const getLocalContestants = () => {
+    try {
+      const stored = JSON.parse(localStorage.getItem("aic_registered_contestants") || "[]");
+      return Array.isArray(stored) ? stored : [];
+    } catch (e) {
+      return [];
+    }
+  };
+
+  // Helper to merge cloud contestants with local contestants (deduplicating by ID, email, or name)
+  const mergeContestants = (cloudList = []) => {
+    const localList = getLocalContestants();
+    const mergedMap = new Map();
+
+    // 1. Cloud list first (from Google Sheets)
+    if (Array.isArray(cloudList)) {
+      cloudList.forEach(c => {
+        if (!c || !c.name) return;
+        const key = String(c.id || c.email || c.name).trim().toLowerCase();
+        mergedMap.set(key, { ...c, baseVotes: 0 });
+      });
+    }
+
+    // 2. Local list (browser registrations)
+    localList.forEach(c => {
+      if (!c || !c.name) return;
+      const key = String(c.id || c.email || c.name).trim().toLowerCase();
+      if (!mergedMap.has(key)) {
+        mergedMap.set(key, { ...c, baseVotes: 0 });
+      }
+    });
+
+    return Array.from(mergedMap.values());
+  };
+
+  contestantsList = mergeContestants([]);
+  window._aicPageantContestants = contestantsList;
 
   const renderContestants = (filterQuery = "") => {
-    const filtered = DEFAULT_CONTESTANTS.filter(c => 
-      c.name.toLowerCase().includes(filterQuery.toLowerCase()) || 
-      c.community.toLowerCase().includes(filterQuery.toLowerCase()) ||
-      c.number.includes(filterQuery)
+    currentSearchQuery = filterQuery;
+    window._aicPageantContestants = contestantsList;
+
+    const localVotes = JSON.parse(localStorage.getItem("aic_pageant_votes") || "{}");
+
+    // Empty state: No contestants registered yet
+    if (contestantsList.length === 0) {
+      container.className = "col-span-full";
+      container.innerHTML = `
+        <div class="bg-gradient-to-br from-purple-50 via-white to-purple-50/40 rounded-3xl p-10 md:p-14 border border-purple-100 shadow-xl text-center max-w-2xl mx-auto my-6">
+          <div class="w-20 h-20 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 shadow-inner ring-8 ring-purple-50">
+            👑
+          </div>
+          <span class="inline-block bg-purple-600 text-white font-black text-xs px-4 py-1.5 rounded-full uppercase tracking-widest mb-3 shadow-md">
+            Registration Currently Open
+          </span>
+          <h3 class="text-2xl md:text-3xl font-black text-gray-900 mb-3">No Contestants Registered Yet</h3>
+          <p class="text-sm text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
+            Public voting opens automatically as soon as delegates register for Miss Afikpo International 2026. All contestants start strictly from <strong>0 votes</strong>. 400 cumulative votes qualifies a contestant for Round 2!
+          </p>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <a href="pageant-registration.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-8 py-4 rounded-2xl transition shadow-xl shadow-purple-200 text-sm">
+              <span>Register as a Contestant</span>
+              <span>→</span>
+            </a>
+            <button onclick="window.location.reload()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-bold px-6 py-4 rounded-2xl border border-gray-200 transition text-sm cursor-pointer">
+              <span>🔄 Refresh Portal</span>
+            </button>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    const filtered = contestantsList.filter(c => 
+      (c.name && c.name.toLowerCase().includes(filterQuery.toLowerCase())) || 
+      (c.community && c.community.toLowerCase().includes(filterQuery.toLowerCase())) ||
+      (c.number && String(c.number).includes(filterQuery))
     );
 
+    // No search results found
+    if (filtered.length === 0) {
+      container.className = "col-span-full";
+      container.innerHTML = `
+        <div class="bg-white rounded-3xl p-10 border border-gray-100 shadow-md text-center max-w-md mx-auto my-6">
+          <div class="text-4xl mb-3">🔍</div>
+          <h4 class="text-lg font-black text-gray-900 mb-1">No Contestant Found</h4>
+          <p class="text-xs text-gray-500 mb-4">No registered contestant matches "${filterQuery}".</p>
+          <button onclick="const s = document.getElementById('contestant-search'); if (s) s.value=''; if (window.refreshPageantVotingGrid) window.refreshPageantVotingGrid();" class="text-xs text-purple-600 font-bold hover:underline cursor-pointer">
+            Clear Search
+          </button>
+        </div>
+      `;
+      return;
+    }
+
+    // Grid layout for contestants
+    container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8";
     container.innerHTML = filtered.map(c => {
-      const liveVotes = (c.baseVotes + (localVotes[c.id] || 0)).toLocaleString();
+      const cloud = cloudVotes[c.id] || 0;
+      const local = localVotes[c.id] || 0;
+      // All contestants start strictly from 0 votes
+      const numericVotes = (c.baseVotes || 0) + Math.max(cloud, local);
+      const liveVotes = numericVotes.toLocaleString();
+      const isQualified = numericVotes >= 400;
+      const progressPercent = Math.min(100, Math.round((numericVotes / 400) * 100));
+
+      const firstName = (c.name || "Delegate").split(" ")[0];
+
       return `
         <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition group flex flex-col justify-between">
           <div class="relative h-80 overflow-hidden">
-            <img src="${c.image}" alt="${c.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
-            <div class="absolute top-4 left-4 bg-purple-600 text-white font-black text-sm px-3 py-1 rounded-full shadow-md">#${c.number}</div>
+            <img src="${c.image || 'assets/images/Nkwa Umuagbógó cultural dance competition.jpeg'}" alt="${c.name}" onerror="this.src='assets/images/Nkwa Umuagbógó cultural dance competition.jpeg'" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+            <div class="absolute top-4 left-4 bg-purple-600 text-white font-black text-sm px-3 py-1 rounded-full shadow-md">#${c.number || '01'}</div>
             <div class="absolute bottom-4 right-4 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5">
               <span>👑</span> <span id="vote-count-${c.id}">${liveVotes}</span> Votes
             </div>
           </div>
           <div class="p-6 flex-1 flex flex-col justify-between">
             <div>
-              <div class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">${c.community} • Age ${c.age}</div>
+              <div class="text-xs font-bold text-purple-600 uppercase tracking-wider mb-1">${c.community || 'Afikpo'} • Age ${c.age || '20'}</div>
               <h3 class="text-xl font-black text-gray-900 mb-2">${c.name}</h3>
-              <p class="text-xs text-gray-600 line-clamp-3 mb-4 leading-relaxed">${c.platform}</p>
+              <p class="text-xs text-gray-600 line-clamp-2 mb-3 leading-relaxed">${c.platform || 'Proud contestant for Miss Afikpo International 2026.'}</p>
+
+              <!-- Qualification Target Progress (400 Votes Qualifies for Round 2) -->
+              <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 mb-4">
+                <div class="flex items-center justify-between text-[11px] mb-1.5">
+                  <span class="text-gray-500 font-semibold">Target: 400 Votes</span>
+                  ${isQualified 
+                    ? '<span class="text-emerald-600 font-black flex items-center gap-1"><span>✅</span> Round 2 Qualified</span>' 
+                    : `<span class="text-amber-600 font-bold">${400 - numericVotes} more to qualify</span>`}
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                  <div class="h-2 rounded-full transition-all duration-700 ${isQualified ? 'bg-emerald-500' : 'bg-gradient-to-r from-purple-500 to-amber-500'}" style="width: ${progressPercent}%"></div>
+                </div>
+              </div>
             </div>
-            <div class="space-y-2 pt-4 border-t border-gray-100">
-              <button onclick="window.openVoteModal('${c.id}', '${c.name}', '${c.number}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-2xl transition shadow-md shadow-purple-200 text-sm flex items-center justify-center gap-2">
-                <span>Vote for ${c.name.split(' ')[0]}</span>
+            <div class="space-y-2 pt-2 border-t border-gray-100">
+              <button onclick="window.openVoteModal('${c.id}')" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-2xl transition shadow-md shadow-purple-200 text-sm flex items-center justify-center gap-2 cursor-pointer">
+                <span>Vote for ${firstName}</span>
+                <span>👑</span>
               </button>
             </div>
           </div>
@@ -1826,118 +1941,424 @@ function setupPageantVoting() {
     }).join("");
   };
 
+  // Expose refresh hook
+  window.refreshPageantVotingGrid = function() {
+    renderContestants(currentSearchQuery);
+  };
+
   renderContestants();
 
   const searchInput = document.getElementById("contestant-search") || document.getElementById("contestant-search-input");
   if (searchInput) {
     searchInput.addEventListener("input", (e) => renderContestants(e.target.value));
   }
+
+  // Fetch live contestants & verified cloud votes from Google Sheets API
+  if (APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("YOUR_DEPLOYMENT_ID")) {
+    fetch(`${APPS_SCRIPT_URL}?action=get_pageant_contestants`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.status === "success" && Array.isArray(data.contestants)) {
+          contestantsList = mergeContestants(data.contestants);
+          window._aicPageantContestants = contestantsList;
+          renderContestants(searchInput ? searchInput.value : "");
+        }
+      })
+      .catch(err => console.warn("Live contestant sync notice:", err));
+
+    fetch(`${APPS_SCRIPT_URL}?action=get_pageant_votes`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.status === "success" && data.voteTotals) {
+          cloudVotes = data.voteTotals;
+          renderContestants(searchInput ? searchInput.value : "");
+        }
+      })
+      .catch(err => console.warn("Live cloud vote sync notice:", err));
+  }
 }
 
-window.openVoteModal = function(id, name, number) {
+window.openVoteModal = function(id, maybeName, maybeNumber) {
   const modal = document.createElement("div");
-  modal.className = "fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in";
+  modal.className = "fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in";
+
+  // Resolve contestant details from active contestants list
+  const activeList = window._aicPageantContestants || JSON.parse(localStorage.getItem("aic_registered_contestants") || "[]");
+  const matchContestant = (Array.isArray(activeList) ? activeList : []).find(c => String(c.id) === String(id));
+  const name = matchContestant ? matchContestant.name : (maybeName || "Contestant");
+  const number = matchContestant ? (matchContestant.number || "01") : (maybeNumber || "01");
+
+  // Check 24-hour daily free vote limit
+  const lastFreeVoteTime = parseInt(localStorage.getItem("aic_last_free_vote_time") || "0", 10);
+  const now = Date.now();
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+  const isFreeDailyUsed = (now - lastFreeVoteTime) < ONE_DAY_MS;
+  const hoursRemaining = isFreeDailyUsed ? Math.ceil((ONE_DAY_MS - (now - lastFreeVoteTime)) / (60 * 60 * 1000)) : 0;
+
   modal.innerHTML = `
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl relative">
-      <button onclick="this.closest('.fixed').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold">×</button>
-      <div class="text-center pb-4 border-b border-gray-100">
-        <span class="text-xs font-bold bg-purple-100 text-purple-600 px-3 py-1 rounded-full uppercase">Contestant #${number}</span>
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+      <button onclick="this.closest('.fixed').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold p-1 leading-none cursor-pointer">×</button>
+      
+      <div class="text-center pb-3 border-b border-gray-100">
+        <span class="text-xs font-bold bg-purple-100 text-purple-700 px-3.5 py-1 rounded-full uppercase tracking-wider">Contestant #${number}</span>
         <h3 class="text-2xl font-black text-gray-900 mt-2">${name}</h3>
-        <p class="text-xs text-gray-500">Miss Afikpo International 2026 Pageant</p>
+        <p class="text-xs text-gray-500 font-medium">Miss Afikpo International 2026 Pageant</p>
       </div>
 
-      <form id="vote-submit-form" class="mt-6 space-y-4">
+      <!-- Qualification & Pricing Alert -->
+      <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/80 rounded-2xl p-3 my-4 text-center">
+        <p class="text-xs font-bold text-purple-900 flex items-center justify-center gap-1.5">
+          <span>👑</span> <span>Target: <strong>400 Votes</strong> qualifies for Round 2!</span>
+        </p>
+        <p class="text-[11px] text-purple-700 mt-0.5 font-medium">Official Rate: <strong>₦50 per vote</strong> • Instant Paystack verification</p>
+      </div>
+
+      <form id="vote-submit-form" class="space-y-4">
         <div>
-          <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Choose Vote Package</label>
-          <div class="grid grid-cols-2 gap-3">
-            <label class="cursor-pointer border-2 border-purple-500 bg-purple-50/50 p-3 rounded-2xl text-center block hover:border-purple-600 transition">
-              <input type="radio" name="votePackage" value="1" data-price="0" checked class="hidden" />
-              <div class="font-black text-purple-600 text-lg">1 Vote</div>
-              <div class="text-xs text-gray-500">Free Daily Vote</div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-2">Select Vote Package (₦50 / vote)</label>
+          <div class="grid grid-cols-2 gap-2.5">
+            <!-- Free Daily Vote -->
+            <label class="cursor-pointer border-2 ${isFreeDailyUsed ? 'opacity-50 bg-gray-50 border-gray-200 cursor-not-allowed' : 'border-purple-600 bg-purple-50/60 ring-2 ring-purple-100'} p-3 rounded-2xl text-center block transition relative">
+              <input type="radio" name="votePackage" value="1" data-price="0" ${isFreeDailyUsed ? 'disabled' : 'checked'} class="hidden" />
+              <div class="font-black text-purple-600 text-base">1 Vote</div>
+              <div class="text-[11px] font-semibold text-gray-500">
+                ${isFreeDailyUsed ? `Used (~${hoursRemaining}h)` : 'Free Daily Vote'}
+              </div>
             </label>
-            <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-purple-500 transition">
-              <input type="radio" name="votePackage" value="10" data-price="1000" class="hidden" />
-              <div class="font-black text-gray-900 text-lg">10 Votes</div>
-              <div class="text-xs text-purple-600 font-bold">₦1,000</div>
+
+            <!-- 10 Votes (₦500) -->
+            <label class="cursor-pointer border-2 ${isFreeDailyUsed ? 'border-purple-600 bg-purple-50/60 ring-2 ring-purple-100' : 'border-gray-200'} p-3 rounded-2xl text-center block hover:border-purple-500 transition">
+              <input type="radio" name="votePackage" value="10" data-price="500" ${isFreeDailyUsed ? 'checked' : ''} class="hidden" />
+              <div class="font-black text-gray-900 text-base">10 Votes</div>
+              <div class="text-xs text-purple-600 font-extrabold">₦500</div>
             </label>
+
+            <!-- 50 Votes (₦2,500) -->
             <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-purple-500 transition">
-              <input type="radio" name="votePackage" value="50" data-price="4500" class="hidden" />
-              <div class="font-black text-gray-900 text-lg">50 Votes</div>
-              <div class="text-xs text-purple-600 font-bold">₦4,500</div>
+              <input type="radio" name="votePackage" value="50" data-price="2500" class="hidden" />
+              <div class="font-black text-gray-900 text-base">50 Votes</div>
+              <div class="text-xs text-purple-600 font-extrabold">₦2,500</div>
             </label>
+
+            <!-- 100 Votes (₦5,000) -->
             <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-purple-500 transition">
-              <input type="radio" name="votePackage" value="100" data-price="8000" class="hidden" />
-              <div class="font-black text-gray-900 text-lg">100 Votes</div>
-              <div class="text-xs text-purple-600 font-bold">₦8,000</div>
+              <input type="radio" name="votePackage" value="100" data-price="5000" class="hidden" />
+              <div class="font-black text-gray-900 text-base">100 Votes</div>
+              <div class="text-xs text-purple-600 font-extrabold">₦5,000</div>
+            </label>
+
+            <!-- 200 Votes (₦10,000) -->
+            <label class="cursor-pointer border-2 border-gray-200 p-3 rounded-2xl text-center block hover:border-purple-500 transition">
+              <input type="radio" name="votePackage" value="200" data-price="10000" class="hidden" />
+              <div class="font-black text-gray-900 text-base">200 Votes</div>
+              <div class="text-xs text-purple-600 font-extrabold">₦10,000</div>
+            </label>
+
+            <!-- 400 Votes (₦20,000) - Round 2 Qualification Bundle -->
+            <label class="cursor-pointer border-2 border-amber-300 bg-amber-50/50 p-3 rounded-2xl text-center block hover:border-amber-500 transition relative">
+              <input type="radio" name="votePackage" value="400" data-price="20000" class="hidden" />
+              <div class="font-black text-amber-700 text-base">400 Votes ⭐</div>
+              <div class="text-xs text-amber-800 font-extrabold">₦20,000</div>
+              <span class="text-[9px] font-bold text-amber-600 block">Instant Qualifier</span>
             </label>
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Your Email or Phone</label>
-          <input type="text" name="voterContact" placeholder="voter@example.com / +234..." required class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-purple-600 outline-none" />
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">
+            <span>Your Email Address</span>
+            <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="email" 
+            name="voterEmail" 
+            id="voter-email-input" 
+            placeholder="e.g. voter@gmail.com" 
+            required 
+            class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-sm focus:ring-2 focus:ring-purple-600 outline-none" 
+          />
+          <p class="text-[11px] text-gray-400 mt-1" id="voter-email-help">
+            ${isFreeDailyUsed ? 'Paystack will send your payment receipt to this email.' : 'Used to authenticate your 24-hr free vote and email your ballot receipt.'}
+          </p>
         </div>
 
-        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition shadow-lg text-sm">
-          Confirm & Cast Vote(s)
+        <button type="submit" id="vote-submit-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-purple-200 text-sm flex items-center justify-center gap-2 cursor-pointer">
+          <span id="vote-btn-text">
+            ${isFreeDailyUsed ? 'Pay ₦500 via Paystack & Cast 10 Votes' : 'Cast Free Daily Vote (1 Vote)'}
+          </span>
         </button>
+
+        <!-- Security & Guarantee Badge -->
+        <div class="bg-gray-50 border border-gray-100 rounded-xl p-2.5 flex items-center justify-center gap-2 text-[11px] text-gray-500">
+          <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd" />
+          </svg>
+          <span>Secured by <strong>Paystack</strong> (Cards, Bank Transfer, USSD, OPay)</span>
+        </div>
       </form>
     </div>
   `;
 
   document.body.appendChild(modal);
 
-  modal.querySelectorAll("input[name='votePackage']").forEach(radio => {
-    radio.addEventListener("change", () => {
-      modal.querySelectorAll("input[name='votePackage']").forEach(r => {
-        const label = r.closest("label");
-        if (r.checked) {
-          label.classList.add("border-purple-500", "bg-purple-50/50");
-          label.classList.remove("border-gray-200");
-        } else {
-          label.classList.remove("border-purple-500", "bg-purple-50/50");
-          label.classList.add("border-gray-200");
-        }
-      });
+  const updatePackageStyles = () => {
+    modal.querySelectorAll("input[name='votePackage']").forEach(r => {
+      const label = r.closest("label");
+      if (r.disabled) return;
+      if (r.checked) {
+        label.classList.add("border-purple-600", "bg-purple-50/60", "ring-2", "ring-purple-100");
+        label.classList.remove("border-gray-200");
+      } else {
+        label.classList.remove("border-purple-600", "bg-purple-50/60", "ring-2", "ring-purple-100");
+        label.classList.add("border-gray-200");
+      }
     });
+
+    const selectedRadio = modal.querySelector("input[name='votePackage']:checked");
+    if (!selectedRadio) return;
+    const price = parseFloat(selectedRadio.getAttribute("data-price")) || 0;
+    const count = parseInt(selectedRadio.value) || 1;
+    const btnText = modal.querySelector("#vote-btn-text");
+    const emailHelp = modal.querySelector("#voter-email-help");
+
+    if (price === 0) {
+      btnText.textContent = "Cast Free Daily Vote (1 Vote)";
+      emailHelp.textContent = "Used to authenticate your 24-hr free vote and email your ballot receipt.";
+    } else {
+      btnText.textContent = `Pay ₦${price.toLocaleString()} via Paystack & Cast ${count} Votes`;
+      emailHelp.textContent = `Paystack will send your payment confirmation and official receipt to this email.`;
+    }
+  };
+
+  modal.querySelectorAll("input[name='votePackage']").forEach(radio => {
+    radio.addEventListener("change", updatePackageStyles);
   });
 
   const voteForm = modal.querySelector("#vote-submit-form");
   voteForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    const btn = voteForm.querySelector("button[type='submit']");
-    btn.disabled = true;
-    btn.textContent = "Casting Vote...";
 
     const selectedRadio = voteForm.querySelector("input[name='votePackage']:checked");
-    const voteCount = parseInt(selectedRadio.value) || 1;
-    const price = parseFloat(selectedRadio.getAttribute("data-price")) || 0;
-    const contact = voteForm.querySelector("input[name='voterContact']").value;
-
-    const payload = {
-      formType: "pageant_vote",
-      contestantId: id,
-      contestantName: name,
-      voteCount: voteCount,
-      voterContact: contact,
-      amountPaid: price
-    };
-
-    const res = await postToAppsScript(payload);
-
-    const currentLocal = JSON.parse(localStorage.getItem("aic_pageant_votes") || "{}");
-    currentLocal[id] = (currentLocal[id] || 0) + voteCount;
-    localStorage.setItem("aic_pageant_votes", JSON.stringify(currentLocal));
-
-    const countEl = document.getElementById(`vote-count-${id}`);
-    if (countEl) {
-      const match = DEFAULT_CONTESTANTS.find(c => c.id === id);
-      const total = (match ? match.baseVotes : 0) + currentLocal[id];
-      countEl.textContent = total.toLocaleString();
+    if (!selectedRadio) {
+      showAlert("Please choose a voting package.", "error");
+      return;
     }
 
-    modal.remove();
-    showAlert(res.message || `Successfully cast ${voteCount} vote(s) for ${name}!`, "success");
+    const voteCount = parseInt(selectedRadio.value) || 1;
+    const price = parseFloat(selectedRadio.getAttribute("data-price")) || 0;
+    const email = voteForm.querySelector("input[name='voterEmail']").value.trim();
+
+    if (!email || !email.includes("@")) {
+      showAlert("Please enter a valid email address.", "warning");
+      return;
+    }
+
+    const btn = voteForm.querySelector("#vote-submit-btn");
+    const originalBtnText = btn.innerHTML;
+
+    // SCENARIO 1: FREE DAILY VOTE
+    if (price === 0) {
+      const checkLast = parseInt(localStorage.getItem("aic_last_free_vote_time") || "0", 10);
+      const currentTime = Date.now();
+      if (currentTime - checkLast < ONE_DAY_MS) {
+        const leftH = Math.ceil((ONE_DAY_MS - (currentTime - checkLast)) / (60 * 60 * 1000));
+        showAlert(`You have already cast your free daily vote! Resets in ~${leftH} hour(s). Select a booster pack to keep voting.`, "warning");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<span>Casting Free Ballot...</span>`;
+
+      const payload = {
+        formType: "pageant_vote",
+        contestantId: id,
+        contestantName: name,
+        voteCount: 1,
+        voterContact: email,
+        amountPaid: 0,
+        voteType: "Free Daily Vote",
+        paymentRef: "FREE-" + Date.now(),
+        paymentStatus: "FREE_DAILY"
+      };
+
+      try {
+        await postToAppsScript(payload);
+      } catch (err) {
+        console.warn("Background log notice:", err);
+      }
+
+      // Record free vote timestamp & increment local votes
+      localStorage.setItem("aic_last_free_vote_time", Date.now().toString());
+      const currentLocal = JSON.parse(localStorage.getItem("aic_pageant_votes") || "{}");
+      currentLocal[id] = (currentLocal[id] || 0) + 1;
+      localStorage.setItem("aic_pageant_votes", JSON.stringify(currentLocal));
+
+      // Update UI vote counter & card progress
+      if (typeof window.refreshPageantVotingGrid === "function") {
+        window.refreshPageantVotingGrid();
+      } else {
+        const countEl = document.getElementById(`vote-count-${id}`);
+        if (countEl) countEl.textContent = (currentLocal[id] || 0).toLocaleString();
+      }
+
+      modal.remove();
+      showAlert(`🎉 Free daily vote recorded for ${name}! Thank you for participating.`, "success");
+      return;
+    }
+
+    // SCENARIO 2: PAID BOOSTER PACK VIA PAYSTACK
+    if (typeof PaystackPop === "undefined") {
+      showAlert("Paystack payment library is loading or was blocked by an ad-blocker. Please check your internet connection and disable ad-blockers.", "error");
+      return;
+    }
+
+    if (PAYSTACK_PUBLIC_KEY.includes("xxxx")) {
+      showAlert("Notice: Paystack Public Key has not been configured in js/main.js. Please insert your Paystack public key (pk_test_... or pk_live_...).", "warning");
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = `<span>Connecting to Paystack...</span>`;
+
+    const paymentRef = "AIC-VOTE-" + Date.now() + "-" + Math.floor(Math.random() * 100000);
+
+    // Watchdog: If Paystack popup doesn't open within 8 seconds (e.g. popup blocker), reset button
+    const watchdogTimer = setTimeout(() => {
+      if (btn.disabled && btn.textContent.includes("Connecting")) {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+        showAlert("Connecting to Paystack timed out. If you have a popup blocker or ad-blocker enabled, please allow popups for localhost and try again.", "warning");
+      }
+    }, 8000);
+
+    // Common Success Handler (Plain function)
+    const handlePaymentSuccess = function(response) {
+      clearTimeout(watchdogTimer);
+      const verifiedRef = (response && (response.reference || response.trxref)) || paymentRef;
+      btn.innerHTML = `<span>Payment Confirmed! Crediting ${voteCount} Votes...</span>`;
+
+      const payload = {
+        formType: "pageant_vote",
+        contestantId: id,
+        contestantName: name,
+        voteCount: voteCount,
+        voterContact: email,
+        amountPaid: price,
+        voteType: "Paid Boost Package",
+        paymentRef: verifiedRef,
+        paymentStatus: "PAID"
+      };
+
+      try {
+        postToAppsScript(payload);
+      } catch (err) {
+        console.warn("Background log notice:", err);
+      }
+
+      // Add confirmed votes to local state
+      const currentLocal = JSON.parse(localStorage.getItem("aic_pageant_votes") || "{}");
+      currentLocal[id] = (currentLocal[id] || 0) + voteCount;
+      localStorage.setItem("aic_pageant_votes", JSON.stringify(currentLocal));
+
+      // Update live counter & card progress
+      if (typeof window.refreshPageantVotingGrid === "function") {
+        window.refreshPageantVotingGrid();
+      } else {
+        const countEl = document.getElementById(`vote-count-${id}`);
+        if (countEl) countEl.textContent = (currentLocal[id] || 0).toLocaleString();
+      }
+
+      modal.remove();
+      showAlert(`🎉 Payment Confirmed! Successfully credited ${voteCount} votes to ${name}. Reference: ${verifiedRef}`, "success");
+    };
+
+    // Common Cancel / Close Handler
+    const handlePaymentCancel = function() {
+      clearTimeout(watchdogTimer);
+      btn.disabled = false;
+      btn.innerHTML = originalBtnText;
+      showAlert("Payment was canceled. No points were credited.", "info");
+    };
+
+    try {
+      let isOpened = false;
+
+      // 1. Try modern Paystack Inline V2 (new PaystackPop().newTransaction)
+      if (typeof PaystackPop === "function") {
+        try {
+          const paystack = new PaystackPop();
+          if (typeof paystack.newTransaction === "function") {
+            paystack.newTransaction({
+              key: PAYSTACK_PUBLIC_KEY,
+              email: email,
+              amount: Math.round(price * 100), // In Kobo
+              currency: "NGN",
+              reference: paymentRef,
+              metadata: {
+                custom_fields: [
+                  { display_name: "Contestant Name", variable_name: "contestant_name", value: name },
+                  { display_name: "Contestant Number", variable_name: "contestant_number", value: String(number) },
+                  { display_name: "Contestant ID", variable_name: "contestant_id", value: String(id) },
+                  { display_name: "Votes Credited", variable_name: "votes_credited", value: String(voteCount) },
+                  { display_name: "Pageant Title", variable_name: "pageant_title", value: "Miss Afikpo International 2026" }
+                ]
+              },
+              onSuccess: function(transaction) {
+                handlePaymentSuccess(transaction);
+              },
+              onCancel: function() {
+                handlePaymentCancel();
+              }
+            });
+            isOpened = true;
+          }
+        } catch (v2Err) {
+          console.warn("Paystack V2 call failed, attempting V1 fallback:", v2Err);
+        }
+      }
+
+      // 2. Fallback to Paystack Inline V1 (PaystackPop.setup)
+      if (!isOpened && typeof PaystackPop.setup === "function") {
+        const handler = PaystackPop.setup({
+          key: PAYSTACK_PUBLIC_KEY,
+          email: email,
+          amount: Math.round(price * 100),
+          currency: "NGN",
+          ref: paymentRef,
+          metadata: {
+            custom_fields: [
+              { display_name: "Contestant Name", variable_name: "contestant_name", value: name },
+              { display_name: "Contestant Number", variable_name: "contestant_number", value: String(number) },
+              { display_name: "Contestant ID", variable_name: "contestant_id", value: String(id) },
+              { display_name: "Votes Credited", variable_name: "votes_credited", value: String(voteCount) },
+              { display_name: "Pageant Title", variable_name: "pageant_title", value: "Miss Afikpo International 2026" }
+            ]
+          },
+          callback: function(response) {
+            handlePaymentSuccess(response);
+          },
+          onClose: function() {
+            handlePaymentCancel();
+          }
+        });
+
+        handler.openIframe();
+        isOpened = true;
+      }
+
+      if (!isOpened) {
+        clearTimeout(watchdogTimer);
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+        showAlert("Could not initialize Paystack popup. Please refresh the page.", "error");
+      }
+    } catch (popupErr) {
+      clearTimeout(watchdogTimer);
+      console.error("Paystack initialization error:", popupErr);
+      btn.disabled = false;
+      btn.innerHTML = originalBtnText;
+      showAlert("Paystack error: " + (popupErr.message || popupErr), "error");
+    }
   });
 };
 

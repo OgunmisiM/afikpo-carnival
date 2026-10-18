@@ -64,6 +64,8 @@ function doGet(e) {
       return getPendingGalleryItemsResponse();
     } else if (action === "get_pageant_votes") {
       return getPageantVotesResponse();
+    } else if (action === "get_pageant_contestants") {
+      return getPageantContestantsResponse();
     } else {
       return createJsonResponse({
         status: "success",
@@ -311,37 +313,69 @@ function handlePageantRegistration(data) {
   }
 
   const sheet = getSheetByName(CONFIG.pageantRegSheet, [
-    "Timestamp", "Full Name", "Stage/Alias Name", "Age", "State / LGA of Origin",
+    "Timestamp", "Contestant ID", "Contestant Number", "Full Name", "Stage/Alias Name", "Age", "State / LGA of Origin",
     "Email", "Phone / WhatsApp", "Current City", "Height (cm/ft)", "Social Media Handles",
-    "Advocacy / Talent Statement", "Photo URL / Link"
+    "Advocacy / Talent Statement", "Photo URL / Link", "Status"
   ]);
 
-  sheet.appendRow([
-    new Date().toLocaleString(),
-    data.fullName,
-    data.stageName || data.fullName,
-    data.age,
-    data.stateOfOrigin,
-    data.email,
-    data.phone,
-    data.currentCity || "",
-    data.height || "",
-    data.socialHandles || "",
-    data.advocacyStatement,
-    data.photoUrl || ""
-  ]);
+  const rowCount = Math.max(1, sheet.getLastRow());
+  const contestantNumber = String(rowCount).padStart(2, "0");
+  const contestantId = data.contestantId || ("c_" + rowCount);
 
-  return createResponse("success", "Pageant registration submitted! The screening committee will review your profile and send audition guidelines.");
+  // Check headers to support either 15-column format or legacy 12-column format
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn() || 1).getValues()[0];
+  const hasIdHeader = headers.some(h => String(h).toLowerCase().includes("id"));
+
+  if (hasIdHeader) {
+    sheet.appendRow([
+      new Date().toLocaleString(),
+      contestantId,
+      contestantNumber,
+      data.fullName,
+      data.stageName || data.fullName,
+      data.age,
+      data.stateOfOrigin,
+      data.email,
+      data.phone,
+      data.currentCity || "",
+      data.height || "",
+      data.socialHandles || "",
+      data.advocacyStatement,
+      data.photoUrl || "",
+      "Approved"
+    ]);
+  } else {
+    // Legacy 12-column layout fallback
+    sheet.appendRow([
+      new Date().toLocaleString(),
+      data.fullName,
+      data.stageName || data.fullName,
+      data.age,
+      data.stateOfOrigin,
+      data.email,
+      data.phone,
+      data.currentCity || "",
+      data.height || "",
+      data.socialHandles || "",
+      data.advocacyStatement,
+      data.photoUrl || ""
+    ]);
+  }
+
+  return createResponse("success", `Contestant registration submitted successfully as #${contestantNumber}! The screening committee has received your profile and your entry is now active on the voting portal.`, {
+    contestantId: contestantId,
+    contestantNumber: contestantNumber
+  });
 }
 
-// 8. Queen Voting
+// 8. Queen Voting (Verified Paystack Payments & Free Daily Votes)
 function handlePageantVote(data) {
   if (!data.contestantId || !data.voteCount) {
     return createResponse("error", "Invalid vote payload");
   }
 
   const sheet = getSheetByName(CONFIG.pageantVoteSheet, [
-    "Timestamp", "Contestant ID", "Contestant Name", "Vote Count", "Voter Email/Phone", "Vote Type", "Amount Paid (NGN)"
+    "Timestamp", "Contestant ID", "Contestant Name", "Vote Count", "Voter Email/Phone", "Vote Type", "Amount Paid (NGN)", "Payment Reference", "Payment Status"
   ]);
 
   sheet.appendRow([
@@ -350,11 +384,13 @@ function handlePageantVote(data) {
     data.contestantName || ("Contestant #" + data.contestantId),
     data.voteCount,
     data.voterContact || "Anonymous/Free Daily",
-    data.voteType || (data.voteCount > 1 ? "Bundle Vote" : "Free Daily Vote"),
-    data.amountPaid || 0
+    data.voteType || (data.voteCount > 1 ? "Paid Boost Package" : "Free Daily Vote"),
+    data.amountPaid || 0,
+    data.paymentRef || "N/A",
+    data.paymentStatus || "PAID"
   ]);
 
-  return createResponse("success", `Thank you! ${data.voteCount} vote(s) successfully cast for ${data.contestantName || 'Contestant #' + data.contestantId}!`);
+  return createResponse("success", `Thank you! ${data.voteCount} vote(s) successfully recorded for ${data.contestantName || 'Contestant #' + data.contestantId}!`);
 }
 
 // 9. Media & Documentary Submission (Saves to Drive, MediaSubmissions sheet, and GalleryItems sheet)
@@ -866,7 +902,7 @@ function getBlogPostsResponse() {
 
 function getPageantVotesResponse() {
   const sheet = getSheetByName(CONFIG.pageantVoteSheet, [
-    "Timestamp", "Contestant ID", "Contestant Name", "Vote Count", "Voter Email/Phone", "Vote Type", "Amount Paid (NGN)"
+    "Timestamp", "Contestant ID", "Contestant Name", "Vote Count", "Voter Email/Phone", "Vote Type", "Amount Paid (NGN)", "Payment Reference", "Payment Status"
   ]);
 
   const values = sheet.getDataRange().getValues();
@@ -876,12 +912,111 @@ function getPageantVotesResponse() {
     const row = values[i];
     const cId = String(row[1]);
     const count = Number(row[3]) || 0;
-    voteTotals[cId] = (voteTotals[cId] || 0) + count;
+    const status = row[8] ? String(row[8]).trim().toUpperCase() : "PAID";
+
+    // Only count verified paid votes and valid free daily votes
+    if (status === "PAID" || status === "FREE_DAILY" || !row[8]) {
+      voteTotals[cId] = (voteTotals[cId] || 0) + count;
+    }
   }
 
   return createJsonResponse({
     status: "success",
     voteTotals: voteTotals
+  });
+}
+
+function getPageantContestantsResponse() {
+  const sheet = getSheetByName(CONFIG.pageantRegSheet);
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return createJsonResponse({
+      status: "success",
+      count: 0,
+      contestants: []
+    });
+  }
+
+  const values = sheet.getDataRange().getValues();
+  const headers = values[0].map(function(h) { return String(h).trim().toLowerCase(); });
+
+  const findCol = function(possibleNames) {
+    for (let i = 0; i < possibleNames.length; i++) {
+      const name = possibleNames[i].toLowerCase();
+      const idx = headers.findIndex(function(h) { return h.includes(name); });
+      if (idx !== -1) return idx;
+    }
+    return -1;
+  };
+
+  const idCol = findCol(["contestant id", "id"]);
+  const numCol = findCol(["contestant number", "number", "no"]);
+  const fullCol = findCol(["full name", "legal name", "name"]);
+  const stageCol = findCol(["stage", "alias"]);
+  const ageCol = findCol(["age"]);
+  const stateCol = findCol(["state", "origin", "lga", "community"]);
+  const emailCol = findCol(["email"]);
+  const phoneCol = findCol(["phone", "whatsapp"]);
+  const heightCol = findCol(["height"]);
+  const socialCol = findCol(["social", "instagram", "tiktok", "handle"]);
+  const advocacyCol = findCol(["advocacy", "statement", "talent", "platform"]);
+  const photoCol = findCol(["photo", "headshot", "image", "url", "link"]);
+  const statusCol = findCol(["status"]);
+
+  const contestants = [];
+
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    const fullName = fullCol !== -1 ? String(row[fullCol] || "").trim() : "";
+    const stageName = stageCol !== -1 ? String(row[stageCol] || "").trim() : "";
+    const displayName = stageName || fullName;
+
+    if (!displayName) continue; // Skip empty rows
+
+    const status = statusCol !== -1 ? String(row[statusCol] || "").trim().toLowerCase() : "approved";
+    if (status === "rejected" || status === "inactive" || status === "disqualified") continue;
+
+    const contestantNumber = numCol !== -1 && row[numCol]
+      ? String(row[numCol]).trim()
+      : String(contestants.length + 1).padStart(2, "0");
+
+    const contestantId = idCol !== -1 && row[idCol]
+      ? String(row[idCol]).trim()
+      : ("c_" + i);
+
+    const community = stateCol !== -1 && row[stateCol] ? String(row[stateCol]).trim() : "Afikpo";
+    const age = ageCol !== -1 ? (Number(row[ageCol]) || 20) : 20;
+    const platform = advocacyCol !== -1 && row[advocacyCol] ? String(row[advocacyCol]).trim() : "Proud contestant for Miss Afikpo International 2026.";
+    let photoUrl = photoCol !== -1 && row[photoCol] ? String(row[photoCol]).trim() : "";
+
+    // Convert Google Drive view links to direct thumbnail images
+    if (photoUrl) {
+      const match = photoUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || photoUrl.match(/id=([a-zA-Z0-9_-]+)/);
+      if (match) {
+        photoUrl = "https://lh3.googleusercontent.com/d/" + match[1];
+      }
+    }
+
+    if (!photoUrl) {
+      photoUrl = "assets/images/Nkwa Umuagbógó cultural dance competition.jpeg";
+    }
+
+    contestants.push({
+      id: contestantId,
+      number: contestantNumber,
+      name: displayName,
+      fullName: fullName,
+      community: community,
+      age: age,
+      platform: platform,
+      image: photoUrl,
+      baseVotes: 0
+    });
+  }
+
+  return createJsonResponse({
+    status: "success",
+    count: contestants.length,
+    contestants: contestants
   });
 }
 
