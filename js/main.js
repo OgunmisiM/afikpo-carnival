@@ -1924,7 +1924,7 @@ function setupPageantVoting() {
           </span>
           <h3 class="text-2xl md:text-3xl font-black text-gray-900 mb-3">No Contestants Registered Yet</h3>
           <p class="text-sm text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
-            Public voting opens automatically as soon as delegates register for Miss Afikpo International 2026. All contestants start strictly from <strong>0 votes</strong>. 400 cumulative votes qualifies a contestant for Round 2!
+            Public voting opens automatically as soon as delegates register for Miss Afikpo International 2026. All contestants start strictly from <strong>0 votes</strong>. The minimum threshold to pass Round 1 is <strong>400 votes</strong> — delegates need more than 400 to avoid the bottom elimination cutoff, and requirements scale higher in subsequent rounds!
           </p>
           <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a href="pageant-registration.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-8 py-4 rounded-2xl transition shadow-xl shadow-purple-200 text-sm">
@@ -1990,17 +1990,22 @@ function setupPageantVoting() {
               <h3 class="text-xl font-black text-gray-900 mb-2">${c.name}</h3>
               <p class="text-xs text-gray-600 line-clamp-2 mb-3 leading-relaxed">${c.platform || 'Proud contestant for Miss Afikpo International 2026.'}</p>
 
-              <!-- Qualification Target Progress (400 Votes Qualifies for Round 2) -->
+              <!-- Qualification Target Progress (400 Votes Baseline for Round 1) -->
               <div class="bg-gray-50 border border-gray-100 rounded-2xl p-3 mb-4">
                 <div class="flex items-center justify-between text-[11px] mb-1.5">
-                  <span class="text-gray-500 font-semibold">Target: 400 Votes</span>
+                  <span class="text-gray-500 font-semibold">Round 1 Baseline: 400</span>
                   ${isQualified 
-                    ? '<span class="text-emerald-600 font-black flex items-center gap-1"><span>✅</span> Round 2 Qualified</span>' 
-                    : `<span class="text-amber-600 font-bold">${400 - numericVotes} more to qualify</span>`}
+                    ? `<span class="text-emerald-700 font-extrabold flex items-center gap-1"><span>⭐</span> ${numericVotes} Votes (Eligible)</span>` 
+                    : `<span class="text-amber-600 font-bold">${400 - numericVotes} more to reach 400</span>`}
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                   <div class="h-2 rounded-full transition-all duration-700 ${isQualified ? 'bg-emerald-500' : 'bg-gradient-to-r from-purple-500 to-amber-500'}" style="width: ${progressPercent}%"></div>
                 </div>
+                <p class="text-[10px] text-gray-500 mt-1.5 leading-tight">
+                  ${isQualified 
+                    ? '400+ threshold reached. Keep boosting to stay above the bottom elimination cutoff!' 
+                    : 'Minimum 400 votes required to pass Round 1. Lowest-scoring delegates face disqualification.'}
+                </p>
               </div>
             </div>
             <div class="space-y-2 pt-2 border-t border-gray-100">
@@ -2089,11 +2094,12 @@ window.openVoteModal = function(id, maybeName, maybeNumber) {
       </div>
 
       <!-- Qualification & Pricing Alert -->
-      <div class="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/80 rounded-2xl p-3 my-4 text-center">
-        <p class="text-xs font-bold text-purple-900 flex items-center justify-center gap-1.5">
-          <span>👑</span> <span>Target: <strong>400 Votes</strong> qualifies for Round 2!</span>
+      <div class="bg-gradient-to-r from-purple-50 via-white to-amber-50/60 border border-purple-200/80 rounded-2xl p-3.5 my-4 text-center">
+        <p class="text-xs font-black text-purple-900 flex items-center justify-center gap-1.5">
+          <span>👑</span> <span>Round 1 Rule: Minimum <strong>400 votes</strong> required for Round 2.</span>
         </p>
-        <p class="text-[11px] text-purple-700 mt-0.5 font-medium">Official Rate: <strong>₦50 per vote</strong> • Instant Paystack verification</p>
+        <p class="text-[11px] text-purple-800 mt-1 font-medium leading-tight">Contestants need <strong>more than 400 votes</strong> — lowest scores face disqualification! Next round targets will be higher.</p>
+        <p class="text-[10px] text-gray-500 mt-1 font-semibold">Official Rate: <strong>₦50 per vote</strong> • Instant Paystack verification</p>
       </div>
 
       <form id="vote-submit-form" class="space-y-4">
@@ -2142,7 +2148,7 @@ window.openVoteModal = function(id, maybeName, maybeNumber) {
               <input type="radio" name="votePackage" value="400" data-price="20000" class="hidden" />
               <div class="font-black text-amber-700 text-base">400 Votes ⭐</div>
               <div class="text-xs text-amber-800 font-extrabold">₦20,000</div>
-              <span class="text-[9px] font-bold text-amber-600 block">Instant Qualifier</span>
+              <span class="text-[9px] font-bold text-amber-600 block">Round 1 Baseline Booster</span>
             </label>
           </div>
         </div>

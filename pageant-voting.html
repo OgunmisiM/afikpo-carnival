@@ -192,18 +192,20 @@
         <div class="overflow-hidden whitespace-nowrap w-full relative">
           <div class="pageant-ticker font-semibold text-xs md:text-sm text-purple-100 tracking-wide">
             <span class="px-8 flex items-center gap-3">
-              <span class="text-amber-300 font-extrabold">⭐ OFFICIAL NOTICE:</span>
-              <span>A cumulative total of <strong>400 votes</strong> qualifies a contestant for the next round!</span>
+              <span class="text-amber-300 font-extrabold">⭐ ROUND 1 ADVANCEMENT RULES:</span>
+              <span>Minimum baseline to pass Round 1 is <strong>400 votes</strong>.</span>
+              <span>Contestants need <strong>more than 400 votes</strong> to stay safe — the lowest-voted delegate(s) face disqualification!</span>
               <span class="bg-purple-800/80 text-amber-300 font-black text-xs px-2.5 py-0.5 rounded-full border border-purple-500/40">Rate: ₦50 per vote</span>
-              <span>• 1 Free Daily Vote enabled every 24 hours per visitor!</span>
-              <span>• Support your favourite delegate today!</span>
+              <span>• Target thresholds increase in Round 2!</span>
+              <span>• 1 Free Daily Vote enabled every 24 hours!</span>
             </span>
             <span class="px-8 flex items-center gap-3">
-              <span class="text-amber-300 font-extrabold">⭐ OFFICIAL NOTICE:</span>
-              <span>A cumulative total of <strong>400 votes</strong> qualifies a contestant for the next round!</span>
+              <span class="text-amber-300 font-extrabold">⭐ ROUND 1 ADVANCEMENT RULES:</span>
+              <span>Minimum baseline to pass Round 1 is <strong>400 votes</strong>.</span>
+              <span>Contestants need <strong>more than 400 votes</strong> to stay safe — the lowest-voted delegate(s) face disqualification!</span>
               <span class="bg-purple-800/80 text-amber-300 font-black text-xs px-2.5 py-0.5 rounded-full border border-purple-500/40">Rate: ₦50 per vote</span>
-              <span>• 1 Free Daily Vote enabled every 24 hours per visitor!</span>
-              <span>• Support your favourite delegate today!</span>
+              <span>• Target thresholds increase in Round 2!</span>
+              <span>• 1 Free Daily Vote enabled every 24 hours!</span>
             </span>
           </div>
         </div>
@@ -212,15 +214,40 @@
 
     <!-- Voting Section -->
     <section class="py-16 px-4 max-w-7xl mx-auto">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
         <div>
           <h2 class="text-3xl font-black text-gray-900">Official Contestants Showcase</h2>
-          <p class="text-xs md:text-sm text-gray-500 mt-1">Free daily vote enabled per visitor + paid boost packages (₦50 per vote). A total of 400 votes qualifies a contestant for the next round.</p>
+          <p class="text-xs md:text-sm text-gray-500 mt-1">
+            Free daily vote enabled per visitor + paid booster packs (₦50/vote). Minimum benchmark to pass Round 1 is <strong>400 votes</strong>. Contestants need more than 400 to beat the bottom elimination cutoff, and target thresholds scale higher in next rounds.
+          </p>
         </div>
         <div class="flex items-center gap-3 w-full md:w-auto">
           <input type="text" id="contestant-search" placeholder="Search by name or #number..." class="w-full md:w-64 p-3 rounded-full bg-white border border-gray-200 text-xs focus:ring-2 focus:ring-purple-600 outline-none shadow-sm" />
           <a href="pageant-registration.html" class="whitespace-nowrap bg-purple-600 hover:bg-purple-700 text-white font-bold px-6 py-3 rounded-full text-xs transition shadow-md shadow-purple-200">
             Contestant Apply
+          </a>
+        </div>
+      </div>
+
+      <!-- Round 1 Rules & Elimination Criteria Banner -->
+      <div class="mb-10 bg-gradient-to-r from-purple-50 via-white to-amber-50/70 border border-purple-200/80 rounded-3xl p-5 md:p-6 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+            👑
+          </div>
+          <div>
+            <h4 class="text-sm font-black text-gray-900 uppercase tracking-wide flex items-center gap-2">
+              <span>Round 1 Qualification & Cutoff Criteria</span>
+              <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">Official Rule</span>
+            </h4>
+            <p class="text-xs text-gray-600 mt-1.5 leading-relaxed">
+              To be eligible to pass Round 1, a contestant must reach a minimum baseline of <strong>400 votes</strong>. However, 400 is strictly the entry threshold — delegates must secure <strong>more than 400 votes</strong> because if the lowest score among the pool is 400, that contestant is disqualified! In Round 2, the qualification benchmark will be set higher than 400.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-3 shrink-0 self-stretch md:self-auto justify-end">
+          <a href="#contestants-container" class="text-xs font-bold text-purple-700 hover:text-purple-900 bg-purple-100 hover:bg-purple-200 px-4 py-2.5 rounded-xl transition text-center w-full md:w-auto">
+            View Live Standings ↓
           </a>
         </div>
       </div>
