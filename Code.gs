@@ -111,8 +111,6 @@ function doPost(e) {
         return handlePageantRegistration(requestData);
       case "pageant_vote":
         return handlePageantVote(requestData);
-      case "reset_pageant_database":
-        return handleResetPageantDatabase(requestData);
       case "media_submission":
         return handleMediaSubmission(requestData);
       case "accommodation_reservation":
@@ -410,27 +408,6 @@ function handlePageantVote(data) {
   return createResponse("success", `Thank you! ${data.voteCount} vote(s) successfully recorded for ${data.contestantName || 'Contestant #' + data.contestantId}!`);
 }
 
-// 8b. Reset Pageant Database (Wipes contestant registrations & vote logs, preserves headers)
-function handleResetPageantDatabase(data) {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  let clearedReg = 0;
-  const regSheet = ss.getSheetByName(CONFIG.pageantRegSheet);
-  if (regSheet && regSheet.getLastRow() > 1) {
-    clearedReg = regSheet.getLastRow() - 1;
-    regSheet.getRange(2, 1, clearedReg, regSheet.getLastColumn()).clearContent();
-  }
-
-  let clearedVotes = 0;
-  const voteSheet = ss.getSheetByName(CONFIG.pageantVoteSheet);
-  if (voteSheet && voteSheet.getLastRow() > 1) {
-    clearedVotes = voteSheet.getLastRow() - 1;
-    voteSheet.getRange(2, 1, clearedVotes, voteSheet.getLastColumn()).clearContent();
-  }
-
-  Logger.log(`✅ Reset pageant database: Cleared ${clearedReg} registrations, ${clearedVotes} votes.`);
-  return createResponse("success", `Pageant database reset successfully! Cleared ${clearedReg} registration(s) and ${clearedVotes} vote record(s). Portal is now fresh for new registrations.`);
-}
 
 // 9. Media & Documentary Submission (Saves to Drive, MediaSubmissions sheet, and GalleryItems sheet)
 function handleMediaSubmission(data) {
@@ -1286,9 +1263,27 @@ function testBlogSetup() {
 
 
 /**
- * One-Click Toolbar Helper: Reset Pageant Database
- * Select this function from the Apps Script editor dropdown and click 'Run' to wipe test contestants and votes.
+ * BACKEND-ONLY TOOLBAR RUNNER: Reset Pageant Database
+ * This function can ONLY be executed inside the Google Apps Script editor by authorized Google account owners/editors.
+ * Select 'resetPageantDatabase' from the function dropdown at the top of the Apps Script editor and click 'Run'.
  */
 function resetPageantDatabase() {
-  return handleResetPageantDatabase({});
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  let clearedReg = 0;
+  const regSheet = ss.getSheetByName(CONFIG.pageantRegSheet);
+  if (regSheet && regSheet.getLastRow() > 1) {
+    clearedReg = regSheet.getLastRow() - 1;
+    regSheet.getRange(2, 1, clearedReg, regSheet.getLastColumn()).clearContent();
+  }
+
+  let clearedVotes = 0;
+  const voteSheet = ss.getSheetByName(CONFIG.pageantVoteSheet);
+  if (voteSheet && voteSheet.getLastRow() > 1) {
+    clearedVotes = voteSheet.getLastRow() - 1;
+    voteSheet.getRange(2, 1, clearedVotes, voteSheet.getLastColumn()).clearContent();
+  }
+
+  Logger.log("✅ Backend Reset: Cleared " + clearedReg + " contestant registrations and " + clearedVotes + " votes.");
+  return "Pageant database reset successfully: " + clearedReg + " contestants and " + clearedVotes + " votes cleared.";
 }

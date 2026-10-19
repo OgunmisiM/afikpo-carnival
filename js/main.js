@@ -2019,45 +2019,6 @@ function setupPageantVoting() {
   window.refreshPageantVotingGrid = function() {
     renderContestants(currentSearchQuery);
   };
-
-  // Expose global Reset Pageant Records function
-  window.resetPageantRecords = async function(clearCloud = true) {
-    localStorage.removeItem("aic_registered_contestants");
-    localStorage.removeItem("aic_pageant_votes");
-    localStorage.removeItem("aic_last_free_vote_time");
-    contestantsList = [];
-    cloudVotes = {};
-    window._aicPageantContestants = [];
-
-    renderContestants();
-
-    if (clearCloud && APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("YOUR_DEPLOYMENT_ID")) {
-      try {
-        showAlert("Wiping cloud contestant records from Google Sheets database...", "info");
-        const res = await postToAppsScript({ formType: "reset_pageant_database" });
-        if (res && res.message) {
-          showAlert(res.message, "success");
-        } else {
-          showAlert("✅ Pageant candidate list and voting records successfully reset!", "success");
-        }
-      } catch (err) {
-        console.warn("Cloud reset notice:", err);
-        showAlert("✅ Local contestant records reset! (Ensure Google Sheet rows are also cleared if cloud sync is enabled)", "success");
-      }
-    } else {
-      showAlert("✅ Local pageant contestant records and votes successfully reset!", "success");
-    }
-  };
-
-  // URL Query Parameter Reset Hook (?reset=true or ?reset=pageant)
-  if (window.location.search.includes("reset=true") || window.location.search.includes("reset=pageant")) {
-    window.resetPageantRecords(true);
-    try {
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
-    } catch (e) {}
-  }
-
   renderContestants();
 
   const searchInput = document.getElementById("contestant-search") || document.getElementById("contestant-search-input");
@@ -2071,8 +2032,18 @@ function setupPageantVoting() {
       .then(res => res.json())
       .then(data => {
         if (data && data.status === "success" && Array.isArray(data.contestants)) {
-          contestantsList = mergeContestants(data.contestants);
+          // Google Sheets is the master database
+          contestantsList = data.contestants;
           window._aicPageantContestants = contestantsList;
+
+          // If the team cleared the backend database, synchronize browser storage to match
+          if (contestantsList.length === 0) {
+            localStorage.removeItem("aic_registered_contestants");
+            localStorage.removeItem("aic_pageant_votes");
+          } else {
+            localStorage.setItem("aic_registered_contestants", JSON.stringify(contestantsList));
+          }
+
           renderContestants(searchInput ? searchInput.value : "");
         }
       })
