@@ -20,8 +20,8 @@
  * - Subscriptions (Newsletter Subscribers)
  * - Tickets (Carnival Village & Concert Tickets)
  * - MerchandiseOrders (Store purchases: Caps, Shirts, Beads, etc.)
- * - PageantRegistrations (Queen of Afikpo Contestants)
- * - PageantVotes (Queen Voting Records & Tallies)
+ * - PageantRegistrations (Miss Afikpo International 2026 Contestants)
+ * - PageantVotes (Miss Afikpo Voting Records & Tallies)
  * - MediaSubmissions (Video & Documentary Uploads)
  * - Accommodations (Hotel & Resort Bookings)
  * - TourGuides (Tour Guide & Circuit Requests)
@@ -111,6 +111,8 @@ function doPost(e) {
         return handlePageantRegistration(requestData);
       case "pageant_vote":
         return handlePageantVote(requestData);
+      case "reset_pageant_database":
+        return handleResetPageantDatabase(requestData);
       case "media_submission":
         return handleMediaSubmission(requestData);
       case "accommodation_reservation":
@@ -322,6 +324,20 @@ function handlePageantRegistration(data) {
   const contestantNumber = String(rowCount).padStart(2, "0");
   const contestantId = data.contestantId || ("c_" + rowCount);
 
+  // Process Headshot Photo (Base64 device upload or URL)
+  let finalPhotoUrl = data.photoUrl || "";
+  const base64Data = data.base64Photo || data.photoData || (data.photoUrl && data.photoUrl.startsWith("data:") ? data.photoUrl : "");
+  if (base64Data) {
+    try {
+      const driveUrl = saveMediaToDrive(base64Data, "contestant_" + contestantNumber + "_" + Date.now() + ".jpg", "image/jpeg");
+      if (driveUrl) {
+        finalPhotoUrl = driveUrl;
+      }
+    } catch (e) {
+      Logger.log("Drive upload error for pageant photo: " + e.toString());
+    }
+  }
+
   // Check headers to support either 15-column format or legacy 12-column format
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn() || 1).getValues()[0];
   const hasIdHeader = headers.some(h => String(h).toLowerCase().includes("id"));
@@ -341,7 +357,7 @@ function handlePageantRegistration(data) {
       data.height || "",
       data.socialHandles || "",
       data.advocacyStatement,
-      data.photoUrl || "",
+      finalPhotoUrl,
       "Approved"
     ]);
   } else {
@@ -358,17 +374,18 @@ function handlePageantRegistration(data) {
       data.height || "",
       data.socialHandles || "",
       data.advocacyStatement,
-      data.photoUrl || ""
+      finalPhotoUrl
     ]);
   }
 
   return createResponse("success", `Contestant registration submitted successfully as #${contestantNumber}! The screening committee has received your profile and your entry is now active on the voting portal.`, {
     contestantId: contestantId,
-    contestantNumber: contestantNumber
+    contestantNumber: contestantNumber,
+    photoUrl: finalPhotoUrl
   });
 }
 
-// 8. Queen Voting (Verified Paystack Payments & Free Daily Votes)
+// 8. Miss Afikpo International 2026 Voting (Verified Paystack Payments & Free Daily Votes)
 function handlePageantVote(data) {
   if (!data.contestantId || !data.voteCount) {
     return createResponse("error", "Invalid vote payload");
@@ -391,6 +408,28 @@ function handlePageantVote(data) {
   ]);
 
   return createResponse("success", `Thank you! ${data.voteCount} vote(s) successfully recorded for ${data.contestantName || 'Contestant #' + data.contestantId}!`);
+}
+
+// 8b. Reset Pageant Database (Wipes contestant registrations & vote logs, preserves headers)
+function handleResetPageantDatabase(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  let clearedReg = 0;
+  const regSheet = ss.getSheetByName(CONFIG.pageantRegSheet);
+  if (regSheet && regSheet.getLastRow() > 1) {
+    clearedReg = regSheet.getLastRow() - 1;
+    regSheet.getRange(2, 1, clearedReg, regSheet.getLastColumn()).clearContent();
+  }
+
+  let clearedVotes = 0;
+  const voteSheet = ss.getSheetByName(CONFIG.pageantVoteSheet);
+  if (voteSheet && voteSheet.getLastRow() > 1) {
+    clearedVotes = voteSheet.getLastRow() - 1;
+    voteSheet.getRange(2, 1, clearedVotes, voteSheet.getLastColumn()).clearContent();
+  }
+
+  Logger.log(`✅ Reset pageant database: Cleared ${clearedReg} registrations, ${clearedVotes} votes.`);
+  return createResponse("success", `Pageant database reset successfully! Cleared ${clearedReg} registration(s) and ${clearedVotes} vote record(s). Portal is now fresh for new registrations.`);
 }
 
 // 9. Media & Documentary Submission (Saves to Drive, MediaSubmissions sheet, and GalleryItems sheet)
@@ -1243,4 +1282,13 @@ function testBlogSetup() {
   Logger.log("✅ BlogPosts sheet ready with headers: " + sheet.getName());
   Logger.log("🚀 SUCCESS! Blog sheet is active and ready.");
   return "SUCCESS: Blog sheet is initialized and ready.";
+}
+
+
+/**
+ * One-Click Toolbar Helper: Reset Pageant Database
+ * Select this function from the Apps Script editor dropdown and click 'Run' to wipe test contestants and votes.
+ */
+function resetPageantDatabase() {
+  return handleResetPageantDatabase({});
 }

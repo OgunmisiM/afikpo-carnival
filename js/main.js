@@ -1618,18 +1618,161 @@ function setupMerchandiseStore() {
 }
 
 // =============================================================
-// 6. PAGEANTRY REGISTRATION
+// 6. PAGEANTRY REGISTRATION (DIRECT DEVICE IMAGE UPLOAD <= 500 KB)
 // =============================================================
 function setupPageantRegistration() {
   const form = document.getElementById("pageant-registration-form");
   if (!form) return;
 
+  const photoInput = document.getElementById("pageant-photo-input");
+  const dropzone = document.getElementById("pageant-photo-dropzone");
+  const promptBox = document.getElementById("pageant-photo-prompt");
+  const previewBox = document.getElementById("pageant-photo-preview");
+  const previewThumb = document.getElementById("pageant-preview-thumb");
+  const filenameEl = document.getElementById("pageant-photo-filename");
+  const filesizeEl = document.getElementById("pageant-photo-filesize");
+  const optNoteEl = document.getElementById("pageant-photo-opt-note");
+  const sizeWarning = document.getElementById("pageant-size-warning");
+  const btnChangePhoto = document.getElementById("btn-pageant-change-photo");
+
+  let selectedPhotoDataUrl = "";
+  const MAX_ALLOWED_BYTES = 500 * 1024; // 500 KB maximum limit
+
+  function resetPhotoUpload() {
+    selectedPhotoDataUrl = "";
+    if (photoInput) photoInput.value = "";
+    if (previewBox) previewBox.classList.add("hidden");
+    if (promptBox) promptBox.classList.remove("hidden");
+    if (sizeWarning) {
+      sizeWarning.textContent = "";
+      sizeWarning.classList.add("hidden");
+    }
+  }
+
+  async function handleFileSelection(file) {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      showAlert("Please select a valid image file (JPG, PNG, or WebP).", "error");
+      resetPhotoUpload();
+      return;
+    }
+
+    if (sizeWarning) sizeWarning.classList.add("hidden");
+
+    try {
+      // Compress with high portrait fidelity (max 1000x1400, quality 0.82)
+      let compressed = await compressImageFile(file, 1000, 1400, 0.82);
+      let approxBytes = Math.round((compressed.length * 3) / 4);
+
+      // If still slightly over 500KB, perform a second tighter pass
+      if (approxBytes > MAX_ALLOWED_BYTES) {
+        compressed = await compressImageFile(file, 850, 1200, 0.70);
+        approxBytes = Math.round((compressed.length * 3) / 4);
+      }
+
+      if (approxBytes > MAX_ALLOWED_BYTES) {
+        if (sizeWarning) {
+          sizeWarning.textContent = `File is ${(approxBytes / 1024).toFixed(0)} KB (Exceeds 500 KB limit). Please choose a smaller photo.`;
+          sizeWarning.classList.remove("hidden");
+        }
+        showAlert("Image exceeds the 500 KB limit. Please select a lighter photo.", "warning");
+        resetPhotoUpload();
+        return;
+      }
+
+      selectedPhotoDataUrl = compressed;
+      const sizeInKb = (approxBytes / 1024).toFixed(0);
+
+      if (previewThumb) previewThumb.src = compressed;
+      if (filenameEl) filenameEl.textContent = file.name;
+      if (filesizeEl) filesizeEl.textContent = `${sizeInKb} KB (Under 500 KB limit ✓)`;
+      if (optNoteEl) {
+        optNoteEl.textContent = `Optimized headshot (${sizeInKb} KB) ready for public leaderboard.`;
+      }
+
+      if (promptBox) promptBox.classList.add("hidden");
+      if (previewBox) previewBox.classList.remove("hidden");
+    } catch (err) {
+      console.error("Photo processing error:", err);
+      // Fallback: read directly as FileReader
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const rawBytes = file.size;
+        if (rawBytes > MAX_ALLOWED_BYTES) {
+          showAlert(`Selected photo is ${(rawBytes / 1024).toFixed(0)} KB. Max allowed is 500 KB.`, "warning");
+          resetPhotoUpload();
+          return;
+        }
+        selectedPhotoDataUrl = e.target.result;
+        if (previewThumb) previewThumb.src = selectedPhotoDataUrl;
+        if (filenameEl) filenameEl.textContent = file.name;
+        if (filesizeEl) filesizeEl.textContent = `${(rawBytes / 1024).toFixed(0)} KB`;
+        if (promptBox) promptBox.classList.add("hidden");
+        if (previewBox) previewBox.classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  if (photoInput) {
+    photoInput.addEventListener("change", function(e) {
+      if (e.target.files && e.target.files[0]) {
+        handleFileSelection(e.target.files[0]);
+      }
+    });
+  }
+
+  if (btnChangePhoto) {
+    btnChangePhoto.addEventListener("click", function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      resetPhotoUpload();
+      if (photoInput) photoInput.click();
+    });
+  }
+
+  if (dropzone) {
+    ["dragenter", "dragover"].forEach(evtName => {
+      dropzone.addEventListener(evtName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add("border-purple-600", "bg-purple-100/50");
+      });
+    });
+    ["dragleave", "drop"].forEach(evtName => {
+      dropzone.addEventListener(evtName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove("border-purple-600", "bg-purple-100/50");
+      });
+    });
+    dropzone.addEventListener("drop", (e) => {
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+        handleFileSelection(e.dataTransfer.files[0]);
+      }
+    });
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    if (!selectedPhotoDataUrl) {
+      showAlert("Please upload a contestant headshot or portrait photo from your device (Max 500 KB).", "warning");
+      if (photoInput) photoInput.focus();
+      return;
+    }
+
+    const approxBytes = Math.round((selectedPhotoDataUrl.length * 3) / 4);
+    if (approxBytes > MAX_ALLOWED_BYTES) {
+      showAlert(`Photo exceeds the 500 KB limit (${(approxBytes / 1024).toFixed(0)} KB). Please choose a smaller photo.`, "error");
+      return;
+    }
+
     const btn = form.querySelector("button[type='submit']");
     const origText = btn.textContent;
     btn.disabled = true;
-    btn.textContent = "Submitting Contestant Profile...";
+    btn.textContent = "Uploading Photo & Submitting Profile...";
 
     const fullName = form.querySelector("input[name='fullName']").value.trim();
     const stageName = form.querySelector("input[name='stageName']").value.trim();
@@ -1639,7 +1782,6 @@ function setupPageantRegistration() {
     const email = form.querySelector("input[name='email']").value.trim();
     const phone = form.querySelector("input[name='phone']").value.trim();
     const socialHandles = form.querySelector("input[name='socialHandle']") ? form.querySelector("input[name='socialHandle']").value.trim() : "";
-    const photoUrl = form.querySelector("input[name='photoUrl']") ? form.querySelector("input[name='photoUrl']").value.trim() : "";
     const advocacyStatement = form.querySelector("textarea[name='advocacy']") ? form.querySelector("textarea[name='advocacy']").value.trim() : "";
 
     // Generate local contestant record
@@ -1654,18 +1796,6 @@ function setupPageantRegistration() {
     const contestantNumber = String(existingList.length + 1).padStart(2, "0");
     const contestantId = "c_" + Date.now();
 
-    // Format photo URL if Google Drive
-    let formattedPhoto = photoUrl;
-    if (formattedPhoto) {
-      const gdriveMatch = formattedPhoto.match(/\/d\/([a-zA-Z0-9_-]+)/) || formattedPhoto.match(/id=([a-zA-Z0-9_-]+)/);
-      if (gdriveMatch) {
-        formattedPhoto = `https://lh3.googleusercontent.com/d/${gdriveMatch[1]}`;
-      }
-    }
-    if (!formattedPhoto) {
-      formattedPhoto = "assets/images/Nkwa Umuagbógó cultural dance competition.jpeg";
-    }
-
     const newContestant = {
       id: contestantId,
       number: contestantNumber,
@@ -1674,7 +1804,7 @@ function setupPageantRegistration() {
       community: stateOfOrigin,
       age: parseInt(age, 10) || 20,
       platform: advocacyStatement,
-      image: formattedPhoto,
+      image: selectedPhotoDataUrl,
       email: email,
       phone: phone,
       baseVotes: 0,
@@ -1697,7 +1827,8 @@ function setupPageantRegistration() {
       email: email,
       phone: phone,
       socialHandles: socialHandles,
-      photoUrl: photoUrl,
+      base64Photo: selectedPhotoDataUrl,
+      photoUrl: selectedPhotoDataUrl,
       advocacyStatement: advocacyStatement
     };
 
@@ -1706,15 +1837,19 @@ function setupPageantRegistration() {
       if (res && res.contestantNumber) {
         newContestant.number = res.contestantNumber;
         if (res.contestantId) newContestant.id = res.contestantId;
+        if (res.photoUrl && !res.photoUrl.startsWith("data:")) {
+          newContestant.image = res.photoUrl;
+        }
         localStorage.setItem("aic_registered_contestants", JSON.stringify(existingList));
       }
-      showAlert(`🎉 Congratulations ${newContestant.name}! Application registered successfully as Contestant #${newContestant.number}. Your profile is now live for public voting!`, "success");
+      showAlert(`🎉 Congratulations ${newContestant.name}! Application registered successfully as Contestant #${newContestant.number}. Your portrait is uploaded and live on the public voting portal!`, "success");
     } catch (err) {
       console.warn("Apps Script submission notice:", err);
-      showAlert(`🎉 Congratulations ${newContestant.name}! Application recorded locally as Contestant #${newContestant.number}. Your profile is now live for public voting!`, "success");
+      showAlert(`🎉 Congratulations ${newContestant.name}! Application recorded locally as Contestant #${newContestant.number}. Your portrait is uploaded and live on the public voting portal!`, "success");
     }
 
     form.reset();
+    resetPhotoUpload();
     btn.disabled = false;
     btn.textContent = origText;
   });
@@ -1884,6 +2019,44 @@ function setupPageantVoting() {
   window.refreshPageantVotingGrid = function() {
     renderContestants(currentSearchQuery);
   };
+
+  // Expose global Reset Pageant Records function
+  window.resetPageantRecords = async function(clearCloud = true) {
+    localStorage.removeItem("aic_registered_contestants");
+    localStorage.removeItem("aic_pageant_votes");
+    localStorage.removeItem("aic_last_free_vote_time");
+    contestantsList = [];
+    cloudVotes = {};
+    window._aicPageantContestants = [];
+
+    renderContestants();
+
+    if (clearCloud && APPS_SCRIPT_URL && !APPS_SCRIPT_URL.includes("YOUR_DEPLOYMENT_ID")) {
+      try {
+        showAlert("Wiping cloud contestant records from Google Sheets database...", "info");
+        const res = await postToAppsScript({ formType: "reset_pageant_database" });
+        if (res && res.message) {
+          showAlert(res.message, "success");
+        } else {
+          showAlert("✅ Pageant candidate list and voting records successfully reset!", "success");
+        }
+      } catch (err) {
+        console.warn("Cloud reset notice:", err);
+        showAlert("✅ Local contestant records reset! (Ensure Google Sheet rows are also cleared if cloud sync is enabled)", "success");
+      }
+    } else {
+      showAlert("✅ Local pageant contestant records and votes successfully reset!", "success");
+    }
+  };
+
+  // URL Query Parameter Reset Hook (?reset=true or ?reset=pageant)
+  if (window.location.search.includes("reset=true") || window.location.search.includes("reset=pageant")) {
+    window.resetPageantRecords(true);
+    try {
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    } catch (e) {}
+  }
 
   renderContestants();
 

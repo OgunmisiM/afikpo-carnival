@@ -12,8 +12,8 @@ This project is an all-in-one web portal for the **Afikpo International Carnival
 |---|---|---|---|
 | 1 | **Buy Carnival Village Tickets** | `tickets.html` | `Tickets` |
 | 2 | **Carnival Merch Store (Caps, Shirts, Beads)** | `store.html` | `MerchandiseOrders` |
-| 3 | **Register for Pageantry (Queen of Afikpo)** | `pageant-registration.html` | `PageantRegistrations` |
-| 4 | **Vote Your Favourite Queen** | `pageant-voting.html` | `PageantVotes` |
+| 3 | **Register for Pageantry (Miss Afikpo International 2026)** | `pageant-registration.html` | `PageantRegistrations` |
+| 4 | **Vote Miss Afikpo International** | `pageant-voting.html` | `PageantVotes` |
 | 5 | **Upload Video & Documentary** | `media-upload.html` | `MediaSubmissions` |
 | 6 | **Reserve Accommodation (Hotels & Chalets)** | `accommodation.html` | `Accommodations` |
 | 7 | **Request a Personal Tour Guide** | `tour-guide.html` | `TourGuides` |
