@@ -568,7 +568,10 @@ function buildTicketWhatsAppUrl(order) {
 📅 *Planned Attendance:* ${order.visitDate || "Carnival Week Dec 2026"}
 💰 *Total Payable:* ${order.totalAmount}
 ════════════════════════════════
-Hello Afikpo Carnival & Resorts Team, I have just reserved my festival pass(es) on the official website. My reservation token is *${order.token}*. Please provide the official payment details and confirm my reservation. Thank you!`;
+🏦 *Official Payment Notice:*
+Payment are only acceptable through Afikpo International Carnival official corporate account *1312338117* (Zenith bank).
+════════════════════════════════
+Hello Afikpo Carnival & Resorts Team, I have just reserved my festival pass(es) on the official website. My reservation token is *${order.token}*. Please verify against the official Zenith Bank corporate account (1312338117) and confirm my reservation. Thank you!`;
 
   return `https://wa.me/${AIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
@@ -594,7 +597,10 @@ function buildStoreWhatsAppUrl(order) {
 ${itemsText}
 💰 *Total Payable:* ${order.totalAmount}
 ════════════════════════════════
-Hello Afikpo Carnival & Resorts Team, I have placed an order for carnival merchandise on the official website. My order token is *${order.token}*. Please confirm item availability and share payment/delivery instructions. Thank you!`;
+🏦 *Official Payment Notice:*
+Payment are only acceptable through Afikpo International Carnival official corporate account *1312338117* (Zenith bank).
+════════════════════════════════
+Hello Afikpo Carnival & Resorts Team, I have placed an order for carnival merchandise on the official website. My order token is *${order.token}*. Please confirm item availability and confirm payment to the official Zenith Bank corporate account (1312338117). Thank you!`;
 
   return `https://wa.me/${AIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
@@ -826,6 +832,30 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
       <!-- Details Summary -->
       ${detailsHtml}
 
+      <!-- Official Corporate Bank Account Notice -->
+      <div class="my-4 p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-950 shadow-sm text-left">
+        <div class="flex items-center justify-between gap-2 mb-1.5">
+          <div class="flex items-center gap-1.5">
+            <span class="text-base flex-shrink-0">🛡️</span>
+            <span class="text-[11px] font-black uppercase tracking-wider text-amber-900">Official Payment Notice</span>
+          </div>
+          <span class="text-[10px] font-black bg-amber-200/90 text-amber-950 px-2 py-0.5 rounded-md">Zenith Bank</span>
+        </div>
+        <p class="text-xs text-amber-950 leading-relaxed font-semibold">
+          Payment are only acceptable through <strong>Afikpo International Carnival</strong> official corporate account <strong class="bg-white px-2 py-0.5 rounded border border-amber-300 font-mono font-black text-amber-950 text-sm inline-block">1312338117</strong> <strong>(Zenith bank)</strong>.
+        </p>
+        <div class="mt-2.5 pt-2 border-t border-amber-200 flex items-center justify-between text-[11px]">
+          <span class="text-amber-800 text-[10px] font-medium">⚠️ Confirm with this account number on WhatsApp</span>
+          <button 
+            type="button" 
+            onclick="window.copyAccountToClipboard('1312338117')" 
+            class="bg-white hover:bg-amber-100 text-amber-900 font-bold px-2.5 py-1 rounded-lg border border-amber-300 text-[10px] transition flex items-center gap-1 cursor-pointer"
+          >
+            <span>📋</span> <span id="copy-acct-text">Copy Account</span>
+          </button>
+        </div>
+      </div>
+
       <!-- WhatsApp Notice Callout -->
       <div class="my-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-start gap-3">
         <span class="text-2xl flex-shrink-0">💬</span>
@@ -878,6 +908,24 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
     }
   }
 }
+
+
+window.copyAccountToClipboard = function(acct = "1312338117") {
+  const onSuccess = () => {
+    const btnText = document.getElementById("copy-acct-text");
+    if (btnText) {
+      btnText.textContent = "Copied!";
+      setTimeout(() => { btnText.textContent = "Copy Account"; }, 2000);
+    }
+    showAlert(`Official Corporate Account "${acct} (Zenith Bank)" copied to clipboard!`, "success");
+  };
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(acct).then(onSuccess).catch(() => fallbackCopy(acct));
+  } else {
+    fallbackCopy(acct);
+  }
+};
 
 window.copyOrderToken = function(token) {
   const onSuccess = () => {
@@ -964,8 +1012,13 @@ function createPendingOrdersDrawer() {
     </div>
 
     <!-- Drawer Footer -->
-    <div class="p-4 bg-gray-50 border-t border-gray-200 text-center text-[11px] text-gray-500">
-      Official AIC WhatsApp Line: <strong class="text-gray-800">+234 812 545 7981</strong>
+    <div class="p-4 bg-gray-50 border-t border-gray-200 text-center space-y-1">
+      <div class="text-[11px] text-gray-700 font-semibold">
+        🏦 Official Corporate Account: <span class="font-bold text-gray-900">1312338117 (Zenith Bank)</span>
+      </div>
+      <div class="text-[10px] text-gray-500">
+        Official AIC WhatsApp Line: <strong class="text-gray-800">+234 812 545 7981</strong>
+      </div>
     </div>
   `;
 
