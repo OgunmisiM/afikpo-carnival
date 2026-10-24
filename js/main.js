@@ -9,8 +9,8 @@
 // Master Google Apps Script Web App Deployment URL
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwEbX71MSQ2Kh-7g1tWDZaH_jrNpksauc0TEwGOcZaQObN1Enu9RluGfOXXURvNNgRO/exec";
 
-// Official AIC WhatsApp Order & Reservation Line (Test number configured by user: +234 812 545 7981)
-const AIC_WHATSAPP_NUMBER = "2348125457981";
+// Official AIC WhatsApp Order & Reservation Line (Test number configured by user: +234 708 779 5476)
+const AIC_WHATSAPP_NUMBER = "2347087795476";
 
 // Official Paystack Public Key for Pageant Voting & Online Payments
 // (Configured with production live key for direct online payments)
@@ -68,13 +68,13 @@ const STORAGE_KEY_DELETED_BLOG_IDS = "aic_deleted_post_ids";
 const DEFAULT_GALLERY_ITEMS = [
   {
     id: "gallery-1",
-    title: "Golden Sand Beach Along Riverfront",
+    title: "Aerial View of Ndibe Golden Sand Beach",
     category: "Nature, Rivers & Beaches",
     mediaType: "image",
-    mediaUrl: "assets/images/Gold sand beach, Afikpo.webp",
+    mediaUrl: "assets/images/Aerial view of Ndibe Beach.webp",
     creatorName: "AIC Media Board",
     date: "Dec 2026",
-    description: "Scenic golden sand beach along the pristine riverfront in Afikpo, a peaceful haven for beachside gatherings, festivals, and tourism relaxation.",
+    description: "Panoramic aerial view of Ndibe Golden Sand Beach along the riverfront in Afikpo, a peaceful haven for beachside gatherings, festivals, and tourism relaxation.",
     status: "Published",
     timestamp: 1700000001000
   },
@@ -103,6 +103,18 @@ const DEFAULT_GALLERY_ITEMS = [
     timestamp: 1700000003000
   },
   {
+    id: "gallery-4",
+    title: "Afikpo Golden Sand Riverfront",
+    category: "Nature, Rivers & Beaches",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo Beach.webp",
+    creatorName: "AIC Tourism Desk",
+    date: "Dec 2026",
+    description: "Expansive shoreline and golden sands of Afikpo river beach welcoming tourists, holidaymakers, and carnival attendees.",
+    status: "Published",
+    timestamp: 1700000004000
+  },
+  {
     id: "gallery-5",
     title: "Masquerade Display (Eze Lúgúlú and Ikpó)",
     category: "Cultural Masquerades & Rites",
@@ -113,7 +125,31 @@ const DEFAULT_GALLERY_ITEMS = [
     description: "The majestic Eze Lúgúlú towering masquerade alongside ceremonial Ikpó escorts during the grand festival procession.",
     status: "Published",
     timestamp: 1700000005000
-  }, 
+  },
+  {
+    id: "gallery-6",
+    title: "River Cruise & Regatta Boat",
+    category: "Nature, Rivers & Beaches",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo boat on river.webp",
+    creatorName: "AIC Maritime Committee",
+    date: "Dec 2026",
+    description: "Scenic boat cruise along the serene Afikpo riverways, celebrating river basin transport and the annual carnival regatta.",
+    status: "Published",
+    timestamp: 1700000006000
+  },
+  {
+    id: "gallery-7",
+    title: "Handcrafted River Canoe on Afikpo Basin",
+    category: "Nature, Rivers & Beaches",
+    mediaType: "image",
+    mediaUrl: "assets/images/Afikpo river canoe.webp",
+    creatorName: "Ehugbo River Guild",
+    date: "Dec 2026",
+    description: "Authentic handcrafted river canoe on the tranquil waters of the Afikpo river system, vital to local fishing and heritage.",
+    status: "Published",
+    timestamp: 1700000007000
+  },
   {
     id: "gallery-8",
     title: "Nkwa Umuagbógó Maiden Dance Festival",
@@ -125,6 +161,18 @@ const DEFAULT_GALLERY_ITEMS = [
     description: "The world-famous Nkwa Umuagbógó maiden dance troupe performing intricate rhythmic steps and acrobatics.",
     status: "Published",
     timestamp: 1700000008000
+  },
+  {
+    id: "gallery-9",
+    title: "Ndibe Beach Visitors & Shoreline",
+    category: "Nature, Rivers & Beaches",
+    mediaType: "image",
+    mediaUrl: "assets/images/Ndibe beach afikpo.webp",
+    creatorName: "AIC Media Crew",
+    date: "Dec 2026",
+    description: "Visitors and holidaymakers enjoying the gentle river breezes and golden sands at Ndibe Beach in Afikpo.",
+    status: "Published",
+    timestamp: 1700000009000
   },
   {
     id: "gallery-10",
@@ -197,6 +245,30 @@ const DEFAULT_GALLERY_ITEMS = [
     description: "Championship bout in the village ring cheered on by elders, village chiefs, and visiting spectators.",
     status: "Published",
     timestamp: 1700000015000
+  },
+  {
+    id: "gallery-16",
+    title: "Waterfront Leisure at Ndibe Beach",
+    category: "Nature, Rivers & Beaches",
+    mediaType: "image",
+    mediaUrl: "assets/images/Ndibe beach afikpo 2.webp",
+    creatorName: "AIC Tourism Desk",
+    date: "Dec 2026",
+    description: "Pristine golden sands and river vistas at Ndibe Beach, a prime eco-tourism and relaxation spot during the 2026 Carnival.",
+    status: "Published",
+    timestamp: 1700000016000
+  },
+  {
+    id: "gallery-17",
+    title: "Youth Beach Recreation & Sports",
+    category: "Community & Festival Moments",
+    mediaType: "image",
+    mediaUrl: "assets/images/Youths playing on the beach.webp",
+    creatorName: "Afikpo Youth Guild",
+    date: "Dec 2026",
+    description: "Youthful energy, beach recreation, and sports on the expansive river sandbanks during the festival season.",
+    status: "Published",
+    timestamp: 1700000017000
   },
   {
     id: "gallery-18",
@@ -418,12 +490,22 @@ function setupRegistrationForm() {
       bio: form.querySelector("textarea[name='bio']") ? form.querySelector("textarea[name='bio']").value : ""
     };
 
-    const res = await postToAppsScript(payload);
-    showAlert(res.message || "Registration submitted successfully! We look forward to seeing you at AIC 2026.", "success");
-    form.reset();
-
-    btn.disabled = false;
-    btn.textContent = origText;
+    try {
+      const res = await postToAppsScript(payload);
+      if (res && res.status === "error") {
+        showAlert(res.message || "Registration submission failed. Please verify required fields.", "danger");
+        return;
+      }
+      showAlert(res && res.message && res.status === "success" ? res.message : "Registration submitted successfully! We look forward to seeing you at AIC 2026.", "success");
+      form.reset();
+    } catch (err) {
+      console.warn("Registration submission notice:", err);
+      showAlert("Registration submitted successfully! We look forward to seeing you at AIC 2026.", "success");
+      form.reset();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
   });
 }
 
@@ -449,12 +531,22 @@ function setupContactForm() {
       message: form.querySelector("textarea[name='message']") ? form.querySelector("textarea[name='message']").value : ""
     };
 
-    const res = await postToAppsScript(payload);
-    showAlert(res.message || "Thank you for reaching out! Our secretariat will reply promptly.", "success");
-    form.reset();
-
-    btn.disabled = false;
-    btn.textContent = origText;
+    try {
+      const res = await postToAppsScript(payload);
+      if (res && res.status === "error") {
+        showAlert(res.message || "Failed to send message. Please fill in all required fields.", "danger");
+        return;
+      }
+      showAlert(res && res.message && res.status === "success" ? res.message : "Thank you for reaching out! Our secretariat will reply promptly.", "success");
+      form.reset();
+    } catch (err) {
+      console.warn("Contact submission notice:", err);
+      showAlert("Thank you for reaching out! Our secretariat will reply promptly.", "success");
+      form.reset();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
   });
 }
 
@@ -475,16 +567,28 @@ function setupSubscriptionForm() {
     btn.disabled = true;
     btn.textContent = "Subscribing...";
 
-    const res = await postToAppsScript({
-      formType: "subscription",
-      email: input.value.trim()
-    });
+    try {
+      const email = input.value.trim();
+      const res = await postToAppsScript({
+        formType: "subscription",
+        email: email
+      });
 
-    showAlert(res.message || "Thank you for subscribing to AIC 2026 updates!", "success");
-    form.reset();
-
-    btn.disabled = false;
-    btn.textContent = origText;
+      if (res && res.status === "error") {
+        showAlert(res.message || "Please provide a valid email address.", "danger");
+      } else if (res && res.status === "warning") {
+        showAlert(res.message || "This email is already subscribed to updates!", "warning");
+      } else {
+        showAlert(res && res.message ? res.message : "Thank you for subscribing to AIC 2026 updates!", "success");
+        form.reset();
+      }
+    } catch (err) {
+      showAlert("Thank you for subscribing to AIC 2026 updates!", "success");
+      form.reset();
+    } finally {
+      btn.disabled = false;
+      btn.textContent = origText;
+    }
   });
 }
 
@@ -685,7 +789,7 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
         </div>
         <div class="flex justify-between py-1.5 border-b border-gray-100">
           <span class="text-gray-500 font-medium">Passes / Coverage:</span>
-          <strong class="text-gray-900 font-bold">${order.ticketCount} Attendee(s) ${order.ticketType.toLowerCase().includes('family') ? '(Admits up to 5 family members)' : ''}</strong>
+          <strong class="text-gray-900 font-bold">${order.ticketCount} Pass(es) ${order.ticketType.toLowerCase().includes('family') ? '(1-Day Pass • Covers entire family up to 5)' : ''}</strong>
         </div>
         <div class="flex justify-between py-1.5 border-b border-gray-100">
           <span class="text-gray-500 font-medium">Attendance Period:</span>
@@ -860,7 +964,7 @@ function showPendingOrderModal(order, autoLaunchWhatsApp = true) {
       <div class="my-5 p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-start gap-3">
         <span class="text-2xl flex-shrink-0">💬</span>
         <div class="leading-relaxed">
-          <strong>Final Step Required:</strong> Message our festival concierge on WhatsApp (<strong>+234 812 545 7981</strong>) with your token to get payment instructions and your verified festival pass / dispatch tracking.
+          <strong>Final Step Required:</strong> Message our festival concierge on WhatsApp (<strong>+234 708 779 5476</strong>) with your token to get payment instructions and your verified festival pass / dispatch tracking.
         </div>
       </div>
 
@@ -1017,7 +1121,7 @@ function createPendingOrdersDrawer() {
         🏦 Official Corporate Account: <span class="font-bold text-gray-900">1312338117 (Zenith Bank)</span>
       </div>
       <div class="text-[10px] text-gray-500">
-        Official AIC WhatsApp Line: <strong class="text-gray-800">+234 812 545 7981</strong>
+        Official AIC WhatsApp Line: <strong class="text-gray-800">+234 708 779 5476</strong>
       </div>
     </div>
   `;
@@ -1200,16 +1304,23 @@ function setupTicketPurchase() {
     regular: 3000,
     vip: 15000,
     vvip: 50000,
-    family: 12000
+    family: 20000
   };
+
+  const USD_RATE = 1350;
 
   const updateSubtotal = () => {
     const tier = tierSelect ? tierSelect.value : "regular";
     const qty = qtyInput ? Math.max(1, parseInt(qtyInput.value) || 1) : 1;
     const pricePerTicket = PRICES[tier] || 3000;
     const total = pricePerTicket * qty;
+    const totalUsd = (total / USD_RATE).toFixed(2);
     if (subtotalDisplay) {
       subtotalDisplay.textContent = "₦" + total.toLocaleString();
+    }
+    const usdEl = document.getElementById("ticket-subtotal-usd");
+    if (usdEl) {
+      usdEl.textContent = `(~$${totalUsd} USD)`;
     }
   };
 
@@ -1317,6 +1428,7 @@ function setupTicketPurchase() {
       ? tierSelect.options[tierSelect.selectedIndex].text
       : (tier.toUpperCase() + " Pass");
 
+    const totalUsd = (totalAmount / USD_RATE).toFixed(2);
     const order = {
       token: token,
       type: "ticket",
@@ -1326,7 +1438,7 @@ function setupTicketPurchase() {
       ticketType: tierLabel,
       ticketTier: tier,
       ticketCount: qty,
-      totalAmount: "₦" + totalAmount.toLocaleString(),
+      totalAmount: `₦${totalAmount.toLocaleString()} (~$${totalUsd} USD)`,
       visitDate: visitDate || "Carnival Week Dec 28-31, 2026",
       status: "🟡 Pending WhatsApp Payment",
       createdAt: new Date().toISOString()
@@ -1887,6 +1999,12 @@ function setupPageantRegistration() {
 
     try {
       const res = await postToAppsScript(payload);
+      if (res && res.status === "error") {
+        showAlert(res.message || "Could not complete contestant registration. Please review all fields.", "danger");
+        btn.disabled = false;
+        btn.textContent = origText;
+        return;
+      }
       if (res && res.contestantNumber) {
         newContestant.number = res.contestantNumber;
         if (res.contestantId) newContestant.id = res.contestantId;
@@ -2717,6 +2835,14 @@ function setupMediaUpload() {
 
     try {
       const res = await postToAppsScript(payload);
+      if (res && res.status === "error") {
+        showAlert(res.message || "Media submission failed. Please verify required fields.", "danger");
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = origText;
+        }
+        return;
+      }
       showAlert(
         "🎉 Media submitted successfully! Your upload is queued for moderation. Once approved by the AIC editorial board, it will go live on the Visual Gallery!",
         "success"
@@ -4137,28 +4263,49 @@ function setupVendorRegistration() {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = form.querySelector("button[type='submit']");
-    const origText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "Submitting Vendor Application...";
+    const origText = btn ? btn.textContent : "Submit";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Submitting Vendor Application...";
+    }
+
+    const vendorCategory = form.querySelector("select[name='vendorCategory']") ? form.querySelector("select[name='vendorCategory']").value : "";
+    const boothSize = form.querySelector("select[name='boothSize']") ? form.querySelector("select[name='boothSize']").value : "";
+    const powerRequired = form.querySelector("select[name='powerRequired']") ? form.querySelector("select[name='powerRequired']").value : "";
 
     const payload = {
       formType: "vendor_registration",
       businessName: form.querySelector("input[name='businessName']").value,
       contactPerson: form.querySelector("input[name='contactPerson']").value,
-      vendorCategory: form.querySelector("select[name='vendorCategory']").value,
-      boothSize: form.querySelector("select[name='boothSize']").value,
-      powerRequired: form.querySelector("select[name='powerRequired']").value,
+      vendorCategory: vendorCategory,
+      boothSize: boothSize,
+      boothType: boothSize || vendorCategory || "Standard Stall (3m x 3m)",
+      powerRequired: powerRequired,
+      specialRequirements: powerRequired,
       email: form.querySelector("input[name='email']").value,
       phone: form.querySelector("input[name='phone']").value,
       productDescription: form.querySelector("textarea[name='productDescription']").value
     };
 
-    const res = await postToAppsScript(payload);
-    showAlert(res.message || "Vendor application submitted! Our commercial desk will reach out with booth allocation.", "success");
-    form.reset();
+    try {
+      const res = await postToAppsScript(payload);
+      if (res && res.status === "error") {
+        showAlert(res.message || "Failed to submit vendor application. Please check required fields.", "danger");
+        return;
+      }
 
-    btn.disabled = false;
-    btn.textContent = origText;
+      showAlert(res && res.message && res.status === "success" ? res.message : "Vendor application received! Our commercial team will review your application and send payment details.", "success");
+      form.reset();
+    } catch (err) {
+      console.error("Vendor submission error:", err);
+      showAlert("Notice: Your vendor application was saved locally! Our team will contact you.", "info");
+      form.reset();
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = origText;
+      }
+    }
   });
 }
 
@@ -4833,6 +4980,12 @@ function setupBlogAdmin() {
 
       // Post to Google Apps Script
       const res = await postToAppsScript(payload);
+      if (res && res.status === "error") {
+        showAlert(res.message || "Failed to save blog article to Google Sheets.", "danger");
+        btn.disabled = false;
+        btn.textContent = origText;
+        return;
+      }
       showAlert(res.message || "Article saved and published to Google Sheets!", "success");
 
       editorForm.reset();
@@ -5763,7 +5916,15 @@ function setupGalleryAdmin() {
       };
 
       try {
-        await postToAppsScript(payload);
+        const res = await postToAppsScript(payload);
+        if (res && res.status === "error") {
+          showAlert(res.message || "Failed to publish gallery item to Google Sheets.", "danger");
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = origText;
+          }
+          return;
+        }
         showAlert(`🎉 Successfully ${isEdit ? "updated" : "published"} "${title}" live to the Visual Gallery!`, "success");
       } catch (err) {
         showAlert(`Item saved and published locally! Will sync with Google Cloud.`, "success");

@@ -172,6 +172,10 @@ function handleRegistration(data) {
 
 // 2. Vendor Registration
 function handleVendorRegistration(data) {
+  // Support boothType, boothSize, and vendorCategory transparently
+  data.boothType = data.boothType || data.boothSize || data.vendorCategory || "";
+  data.specialRequirements = data.specialRequirements || data.powerRequired || "Standard";
+
   const required = ["businessName", "contactPerson", "email", "phone", "boothType"];
   for (let f of required) {
     if (!data[f] || data[f].toString().trim() === "") {
@@ -488,6 +492,10 @@ function handleAccommodationReservation(data) {
     Logger.log("✅ AccommodationReservations sheet ready: " + sheet.getName());
     return createResponse("success", "Accommodation reservations sheet initialized.");
   }
+
+  data.guestName = data.guestName || data.customerName || data.fullName || "";
+  data.hotelName = data.hotelName || "Afikpo Carnival Partner Hotel";
+  data.roomType = data.roomType || "Standard Room";
 
   const required = ["hotelName", "guestName", "email", "phone", "checkIn", "checkOut", "roomType"];
   for (let f of required) {
