@@ -1588,13 +1588,26 @@ window.removeFromCart = function(index) {
 
 window.openCartDrawer = function() {
   const drawer = document.getElementById("cart-drawer");
+  const backdrop = document.getElementById("cart-backdrop");
   if (drawer) drawer.classList.remove("translate-x-full");
+  if (backdrop) backdrop.classList.remove("hidden");
+  document.body.classList.add("overflow-hidden");
 };
 
 window.closeCartDrawer = function() {
   const drawer = document.getElementById("cart-drawer");
+  const backdrop = document.getElementById("cart-backdrop");
   if (drawer) drawer.classList.add("translate-x-full");
+  if (backdrop) backdrop.classList.add("hidden");
+  document.body.classList.remove("overflow-hidden");
 };
+
+// Close cart drawer on Escape key press
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    window.closeCartDrawer();
+  }
+});
 
 function setupMerchandiseStore() {
   updateCartUI();

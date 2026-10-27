@@ -342,3 +342,86 @@ nav {
 .form-alert.animate-in {
   animation: slideInFromTop 0.4s ease-out;
 }
+
+
+/* --- Store & Merchandise Catalog Enhancements --- */
+
+/* Utility: hide scrollbars while retaining scroll functionality */
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Custom Styled Variant Dropdown Selects */
+.variant-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.variant-select:hover {
+  border-color: #f97316;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23ea580c' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.variant-select:focus {
+  border-color: var(--brand-orange);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.15);
+}
+
+/* Category Pills Horizontal Scrolling & Interaction */
+#category-pills {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.category-pill {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.category-pill:active {
+  transform: scale(0.96);
+}
+
+/* Product Card Micro-Interactions */
+.product-card {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s ease;
+  will-change: transform;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(234, 88, 12, 0.2);
+}
+
+/* Add to Cart Button Pulsing / Tap feedback */
+.add-to-cart-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.add-to-cart-btn:active {
+  transform: scale(0.95);
+}
+
+/* Cart Drawer Backdrop & Slide-Over Layering */
+#cart-backdrop {
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: opacity 0.3s ease;
+}
+
+#cart-drawer {
+  z-index: 1001;
+}
