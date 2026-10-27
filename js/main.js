@@ -2117,7 +2117,7 @@ function setupPageantVoting() {
             </a>
             <button onclick="window.location.reload()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-bold px-6 py-4 rounded-2xl border border-gray-200 transition text-sm cursor-pointer">
               <span>🔄 Refresh Portal</span>
-            </button>
+             </button>
           </div>
         </div>
       `;
