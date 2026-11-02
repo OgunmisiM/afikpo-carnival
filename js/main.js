@@ -1954,7 +1954,9 @@ function setupPageantRegistration() {
 
     const fullName = form.querySelector("input[name='fullName']").value.trim();
     const stageName = form.querySelector("input[name='stageName']").value.trim();
-    const age = form.querySelector("input[name='age']").value.trim();
+    const rawAge = form.querySelector("input[name='age']").value.trim();
+    const parsedAge = parseInt(rawAge, 10);
+    const validAge = (!isNaN(parsedAge) && parsedAge >= 16 && parsedAge <= 80) ? parsedAge : (parseInt(rawAge, 10) || 20);
     const stateOfOrigin = form.querySelector("input[name='stateOfOrigin']").value.trim();
     const height = form.querySelector("input[name='height']").value.trim();
     const email = form.querySelector("input[name='email']").value.trim();
@@ -1980,7 +1982,7 @@ function setupPageantRegistration() {
       name: stageName || fullName,
       fullName: fullName,
       community: stateOfOrigin,
-      age: parseInt(age, 10) || 20,
+      age: validAge,
       platform: advocacyStatement,
       image: selectedPhotoDataUrl,
       email: email,
@@ -1999,7 +2001,7 @@ function setupPageantRegistration() {
       contestantNumber: contestantNumber,
       fullName: fullName,
       stageName: stageName,
-      age: age,
+      age: validAge,
       stateOfOrigin: stateOfOrigin,
       height: height,
       email: email,
@@ -2070,7 +2072,23 @@ function setupPageantVoting() {
       cloudList.forEach(c => {
         if (!c || !c.name) return;
         const key = String(c.id || c.email || c.name).trim().toLowerCase();
-        mergedMap.set(key, { ...c, baseVotes: 0 });
+
+        // Check if local list has an exact age that was captured directly during registration
+        const localMatch = localList.find(l => {
+          if (!l) return false;
+          if (l.id && c.id && String(l.id) === String(c.id)) return true;
+          if (l.email && c.email && String(l.email).toLowerCase() === String(c.email).toLowerCase()) return true;
+          if (l.name && c.name && String(l.name).toLowerCase() === String(c.name).toLowerCase()) return true;
+          return false;
+        });
+
+        let resolvedAge = c.age;
+        // If cloud age is 20, missing, or falsy, and local record has a custom age, preserve the local age
+        if ((!resolvedAge || resolvedAge === 20 || resolvedAge === "20") && localMatch && localMatch.age && localMatch.age !== 20 && localMatch.age !== "20") {
+          resolvedAge = localMatch.age;
+        }
+
+        mergedMap.set(key, { ...c, age: resolvedAge, baseVotes: 0 });
       });
     }
 
@@ -2221,8 +2239,8 @@ function setupPageantVoting() {
       .then(res => res.json())
       .then(data => {
         if (data && data.status === "success" && Array.isArray(data.contestants)) {
-          // Google Sheets is the master database
-          contestantsList = data.contestants;
+          // Google Sheets is the master database, intelligently merged with local records
+          contestantsList = mergeContestants(data.contestants);
           window._aicPageantContestants = contestantsList;
 
           // If the team cleared the backend database, synchronize browser storage to match

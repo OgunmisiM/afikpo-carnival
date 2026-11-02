@@ -326,6 +326,10 @@ function handlePageantRegistration(data) {
   const contestantNumber = String(rowCount).padStart(2, "0");
   const contestantId = data.contestantId || ("c_" + rowCount);
 
+  // Validate and parse numerical age
+  const parsedAge = parseInt(String(data.age).replace(/[^0-9]/g, ""), 10);
+  const safeAge = (!isNaN(parsedAge) && parsedAge >= 16 && parsedAge <= 80) ? parsedAge : (Number(data.age) || 20);
+
   // Process Headshot Photo (Base64 device upload or URL)
   let finalPhotoUrl = data.photoUrl || "";
   const base64Data = data.base64Photo || data.photoData || (data.photoUrl && data.photoUrl.startsWith("data:") ? data.photoUrl : "");
@@ -351,7 +355,7 @@ function handlePageantRegistration(data) {
       contestantNumber,
       data.fullName,
       data.stageName || data.fullName,
-      data.age,
+      safeAge,
       data.stateOfOrigin,
       data.email,
       data.phone,
@@ -368,7 +372,7 @@ function handlePageantRegistration(data) {
       new Date().toLocaleString(),
       data.fullName,
       data.stageName || data.fullName,
-      data.age,
+      safeAge,
       data.stateOfOrigin,
       data.email,
       data.phone,
@@ -964,10 +968,26 @@ function getPageantContestantsResponse() {
   const headers = values[0].map(function(h) { return String(h).trim().toLowerCase(); });
 
   const findCol = function(possibleNames) {
+    // 1. Exact match first
     for (let i = 0; i < possibleNames.length; i++) {
       const name = possibleNames[i].toLowerCase();
-      const idx = headers.findIndex(function(h) { return h.includes(name); });
+      const idx = headers.findIndex(function(h) { return h === name; });
       if (idx !== -1) return idx;
+    }
+    // 2. Whole word match to avoid substring collisions (e.g. "age" matching "stage")
+    for (let i = 0; i < possibleNames.length; i++) {
+      const name = possibleNames[i].toLowerCase();
+      const regex = new RegExp("(^|[^a-z0-9])" + name + "([^a-z0-9]|$)", "i");
+      const idx = headers.findIndex(function(h) { return regex.test(h); });
+      if (idx !== -1) return idx;
+    }
+    // 3. Substring match (min 4 characters to avoid false positive matches)
+    for (let i = 0; i < possibleNames.length; i++) {
+      const name = possibleNames[i].toLowerCase();
+      if (name.length >= 4) {
+        const idx = headers.findIndex(function(h) { return h.includes(name); });
+        if (idx !== -1) return idx;
+      }
     }
     return -1;
   };
@@ -975,15 +995,15 @@ function getPageantContestantsResponse() {
   const idCol = findCol(["contestant id", "id"]);
   const numCol = findCol(["contestant number", "number", "no"]);
   const fullCol = findCol(["full name", "legal name", "name"]);
-  const stageCol = findCol(["stage", "alias"]);
-  const ageCol = findCol(["age"]);
-  const stateCol = findCol(["state", "origin", "lga", "community"]);
+  const stageCol = findCol(["stage/alias name", "stage name", "stage", "alias"]);
+  const ageCol = findCol(["age", "contestant age"]);
+  const stateCol = findCol(["state / lga of origin", "state of origin", "state", "origin", "lga", "community"]);
   const emailCol = findCol(["email"]);
-  const phoneCol = findCol(["phone", "whatsapp"]);
-  const heightCol = findCol(["height"]);
-  const socialCol = findCol(["social", "instagram", "tiktok", "handle"]);
-  const advocacyCol = findCol(["advocacy", "statement", "talent", "platform"]);
-  const photoCol = findCol(["photo", "headshot", "image", "url", "link"]);
+  const phoneCol = findCol(["phone / whatsapp", "phone", "whatsapp"]);
+  const heightCol = findCol(["height (cm/ft)", "height"]);
+  const socialCol = findCol(["social media handles", "social", "instagram", "tiktok", "handle"]);
+  const advocacyCol = findCol(["advocacy / talent statement", "advocacy", "statement", "talent", "platform"]);
+  const photoCol = findCol(["photo url / link", "photo", "headshot", "image", "url", "link"]);
   const statusCol = findCol(["status"]);
 
   const contestants = [];
@@ -1008,7 +1028,15 @@ function getPageantContestantsResponse() {
       : ("c_" + i);
 
     const community = stateCol !== -1 && row[stateCol] ? String(row[stateCol]).trim() : "Afikpo";
-    const age = ageCol !== -1 ? (Number(row[ageCol]) || 20) : 20;
+    
+    // Parse contestant age accurately
+    let age = 20;
+    if (ageCol !== -1 && row[ageCol] !== undefined && row[ageCol] !== null && String(row[ageCol]).trim() !== "") {
+      const parsed = parseInt(String(row[ageCol]).replace(/[^0-9]/g, ""), 10);
+      if (!isNaN(parsed) && parsed >= 16 && parsed <= 80) {
+        age = parsed;
+      }
+    }
     const platform = advocacyCol !== -1 && row[advocacyCol] ? String(row[advocacyCol]).trim() : "Proud contestant for Miss Afikpo International 2026.";
     let photoUrl = photoCol !== -1 && row[photoCol] ? String(row[photoCol]).trim() : "";
 
