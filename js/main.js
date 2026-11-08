@@ -2204,8 +2204,9 @@ function setupPageantVoting() {
     }
 
     const filtered = contestantsList.filter(c => 
-      (c.name && c.name.toLowerCase().includes(filterQuery.toLowerCase())) || 
-      (c.community && c.community.toLowerCase().includes(filterQuery.toLowerCase())) ||
+      (c.name && (c.name.toLowerCase().includes(filterQuery.toLowerCase()) || cleanStr(c.name).includes(cleanStr(filterQuery)))) || 
+      (c.fullName && (c.fullName.toLowerCase().includes(filterQuery.toLowerCase()) || cleanStr(c.fullName).includes(cleanStr(filterQuery)))) ||
+      (c.community && (c.community.toLowerCase().includes(filterQuery.toLowerCase()) || cleanStr(c.community).includes(cleanStr(filterQuery)))) ||
       (c.number && String(c.number).includes(filterQuery))
     );
 
