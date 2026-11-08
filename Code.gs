@@ -1535,12 +1535,21 @@ function getPageantContestantsResponse() {
   const photoCol = findCol(["photo url / link", "photo", "headshot", "image", "url", "link"]);
   const statusCol = findCol(["status"]);
 
+  const sanitizeText = function(s) {
+    if (!s) return "";
+    try {
+      return String(s).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").trim();
+    } catch (e) {
+      return String(s).trim();
+    }
+  };
+
   const contestants = [];
 
   for (let i = 1; i < values.length; i++) {
     const row = values[i];
-    const fullName = fullCol !== -1 ? String(row[fullCol] || "").trim() : "";
-    const stageName = stageCol !== -1 ? String(row[stageCol] || "").trim() : "";
+    const fullName = fullCol !== -1 ? sanitizeText(row[fullCol]) : "";
+    const stageName = stageCol !== -1 ? sanitizeText(row[stageCol]) : "";
     const displayName = stageName || fullName;
 
     if (!displayName) continue; // Skip empty rows
@@ -1556,7 +1565,7 @@ function getPageantContestantsResponse() {
       ? String(row[idCol]).trim()
       : ("c_" + i);
 
-    const community = stateCol !== -1 && row[stateCol] ? String(row[stateCol]).trim() : "Afikpo";
+    const community = stateCol !== -1 && row[stateCol] ? sanitizeText(row[stateCol]) : "Afikpo";
     
     // Parse contestant age accurately
     let age = 20;
@@ -1566,7 +1575,7 @@ function getPageantContestantsResponse() {
         age = parsed;
       }
     }
-    const platform = advocacyCol !== -1 && row[advocacyCol] ? String(row[advocacyCol]).trim() : "Proud contestant for Miss Afikpo International 2026.";
+    const platform = advocacyCol !== -1 && row[advocacyCol] ? sanitizeText(row[advocacyCol]) : "Proud contestant for Miss Afikpo International 2026.";
     let photoUrl = photoCol !== -1 && row[photoCol] ? String(row[photoCol]).trim() : "";
 
     // Convert Google Drive view links to direct thumbnail images

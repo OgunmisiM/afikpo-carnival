@@ -2123,6 +2123,16 @@ function setupPageantVoting() {
     }
   };
 
+  // Helper to sanitize styled font generator text (e.g. mathematical italic) into clean standard text
+  const sanitizeText = (s) => {
+    if (!s) return "";
+    try {
+      return String(s).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").trim();
+    } catch (e) {
+      return String(s).trim();
+    }
+  };
+
   // Helper to merge cloud contestants with local contestants (deduplicating by ID, email, or name)
   const mergeContestants = (cloudList = []) => {
     const localList = getLocalContestants();
@@ -2149,7 +2159,15 @@ function setupPageantVoting() {
           resolvedAge = localMatch.age;
         }
 
-        mergedMap.set(key, { ...c, age: resolvedAge, baseVotes: 0 });
+        mergedMap.set(key, {
+          ...c,
+          name: sanitizeText(c.name),
+          fullName: sanitizeText(c.fullName || c.name),
+          community: sanitizeText(c.community),
+          platform: sanitizeText(c.platform),
+          age: resolvedAge,
+          baseVotes: 0
+        });
       });
     }
 
@@ -2158,7 +2176,14 @@ function setupPageantVoting() {
       if (!c || !c.name) return;
       const key = String(c.id || c.email || c.name).trim().toLowerCase();
       if (!mergedMap.has(key)) {
-        mergedMap.set(key, { ...c, baseVotes: 0 });
+        mergedMap.set(key, {
+          ...c,
+          name: sanitizeText(c.name),
+          fullName: sanitizeText(c.fullName || c.name),
+          community: sanitizeText(c.community),
+          platform: sanitizeText(c.platform),
+          baseVotes: 0
+        });
       }
     });
 
