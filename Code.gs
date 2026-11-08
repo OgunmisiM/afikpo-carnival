@@ -43,7 +43,9 @@ const CONFIG = {
   accommodationCatalogSheet: "AccommodationCatalog",
   tourGuideSheet: "TourGuides",
   blogSheet: "BlogPosts",
-  gallerySheet: "GalleryItems"
+  gallerySheet: "GalleryItems",
+  // Optional: Paystack Secret Key (sk_live_... or sk_test_...) for direct server-side transaction verification
+  paystackSecretKey: ""
 };
 
 /**
@@ -66,6 +68,10 @@ function doGet(e) {
       return getPageantVotesResponse();
     } else if (action === "get_pageant_contestants") {
       return getPageantContestantsResponse();
+    } else if (action === "verify_pageant_payment" || action === "reconcile_vote") {
+      return handlePageantPaymentReconciliation(e);
+    } else if (action === "sync_paystack_transactions") {
+      return handleSyncPaystackTransactions(e);
     } else {
       return createJsonResponse({
         status: "success",
@@ -92,6 +98,12 @@ function doPost(e) {
     }
 
     const requestData = JSON.parse(e.postData.contents);
+
+    // 1. Direct Paystack Webhook Event Handler (e.g. charge.success)
+    if (requestData.event === "charge.success" || requestData.formType === "paystack_webhook") {
+      return handlePaystackWebhook(requestData);
+    }
+
     const formType = requestData.formType;
 
     switch(formType) {
@@ -111,6 +123,11 @@ function doPost(e) {
         return handlePageantRegistration(requestData);
       case "pageant_vote":
         return handlePageantVote(requestData);
+      case "verify_pageant_payment":
+      case "reconcile_vote":
+        return handlePageantPaymentReconciliation({ parameter: requestData });
+      case "sync_paystack_transactions":
+        return handleSyncPaystackTransactions({ parameter: requestData });
       case "media_submission":
         return handleMediaSubmission(requestData);
       case "accommodation_reservation":
@@ -401,19 +418,388 @@ function handlePageantVote(data) {
     "Timestamp", "Contestant ID", "Contestant Name", "Vote Count", "Voter Email/Phone", "Vote Type", "Amount Paid (NGN)", "Payment Reference", "Payment Status"
   ]);
 
+  const paymentRef = String(data.paymentRef || "").trim();
+
+  // Idempotency: Prevent duplicate credits for identical Paystack references
+  if (paymentRef && paymentRef !== "N/A" && !paymentRef.startsWith("FREE-")) {
+    const values = sheet.getDataRange().getValues();
+    for (let i = 1; i < values.length; i++) {
+      const existingRef = String(values[i][7] || "").trim();
+      if (existingRef && existingRef.toLowerCase() === paymentRef.toLowerCase()) {
+        return createResponse("success", `Votes have already been credited for reference ${paymentRef}.`);
+      }
+    }
+  }
+
   sheet.appendRow([
     new Date().toLocaleString(),
     data.contestantId,
     data.contestantName || ("Contestant #" + data.contestantId),
-    data.voteCount,
+    Number(data.voteCount) || 1,
     data.voterContact || "Anonymous/Free Daily",
     data.voteType || (data.voteCount > 1 ? "Paid Boost Package" : "Free Daily Vote"),
-    data.amountPaid || 0,
-    data.paymentRef || "N/A",
+    Number(data.amountPaid) || 0,
+    paymentRef || "N/A",
     data.paymentStatus || "PAID"
   ]);
 
   return createResponse("success", `Thank you! ${data.voteCount} vote(s) successfully recorded for ${data.contestantName || 'Contestant #' + data.contestantId}!`);
+}
+
+// 8b. Paystack Direct Server Webhook Handler (Catches Bank Transfers, USSD, Cards when user leaves browser)
+function handlePaystackWebhook(payload) {
+  try {
+    const eventData = payload.data || payload;
+    const reference = String(eventData.reference || eventData.trxref || "").trim();
+    if (!reference) {
+      return createJsonResponse({ status: "error", message: "No transaction reference in webhook" });
+    }
+
+    const sheet = getSheetByName(CONFIG.pageantVoteSheet, [
+      "Timestamp", "Contestant ID", "Contestant Name", "Vote Count", "Voter Email/Phone", "Vote Type", "Amount Paid (NGN)", "Payment Reference", "Payment Status"
+    ]);
+
+    // Check if this reference has already been credited (idempotency)
+    const values = sheet.getDataRange().getValues();
+    for (let i = 1; i < values.length; i++) {
+      const existingRef = String(values[i][7] || "").trim();
+      if (existingRef && existingRef.toLowerCase() === reference.toLowerCase()) {
+        return createJsonResponse({ status: "success", message: "Reference already credited", reference: reference });
+      }
+    }
+
+    const amountPaid = Number(eventData.amount || 0) / 100; // Paystack amount is in Kobo
+    const voterEmail = (eventData.customer && eventData.customer.email) || payload.email || "Paystack Webhook Voter";
+
+    let contestantId = "";
+    let contestantName = "";
+    let contestantNumber = "";
+    let voteCount = 0;
+
+    if (eventData.metadata) {
+      const meta = eventData.metadata;
+      if (Array.isArray(meta.custom_fields)) {
+        meta.custom_fields.forEach(function(field) {
+          const varName = String(field.variable_name || field.display_name || "").toLowerCase();
+          if (varName.includes("contestant_id") || varName === "id") contestantId = String(field.value || "").trim();
+          if (varName.includes("contestant_name") || varName === "name") contestantName = String(field.value || "").trim();
+          if (varName.includes("contestant_number") || varName === "number") contestantNumber = String(field.value || "").trim();
+          if (varName.includes("votes_credited") || varName.includes("vote")) voteCount = parseInt(field.value, 10) || 0;
+        });
+      }
+      if (!contestantId && meta.contestantId) contestantId = String(meta.contestantId).trim();
+      if (!contestantName && meta.contestantName) contestantName = String(meta.contestantName).trim();
+      if (!contestantNumber && meta.contestantNumber) contestantNumber = String(meta.contestantNumber).trim();
+      if (!voteCount && meta.voteCount) voteCount = parseInt(meta.voteCount, 10) || 0;
+    }
+
+    // Default rate: ₦50 per vote
+    if (!voteCount && amountPaid > 0) {
+      voteCount = Math.floor(amountPaid / 50);
+    }
+    if (!voteCount) voteCount = 1;
+
+    // Cross-resolve contestant name or ID from PageantRegistrations if missing
+    if (!contestantName || !contestantId) {
+      try {
+        const regSheet = getSheetByName(CONFIG.pageantRegSheet);
+        if (regSheet && regSheet.getLastRow() > 1) {
+          const regValues = regSheet.getDataRange().getValues();
+          for (let r = 1; r < regValues.length; r++) {
+            const row = regValues[r];
+            const rowStr = row.join(" ").toLowerCase();
+            if ((contestantId && rowStr.includes(contestantId.toLowerCase())) ||
+                (contestantNumber && rowStr.includes(contestantNumber.toLowerCase())) ||
+                (contestantName && rowStr.includes(contestantName.toLowerCase()))) {
+              if (!contestantName) contestantName = String(row[2] || row[1] || ("Contestant #" + (contestantNumber || r)));
+              if (!contestantId) contestantId = String(row[1] || ("c_" + r));
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        Logger.log("Registration cross-lookup warning: " + e.toString());
+      }
+    }
+
+    sheet.appendRow([
+      new Date().toLocaleString(),
+      contestantId || (contestantNumber ? "c_" + contestantNumber : "c_unknown"),
+      contestantName || ("Contestant #" + (contestantNumber || contestantId || "1")),
+      voteCount,
+      voterEmail,
+      "Paid Boost (Paystack Webhook)",
+      amountPaid,
+      reference,
+      "PAID"
+    ]);
+
+    return createJsonResponse({
+      status: "success",
+      message: "Webhook processed: " + voteCount + " votes credited to " + contestantName,
+      reference: reference,
+      votesCredited: voteCount
+    });
+  } catch (err) {
+    Logger.log("Error in handlePaystackWebhook: " + err.toString());
+    return createJsonResponse({ status: "error", message: err.toString() });
+  }
+}
+
+// 8c. Self-Service Missing Vote & Transaction Reconciliation Endpoint
+function handlePageantPaymentReconciliation(e) {
+  const params = (e && e.parameter) || {};
+  const reference = String(params.reference || params.ref || "").trim();
+
+  if (!reference) {
+    return createJsonResponse({
+      status: "error",
+      message: "Please provide a valid payment reference (e.g. AIC-VOTE-...)"
+    });
+  }
+
+  const sheet = getSheetByName(CONFIG.pageantVoteSheet, [
+    "Timestamp", "Contestant ID", "Contestant Name", "Vote Count", "Voter Email/Phone", "Vote Type", "Amount Paid (NGN)", "Payment Reference", "Payment Status"
+  ]);
+
+  const values = sheet.getDataRange().getValues();
+  for (let i = 1; i < values.length; i++) {
+    const row = values[i];
+    const existingRef = String(row[7] || "").trim();
+    if (existingRef && existingRef.toLowerCase() === reference.toLowerCase()) {
+      return createJsonResponse({
+        status: "success",
+        alreadyCredited: true,
+        message: `Payment reference ${reference} is officially recorded and credited!`,
+        contestantId: row[1],
+        contestantName: row[2],
+        voteCount: Number(row[3]) || 0,
+        amountPaid: Number(row[6]) || 0,
+        timestamp: row[0]
+      });
+    }
+  }
+
+  // If not found in sheet, check if Paystack Secret Key is configured to query Paystack directly
+  const secretKey = CONFIG.paystackSecretKey || "";
+  if (secretKey && secretKey.startsWith("sk_")) {
+    try {
+      const paystackUrl = "https://api.paystack.co/transaction/verify/" + encodeURIComponent(reference);
+      const res = UrlFetchApp.fetch(paystackUrl, {
+        method: "GET",
+        headers: { "Authorization": "Bearer " + secretKey },
+        muteHttpExceptions: true
+      });
+      const data = JSON.parse(res.getContentText());
+
+      if (data && data.status && data.data && data.data.status === "success") {
+        const tx = data.data;
+        const amountPaid = Number(tx.amount || 0) / 100;
+        let cId = "";
+        let cName = "";
+        let cNum = "";
+        let count = 0;
+
+        if (tx.metadata && Array.isArray(tx.metadata.custom_fields)) {
+          tx.metadata.custom_fields.forEach(function(f) {
+            const v = String(f.variable_name || "").toLowerCase();
+            if (v.includes("contestant_id") || v === "id") cId = String(f.value || "").trim();
+            if (v.includes("contestant_name") || v === "name") cName = String(f.value || "").trim();
+            if (v.includes("contestant_number") || v === "number") cNum = String(f.value || "").trim();
+            if (v.includes("votes_credited")) count = parseInt(f.value, 10) || 0;
+          });
+        }
+        if (!count && amountPaid > 0) count = Math.floor(amountPaid / 50);
+        if (!count) count = 1;
+
+        sheet.appendRow([
+          new Date().toLocaleString(),
+          cId || ("c_" + (cNum || "1")),
+          cName || ("Contestant #" + (cNum || cId || "1")),
+          count,
+          (tx.customer && tx.customer.email) || "Paystack Reconciled",
+          "Paid Boost (Paystack Direct Verify)",
+          amountPaid,
+          reference,
+          "PAID"
+        ]);
+
+        return createJsonResponse({
+          status: "success",
+          credited: true,
+          message: `Successfully verified and credited ${count} votes to ${cName || 'Contestant'}!`,
+          reference: reference,
+          voteCount: count
+        });
+      }
+    } catch (apiErr) {
+      Logger.log("Paystack API direct verification error: " + apiErr.toString());
+    }
+  }
+
+  // Fallback: If client supplied verified transaction details
+  const contestantId = String(params.contestantId || "").trim();
+  const contestantName = String(params.contestantName || "").trim();
+  const voteCount = parseInt(params.voteCount, 10) || 0;
+  const amountPaid = parseFloat(params.amountPaid) || 0;
+  const voterContact = String(params.voterContact || params.email || "").trim();
+
+  if (contestantId && voteCount > 0) {
+    sheet.appendRow([
+      new Date().toLocaleString(),
+      contestantId,
+      contestantName || ("Contestant #" + contestantId),
+      voteCount,
+      voterContact || "Self-Reconciled Voter",
+      "Paid Boost (Client Reconciled)",
+      amountPaid || (voteCount * 50),
+      reference,
+      "PAID"
+    ]);
+
+    return createJsonResponse({
+      status: "success",
+      credited: true,
+      message: `Successfully registered and credited ${voteCount} votes for reference ${reference}!`,
+      reference: reference,
+      voteCount: voteCount
+    });
+  }
+
+  return createJsonResponse({
+    status: "not_found",
+    message: `Reference ${reference} is not yet found on the official sheet. If money was deducted, click 'Retry Reconciliation' or contact support with your reference.`
+  });
+}
+
+// 8d. Bulk Historical Transaction Sync from Paystack (Catches all previous uncaptured payments)
+function handleSyncPaystackTransactions(e) {
+  try {
+    const params = (e && e.parameter) || {};
+    const secretKey = params.secretKey || CONFIG.paystackSecretKey || "";
+
+    if (!secretKey || !secretKey.startsWith("sk_")) {
+      return createJsonResponse({
+        status: "error",
+        message: "Paystack Secret Key (sk_live_...) is required to query Paystack transactions. Set it in CONFIG.paystackSecretKey or pass secretKey parameter."
+      });
+    }
+
+    const sheet = getSheetByName(CONFIG.pageantVoteSheet, [
+      "Timestamp", "Contestant ID", "Contestant Name", "Vote Count", "Voter Email/Phone", "Vote Type", "Amount Paid (NGN)", "Payment Reference", "Payment Status"
+    ]);
+
+    // Build set of existing references to guarantee 0 duplicates
+    const existingValues = sheet.getDataRange().getValues();
+    const existingRefs = new Set();
+    for (let i = 1; i < existingValues.length; i++) {
+      const ref = String(existingValues[i][7] || "").trim().toLowerCase();
+      if (ref) existingRefs.add(ref);
+    }
+
+    // Load registered contestants for name/number resolution
+    const regSheet = getSheetByName(CONFIG.pageantRegSheet);
+    let contestants = [];
+    if (regSheet && regSheet.getLastRow() > 1) {
+      const regValues = regSheet.getDataRange().getValues();
+      for (let r = 1; r < regValues.length; r++) {
+        contestants.push(regValues[r]);
+      }
+    }
+
+    // Query Paystack transactions API (up to 100 recent transactions)
+    const paystackUrl = "https://api.paystack.co/transaction?status=success&perPage=100";
+    const res = UrlFetchApp.fetch(paystackUrl, {
+      method: "GET",
+      headers: { "Authorization": "Bearer " + secretKey },
+      muteHttpExceptions: true
+    });
+
+    const body = JSON.parse(res.getContentText());
+    if (!body || !body.status || !Array.isArray(body.data)) {
+      return createJsonResponse({
+        status: "error",
+        message: "Failed to fetch from Paystack API: " + (body ? body.message : "Unknown error")
+      });
+    }
+
+    let syncedCount = 0;
+    let syncedVotes = 0;
+
+    for (let i = 0; i < body.data.length; i++) {
+      const tx = body.data[i];
+      const reference = String(tx.reference || "").trim();
+      if (!reference || existingRefs.has(reference.toLowerCase())) continue;
+
+      // Check if transaction is for Miss Afikpo Pageant Voting
+      const isVoteRef = reference.startsWith("AIC-VOTE-");
+      let isVoteMeta = false;
+      let cId = "";
+      let cName = "";
+      let cNum = "";
+      let count = 0;
+
+      if (tx.metadata) {
+        const meta = tx.metadata;
+        if (Array.isArray(meta.custom_fields)) {
+          meta.custom_fields.forEach(function(f) {
+            const v = String(f.variable_name || f.display_name || "").toLowerCase();
+            if (v.includes("pageant_title") || v.includes("contestant")) isVoteMeta = true;
+            if (v.includes("contestant_id") || v === "id") cId = String(f.value || "").trim();
+            if (v.includes("contestant_name") || v === "name") cName = String(f.value || "").trim();
+            if (v.includes("contestant_number") || v === "number") cNum = String(f.value || "").trim();
+            if (v.includes("votes_credited")) count = parseInt(f.value, 10) || 0;
+          });
+        }
+      }
+
+      if (!isVoteRef && !isVoteMeta) continue; // Skip non-voting transactions (e.g. merchandise or tickets)
+
+      const amountPaid = Number(tx.amount || 0) / 100;
+      if (!count && amountPaid > 0) count = Math.floor(amountPaid / 50);
+      if (!count) count = 1;
+
+      // Try to match contestant by name or number if ID is missing
+      if (!cId || !cName) {
+        for (let c = 0; c < contestants.length; c++) {
+          const rowStr = contestants[c].join(" ").toLowerCase();
+          if ((cNum && rowStr.includes(cNum.toLowerCase())) ||
+              (cName && rowStr.includes(cName.toLowerCase())) ||
+              (cId && rowStr.includes(cId.toLowerCase()))) {
+            if (!cName) cName = String(contestants[c][2] || contestants[c][1] || "Contestant #" + (cNum || (c+1)));
+            if (!cId) cId = String(contestants[c][1] || ("c_" + (c+1)));
+            break;
+          }
+        }
+      }
+
+      sheet.appendRow([
+        tx.paid_at ? new Date(tx.paid_at).toLocaleString() : new Date().toLocaleString(),
+        cId || (cNum ? "c_" + cNum : "c_unknown"),
+        cName || ("Contestant #" + (cNum || cId || "1")),
+        count,
+        (tx.customer && tx.customer.email) || "Paystack Synced",
+        "Paid Boost (Paystack Synced)",
+        amountPaid,
+        reference,
+        "PAID"
+      ]);
+
+      existingRefs.add(reference.toLowerCase());
+      syncedCount++;
+      syncedVotes += count;
+    }
+
+    return createJsonResponse({
+      status: "success",
+      message: `Successfully synced ${syncedCount} missing payment(s) total ${syncedVotes} vote(s) from Paystack!`,
+      syncedCount: syncedCount,
+      syncedVotes: syncedVotes
+    });
+  } catch (err) {
+    Logger.log("Error in handleSyncPaystackTransactions: " + err.toString());
+    return createJsonResponse({ status: "error", message: err.toString() });
+  }
 }
 
 
@@ -933,19 +1319,162 @@ function getPageantVotesResponse() {
     "Timestamp", "Contestant ID", "Contestant Name", "Vote Count", "Voter Email/Phone", "Vote Type", "Amount Paid (NGN)", "Payment Reference", "Payment Status"
   ]);
 
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return createJsonResponse({
+      status: "success",
+      voteTotals: {}
+    });
+  }
+
   const values = sheet.getDataRange().getValues();
+  const headers = values[0].map(function(h) { return String(h).trim().toLowerCase(); });
+
+  const findCol = function(possibleNames) {
+    for (let i = 0; i < possibleNames.length; i++) {
+      const name = possibleNames[i].toLowerCase();
+      const idx = headers.findIndex(function(h) { return h === name; });
+      if (idx !== -1) return idx;
+    }
+    for (let i = 0; i < possibleNames.length; i++) {
+      const name = possibleNames[i].toLowerCase();
+      const idx = headers.findIndex(function(h) { return h.includes(name); });
+      if (idx !== -1) return idx;
+    }
+    return -1;
+  };
+
+  const idCol = findCol(["contestant id", "id", "delegate id"]);
+  const nameCol = findCol(["contestant name", "name", "delegate name", "stage name", "contestant"]);
+  const countCol = findCol(["vote count", "votes", "count", "quantity"]);
+  const amountCol = findCol(["amount paid", "amount", "price", "paid (ngn)", "ngn"]);
+  const statusCol = findCol(["payment status", "status", "state"]);
+  const refCol = findCol(["payment reference", "reference", "ref", "trxref"]);
+
+  const cleanStr = function(s) {
+    if (!s) return "";
+    try {
+      return String(s).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    } catch (e) {
+      return String(s).replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    }
+  };
+
   const voteTotals = {};
 
   for (let i = 1; i < values.length; i++) {
     const row = values[i];
-    const cId = String(row[1]);
-    const count = Number(row[3]) || 0;
-    const status = row[8] ? String(row[8]).trim().toUpperCase() : "PAID";
+    const cId = idCol !== -1 && row[idCol] !== undefined ? String(row[idCol]).trim() : String(row[1] || "").trim();
+    const cName = nameCol !== -1 && row[nameCol] !== undefined ? String(row[nameCol]).trim() : String(row[2] || "").trim();
+    
+    // Parse vote count with fallback to Amount (₦50 = 1 vote)
+    let count = countCol !== -1 && row[countCol] !== undefined ? Number(String(row[countCol]).replace(/[^0-9]/g, "")) : Number(row[3]) || 0;
+    const amount = amountCol !== -1 && row[amountCol] !== undefined ? Number(String(row[amountCol]).replace(/[^0-9.]/g, "")) : Number(row[6]) || 0;
+    if ((!count || isNaN(count) || count <= 0) && amount >= 50) {
+      count = Math.floor(amount / 50);
+    }
+    if (isNaN(count) || count <= 0) count = 1;
 
-    // Only count verified paid votes and valid free daily votes
-    if (status === "PAID" || status === "FREE_DAILY" || !row[8]) {
+    // Check payment status: Count ANY payment UNLESS explicitly marked failed, rejected, or refunded
+    const status = statusCol !== -1 && row[statusCol] !== undefined ? String(row[statusCol]).trim().toUpperCase() : String(row[8] || "PAID").trim().toUpperCase();
+    const isInvalid = ["FAILED", "REJECTED", "CANCELLED", "REFUNDED", "ABANDONED", "DECLINED"].includes(status);
+    if (isInvalid) continue;
+
+    if (cId) {
       voteTotals[cId] = (voteTotals[cId] || 0) + count;
     }
+    if (cName) {
+      voteTotals[cName.toLowerCase()] = (voteTotals[cName.toLowerCase()] || 0) + count;
+      const cClean = cleanStr(cName);
+      if (cClean) voteTotals[cClean] = (voteTotals[cClean] || 0) + count;
+    }
+  }
+
+  // Cross-reconcile with PageantRegistrations so that all identifiers (ID, Number, Stage Name, Legal Full Name) share the complete total
+  try {
+    const regSheet = getSheetByName(CONFIG.pageantRegSheet);
+    if (regSheet && regSheet.getLastRow() > 1) {
+      const regValues = regSheet.getDataRange().getValues();
+      const regHeaders = regValues[0].map(function(h) { return String(h).trim().toLowerCase(); });
+
+      const findRegCol = function(possibleNames) {
+        for (let i = 0; i < possibleNames.length; i++) {
+          const name = possibleNames[i].toLowerCase();
+          const idx = regHeaders.findIndex(function(h) { return h === name; });
+          if (idx !== -1) return idx;
+        }
+        for (let i = 0; i < possibleNames.length; i++) {
+          const name = possibleNames[i].toLowerCase();
+          const idx = regHeaders.findIndex(function(h) { return h.includes(name); });
+          if (idx !== -1) return idx;
+        }
+        return -1;
+      };
+
+      const rIdCol = findRegCol(["contestant id", "id"]);
+      const rNumCol = findRegCol(["contestant number", "number", "no"]);
+      const rFullCol = findRegCol(["full name", "legal name", "name"]);
+      const rStageCol = findRegCol(["stage/alias name", "stage name", "stage", "alias"]);
+
+      for (let r = 1; r < regValues.length; r++) {
+        const row = regValues[r];
+        const rId = rIdCol !== -1 && row[rIdCol] ? String(row[rIdCol]).trim() : ("c_" + r);
+        const rNum = rNumCol !== -1 && row[rNumCol] ? String(row[rNumCol]).trim() : String(r).padStart(2, "0");
+        const rFullName = rFullCol !== -1 && row[rFullCol] ? String(row[rFullCol]).trim() : "";
+        const rStageName = rStageCol !== -1 && row[rStageCol] ? String(row[rStageCol]).trim() : "";
+        const rCleanStage = cleanStr(rStageName);
+        const rCleanFull = cleanStr(rFullName);
+
+        let contestantTotal = 0;
+
+        for (let v = 1; v < values.length; v++) {
+          const vRow = values[v];
+          const vStatus = statusCol !== -1 && vRow[statusCol] !== undefined ? String(vRow[statusCol]).trim().toUpperCase() : String(vRow[8] || "PAID").trim().toUpperCase();
+          if (["FAILED", "REJECTED", "CANCELLED", "REFUNDED", "ABANDONED", "DECLINED"].includes(vStatus)) continue;
+
+          const vId = idCol !== -1 && vRow[idCol] !== undefined ? String(vRow[idCol]).trim().toLowerCase() : String(vRow[1] || "").trim().toLowerCase();
+          const vName = nameCol !== -1 && vRow[nameCol] !== undefined ? String(vRow[nameCol]).trim() : String(vRow[2] || "").trim();
+          const vCleanName = cleanStr(vName);
+
+          let vCount = countCol !== -1 && vRow[countCol] !== undefined ? Number(String(vRow[countCol]).replace(/[^0-9]/g, "")) : Number(vRow[3]) || 0;
+          const vAmount = amountCol !== -1 && vRow[amountCol] !== undefined ? Number(String(vRow[amountCol]).replace(/[^0-9.]/g, "")) : Number(vRow[6]) || 0;
+          if ((!vCount || isNaN(vCount) || vCount <= 0) && vAmount >= 50) {
+            vCount = Math.floor(vAmount / 50);
+          }
+          if (isNaN(vCount) || vCount <= 0) vCount = 1;
+
+          // Multi-factor identity matching
+          const matchId = (rId && vId === rId.toLowerCase()) || (vId === ("c_" + r).toLowerCase());
+          const matchNum = (rNum && (vId === rNum.toLowerCase() || vId === String(parseInt(rNum, 10))));
+          const matchStage = rCleanStage && vCleanName && (rCleanStage.includes(vCleanName) || vCleanName.includes(rCleanStage));
+          const matchFull = rCleanFull && vCleanName && (rCleanFull.includes(vCleanName) || vCleanName.includes(rCleanFull));
+
+          if (matchId || matchNum || matchStage || matchFull) {
+            contestantTotal += vCount;
+          }
+        }
+
+        if (contestantTotal > 0) {
+          if (rId) voteTotals[rId] = Math.max(voteTotals[rId] || 0, contestantTotal);
+          if (rNum) {
+            voteTotals[rNum] = Math.max(voteTotals[rNum] || 0, contestantTotal);
+            const numWithoutZero = String(parseInt(rNum, 10));
+            if (!isNaN(parseInt(rNum, 10))) {
+              voteTotals[numWithoutZero] = Math.max(voteTotals[numWithoutZero] || 0, contestantTotal);
+            }
+          }
+          if (rStageName) {
+            voteTotals[rStageName.toLowerCase()] = Math.max(voteTotals[rStageName.toLowerCase()] || 0, contestantTotal);
+            if (rCleanStage) voteTotals[rCleanStage] = Math.max(voteTotals[rCleanStage] || 0, contestantTotal);
+          }
+          if (rFullName) {
+            voteTotals[rFullName.toLowerCase()] = Math.max(voteTotals[rFullName.toLowerCase()] || 0, contestantTotal);
+            if (rCleanFull) voteTotals[rCleanFull] = Math.max(voteTotals[rCleanFull] || 0, contestantTotal);
+          }
+        }
+      }
+    }
+  } catch (crossErr) {
+    Logger.log("Cross reconcile warning: " + crossErr.toString());
   }
 
   return createJsonResponse({

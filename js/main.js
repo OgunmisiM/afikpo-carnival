@@ -2044,13 +2044,74 @@ function setupPageantRegistration() {
 // =============================================================
 // 7. PAGEANTRY VOTING PORTAL (PAYSTACK ONLINE PAYMENTS & DAILY VOTES)
 // =============================================================
+
+// --- PAGEANT PENDING VOTE RETRY QUEUE & RECONCILIATION ---
+function getPendingVotes() {
+  try {
+    const data = JSON.parse(localStorage.getItem("aic_pending_votes") || "[]");
+    return Array.isArray(data) ? data : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function savePendingVote(payload) {
+  try {
+    const list = getPendingVotes();
+    if (!list.some(p => p.paymentRef === payload.paymentRef)) {
+      list.push(payload);
+      localStorage.setItem("aic_pending_votes", JSON.stringify(list));
+    }
+  } catch (e) {
+    console.warn("Could not save pending vote:", e);
+  }
+}
+
+function removePendingVote(paymentRef) {
+  try {
+    const list = getPendingVotes().filter(p => p.paymentRef !== paymentRef);
+    localStorage.setItem("aic_pending_votes", JSON.stringify(list));
+  } catch (e) {
+    console.warn("Could not remove pending vote:", e);
+  }
+}
+
+async function flushPendingVotes() {
+  const pending = getPendingVotes();
+  if (pending.length === 0) return;
+
+  for (const item of pending) {
+    try {
+      const res = await postToAppsScript(item);
+      if (res && res.status === "success") {
+        removePendingVote(item.paymentRef);
+        console.log(`[AIC Voting] Successfully flushed pending vote for ${item.contestantName} (${item.paymentRef})`);
+      }
+    } catch (e) {
+      console.warn("Retry failed for pending vote:", item.paymentRef, e);
+    }
+  }
+}
+
 function setupPageantVoting() {
   const container = document.getElementById("contestants-container") || document.getElementById("contestants-grid");
   if (!container) return;
 
+  // Background flush any unconfirmed votes from earlier sessions
+  flushPendingVotes();
+
   let cloudVotes = {};
   let contestantsList = [];
   let currentSearchQuery = "";
+
+  const cleanStr = (s) => {
+    if (!s) return "";
+    try {
+      return String(s).normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    } catch (e) {
+      return String(s).replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+    }
+  };
 
   // Helper to get contestants from local storage
   const getLocalContestants = () => {
@@ -2167,8 +2228,21 @@ function setupPageantVoting() {
     // Grid layout for contestants
     container.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8";
     container.innerHTML = filtered.map(c => {
-      const cloud = cloudVotes[c.id] || 0;
-      const local = localVotes[c.id] || 0;
+      const keyId = String(c.id || "").trim();
+      const keyNum = String(c.number || "").trim();
+      const numWithoutZero = String(parseInt(c.number, 10));
+      const keyName = String(c.name || "").trim().toLowerCase();
+      const keyFullName = String(c.fullName || "").trim().toLowerCase();
+
+      // Multi-key resilient cloud vote matching (ID, Number, Stage Name, Legal Full Name, Clean Unicode)
+      const cloud = cloudVotes[keyId] || 
+                    cloudVotes[keyNum] || 
+                    (!isNaN(parseInt(c.number, 10)) ? cloudVotes[numWithoutZero] : 0) || 
+                    cloudVotes[keyName] || 
+                    cloudVotes[cleanStr(c.name)] || 
+                    (keyFullName ? (cloudVotes[keyFullName] || cloudVotes[cleanStr(c.fullName)]) : 0) || 
+                    0;
+      const local = localVotes[keyId] || localVotes[keyNum] || 0;
       // All contestants start strictly from 0 votes
       const numericVotes = (c.baseVotes || 0) + Math.max(cloud, local);
       const liveVotes = numericVotes.toLocaleString();
@@ -2522,16 +2596,24 @@ window.openVoteModal = function(id, maybeName, maybeNumber) {
       }
     }, 8000);
 
-    // Common Success Handler (Plain function)
-    const handlePaymentSuccess = function(response) {
+    // Common Success Handler (Async with locking modal and persistent retry queue)
+    const handlePaymentSuccess = async function(response) {
       clearTimeout(watchdogTimer);
       const verifiedRef = (response && (response.reference || response.trxref)) || paymentRef;
-      btn.innerHTML = `<span>Payment Confirmed! Crediting ${voteCount} Votes...</span>`;
+      
+      btn.disabled = true;
+      btn.innerHTML = `
+        <span class="inline-flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+          <span>Securing Votes to Leaderboard...</span>
+        </span>
+      `;
 
       const payload = {
         formType: "pageant_vote",
         contestantId: id,
         contestantName: name,
+        contestantNumber: number,
         voteCount: voteCount,
         voterContact: email,
         amountPaid: price,
@@ -2540,18 +2622,26 @@ window.openVoteModal = function(id, maybeName, maybeNumber) {
         paymentStatus: "PAID"
       };
 
+      // 1. Immediately buffer to local persistent queue
+      savePendingVote(payload);
+
+      // 2. Add confirmed votes to local state
+      const currentLocal = JSON.parse(localStorage.getItem("aic_pageant_votes") || "{}");
+      currentLocal[id] = (currentLocal[id] || 0) + voteCount;
+      if (number) currentLocal[number] = (currentLocal[number] || 0) + voteCount;
+      localStorage.setItem("aic_pageant_votes", JSON.stringify(currentLocal));
+
+      // 3. Await cloud registration on Google Apps Script
       try {
-        postToAppsScript(payload);
+        const res = await postToAppsScript(payload);
+        if (res && res.status === "success") {
+          removePendingVote(verifiedRef);
+        }
       } catch (err) {
         console.warn("Background log notice:", err);
       }
 
-      // Add confirmed votes to local state
-      const currentLocal = JSON.parse(localStorage.getItem("aic_pageant_votes") || "{}");
-      currentLocal[id] = (currentLocal[id] || 0) + voteCount;
-      localStorage.setItem("aic_pageant_votes", JSON.stringify(currentLocal));
-
-      // Update live counter & card progress
+      // 4. Update live counter & card progress
       if (typeof window.refreshPageantVotingGrid === "function") {
         window.refreshPageantVotingGrid();
       } else {
@@ -2560,7 +2650,7 @@ window.openVoteModal = function(id, maybeName, maybeNumber) {
       }
 
       modal.remove();
-      showAlert(`🎉 Payment Confirmed! Successfully credited ${voteCount} votes to ${name}. Reference: ${verifiedRef}`, "success");
+      showAlert(`🎉 Payment Confirmed! Successfully credited ${voteCount} votes to ${name}. (Reference: ${verifiedRef})`, "success");
     };
 
     // Common Cancel / Close Handler
@@ -2568,7 +2658,7 @@ window.openVoteModal = function(id, maybeName, maybeNumber) {
       clearTimeout(watchdogTimer);
       btn.disabled = false;
       btn.innerHTML = originalBtnText;
-      showAlert("Payment was canceled. No points were credited.", "info");
+      showAlert("Payment window closed. If your bank debited you via transfer, click 'Verify Payment Reference' on the voting page to sync your votes immediately.", "info");
     };
 
     try {
@@ -2651,6 +2741,158 @@ window.openVoteModal = function(id, maybeName, maybeNumber) {
       showAlert("Paystack error: " + (popupErr.message || popupErr), "error");
     }
   });
+};
+
+// --- SELF-SERVICE PAYMENT REFERENCE RECONCILIATION MODAL ---
+window.openReconcileModal = function() {
+  const modal = document.createElement("div");
+  modal.className = "fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in";
+  modal.innerHTML = `
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+      <button onclick="this.closest('.fixed').remove()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800 text-2xl font-bold p-1 leading-none cursor-pointer">×</button>
+      
+      <div class="text-center pb-4 border-b border-gray-100">
+        <div class="w-12 h-12 bg-purple-100 text-purple-700 rounded-2xl flex items-center justify-center text-xl mx-auto mb-2 shadow-inner">🔍</div>
+        <h3 class="text-xl font-black text-gray-900">Verify Payment & Sync Votes</h3>
+        <p class="text-xs text-gray-500 mt-1">Paid via Bank Transfer, USSD, or Card but your votes haven't appeared? Enter your Paystack transaction reference below to instantly verify and credit them.</p>
+      </div>
+
+      <form id="reconcile-form" class="space-y-4 mt-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Paystack Reference(s) or Transaction ID</label>
+          <textarea id="reconcile-ref-input" required rows="2" placeholder="e.g. AIC-VOTE-... (separate multiple with commas or newlines)" class="w-full p-3.5 rounded-xl bg-gray-50 border border-gray-200 text-xs focus:ring-2 focus:ring-purple-600 outline-none font-mono"></textarea>
+          <p class="text-[10px] text-gray-400 mt-1">Found in your Paystack email receipt or your bank transfer description.</p>
+        </div>
+
+        <button type="submit" id="reconcile-submit-btn" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3.5 rounded-xl transition shadow-md shadow-purple-200 text-xs flex items-center justify-center gap-2 cursor-pointer">
+          <span>Verify & Sync Votes</span>
+        </button>
+
+        <div id="reconcile-result" class="hidden text-xs p-3.5 rounded-xl"></div>
+      </form>
+
+      <!-- Admin Bulk Sync Tool -->
+      <div class="mt-6 pt-4 border-t border-gray-100">
+        <details class="text-xs text-gray-500">
+          <summary class="font-bold text-purple-600 hover:text-purple-800 cursor-pointer select-none">
+            ⚡ Admin: Sync All Recent Paystack Transactions
+          </summary>
+          <div class="mt-3 space-y-2.5 p-3.5 bg-purple-50/50 rounded-2xl border border-purple-100">
+            <p class="text-[11px] text-gray-600 leading-relaxed">
+              If multiple payments were completed during a network drop, this tool pulls all recent successful payments directly from Paystack into the database.
+            </p>
+            <input type="password" id="admin-secret-key-input" placeholder="Paystack Secret Key (sk_live_...)" class="w-full p-2.5 rounded-xl bg-white border border-gray-200 text-xs focus:ring-2 focus:ring-purple-600 outline-none font-mono" />
+            <button type="button" id="admin-sync-btn" class="w-full bg-gray-900 hover:bg-black text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer flex items-center justify-center gap-1.5">
+              <span>Sync All Transactions from Paystack</span>
+            </button>
+            <div id="admin-sync-result" class="hidden text-[11px] p-2.5 rounded-xl"></div>
+          </div>
+        </details>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const form = modal.querySelector("#reconcile-form");
+  const btn = modal.querySelector("#reconcile-submit-btn");
+  const input = modal.querySelector("#reconcile-ref-input");
+  const resultDiv = modal.querySelector("#reconcile-result");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const rawRefs = input.value.trim();
+    if (!rawRefs) return;
+
+    // Split references by comma, newline, or space
+    const refs = rawRefs.split(/[\n,;]+/).map(r => r.trim()).filter(Boolean);
+    if (refs.length === 0) return;
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="inline-flex items-center gap-2">
+      <svg class="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+      <span>Verifying ${refs.length} Reference(s)...</span>
+    </span>`;
+    resultDiv.className = "hidden";
+
+    let successCount = 0;
+    let totalVotes = 0;
+    let messages = [];
+
+    for (const ref of refs) {
+      try {
+        const res = await fetch(`${APPS_SCRIPT_URL}?action=verify_pageant_payment&reference=${encodeURIComponent(ref)}`);
+        const data = await res.json();
+        if (data && data.status === "success") {
+          successCount++;
+          totalVotes += (data.voteCount || 0);
+          messages.push(`• Ref ${ref.slice(0, 18)}...: <strong>${data.voteCount || 0} votes</strong> for <strong>${data.contestantName || 'Contestant'}</strong> (${data.alreadyCredited ? "Already Recorded" : "Newly Credited"})`);
+        } else {
+          messages.push(`• Ref ${ref.slice(0, 18)}...: ${data?.message || "Not found"}`);
+        }
+      } catch (err) {
+        messages.push(`• Ref ${ref.slice(0, 18)}...: Connection error`);
+      }
+    }
+
+    if (successCount > 0) {
+      resultDiv.className = "text-xs p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 space-y-1 block";
+      resultDiv.innerHTML = `
+        <div class="font-black text-emerald-900 flex items-center gap-1.5">
+          <span>✅</span> <span>Verified! ${successCount} transaction(s) confirmed.</span>
+        </div>
+        <div class="text-[11px] leading-relaxed mt-1 space-y-0.5">${messages.join("<br/>")}</div>
+        <p class="text-[10px] text-emerald-700 font-bold mt-2">Refreshing standings...</p>
+      `;
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
+    } else {
+      resultDiv.className = "text-xs p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 block";
+      resultDiv.innerHTML = `
+        <div class="font-bold">⚠️ Notice</div>
+        <div class="text-[11px] mt-1 space-y-0.5">${messages.join("<br/>")}</div>
+        <p class="text-[10px] text-gray-500 mt-2">If you made a bank transfer, it can take 1-3 minutes for your bank to complete settlement. Check back shortly.</p>
+      `;
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = `<span>Verify & Sync Votes</span>`;
+  });
+
+  // Admin Bulk Sync Handler
+  const adminSyncBtn = modal.querySelector("#admin-sync-btn");
+  const adminKeyInput = modal.querySelector("#admin-secret-key-input");
+  const adminResultDiv = modal.querySelector("#admin-sync-result");
+
+  if (adminSyncBtn) {
+    adminSyncBtn.addEventListener("click", async () => {
+      const secretKey = adminKeyInput ? adminKeyInput.value.trim() : "";
+      adminSyncBtn.disabled = true;
+      adminSyncBtn.innerHTML = `<span>Querying Paystack API...</span>`;
+      adminResultDiv.className = "hidden";
+
+      try {
+        const url = `${APPS_SCRIPT_URL}?action=sync_paystack_transactions${secretKey ? '&secretKey=' + encodeURIComponent(secretKey) : ''}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (data && data.status === "success") {
+          adminResultDiv.className = "text-[11px] p-2.5 rounded-xl bg-emerald-100 text-emerald-900 block";
+          adminResultDiv.innerHTML = `✅ ${data.message || `Synced ${data.syncedCount || 0} payments!`}`;
+          setTimeout(() => window.location.reload(), 2000);
+        } else {
+          adminResultDiv.className = "text-[11px] p-2.5 rounded-xl bg-red-100 text-red-900 block";
+          adminResultDiv.innerHTML = `❌ ${data?.message || "Sync failed. Please verify your Paystack Secret Key."}`;
+        }
+      } catch (e) {
+        adminResultDiv.className = "text-[11px] p-2.5 rounded-xl bg-red-100 text-red-900 block";
+        adminResultDiv.innerHTML = `❌ Connection error while querying sync endpoint.`;
+      } finally {
+        adminSyncBtn.disabled = false;
+        adminSyncBtn.innerHTML = `<span>Sync All Transactions from Paystack</span>`;
+      }
+    });
+  }
 };
 
 // =============================================================
