@@ -2133,18 +2133,18 @@ function setupPageantVoting() {
     }
   };
 
-  // Helper to merge cloud contestants with local contestants (deduplicating by ID, email, or name)
-  const mergeContestants = (cloudList = []) => {
+  // Helper to merge cloud contestants with local contestants (Google Sheets is the strict master source of truth)
+  const mergeContestants = (cloudList = null) => {
     const localList = getLocalContestants();
     const mergedMap = new Map();
 
-    // 1. Cloud list first (from Google Sheets)
-    if (Array.isArray(cloudList)) {
+    // 1. When Cloud List arrives from Google Sheets, it is 100% authoritative
+    if (Array.isArray(cloudList) && cloudList.length > 0) {
       cloudList.forEach(c => {
         if (!c || !c.name) return;
         const key = String(c.id || c.email || c.name).trim().toLowerCase();
 
-        // Check if local list has an exact age that was captured directly during registration
+        // Check if local list has an exact age captured directly during registration form submit
         const localMatch = localList.find(l => {
           if (!l) return false;
           if (l.id && c.id && String(l.id) === String(c.id)) return true;
@@ -2154,7 +2154,6 @@ function setupPageantVoting() {
         });
 
         let resolvedAge = c.age;
-        // If cloud age is 20, missing, or falsy, and local record has a custom age, preserve the local age
         if ((!resolvedAge || resolvedAge === 20 || resolvedAge === "20") && localMatch && localMatch.age && localMatch.age !== 20 && localMatch.age !== "20") {
           resolvedAge = localMatch.age;
         }
@@ -2169,28 +2168,37 @@ function setupPageantVoting() {
           baseVotes: 0
         });
       });
+
+      // Synchronize and prune browser storage so unapproved/ghost contestants are completely removed
+      const authoritativeList = Array.from(mergedMap.values());
+      try {
+        localStorage.setItem("aic_registered_contestants", JSON.stringify(authoritativeList));
+      } catch (e) {}
+      return authoritativeList;
     }
 
-    // 2. Local list (browser registrations)
-    localList.forEach(c => {
-      if (!c || !c.name) return;
-      const key = String(c.id || c.email || c.name).trim().toLowerCase();
-      if (!mergedMap.has(key)) {
-        mergedMap.set(key, {
-          ...c,
-          name: sanitizeText(c.name),
-          fullName: sanitizeText(c.fullName || c.name),
-          community: sanitizeText(c.community),
-          platform: sanitizeText(c.platform),
-          baseVotes: 0
-        });
-      }
-    });
+    // 2. Fallback: Only used on initial page paint before cloud fetch returns, or when completely offline
+    if (cloudList === null) {
+      localList.forEach(c => {
+        if (!c || !c.name) return;
+        const key = String(c.id || c.email || c.name).trim().toLowerCase();
+        if (!mergedMap.has(key)) {
+          mergedMap.set(key, {
+            ...c,
+            name: sanitizeText(c.name),
+            fullName: sanitizeText(c.fullName || c.name),
+            community: sanitizeText(c.community),
+            platform: sanitizeText(c.platform),
+            baseVotes: 0
+          });
+        }
+      });
+    }
 
     return Array.from(mergedMap.values());
   };
 
-  contestantsList = mergeContestants([]);
+  contestantsList = mergeContestants(null);
   window._aicPageantContestants = contestantsList;
 
   const renderContestants = (filterQuery = "") => {
@@ -2356,15 +2364,51 @@ function setupPageantVoting() {
       })
       .catch(err => console.warn("Live contestant sync notice:", err));
 
-    fetch(`${APPS_SCRIPT_URL}?action=get_pageant_votes`)
-      .then(res => res.json())
-      .then(data => {
-        if (data && data.status === "success" && data.voteTotals) {
-          cloudVotes = data.voteTotals;
-          renderContestants(searchInput ? searchInput.value : "");
-        }
-      })
-      .catch(err => console.warn("Live cloud vote sync notice:", err));
+    // Reusable function to fetch live cloud votes from Google Sheets
+    const fetchPageantVotes = () => {
+      if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("YOUR_DEPLOYMENT_ID")) return;
+      fetch(`${APPS_SCRIPT_URL}?action=get_pageant_votes`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.status === "success" && data.voteTotals) {
+            cloudVotes = data.voteTotals;
+            renderContestants(searchInput ? searchInput.value : "");
+          }
+        })
+        .catch(err => console.warn("Live cloud vote sync notice:", err));
+    };
+
+    // 1. Initial vote fetch on page load
+    fetchPageantVotes();
+
+    // 2. Real-time background polling: automatically refreshes live votes every 25 seconds
+    setInterval(fetchPageantVotes, 25000);
+
+    // 3. Instant re-sync: immediately fetches fresh votes when user returns from bank app/tab becomes active
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        fetchPageantVotes();
+      }
+    });
+    window.addEventListener("focus", fetchPageantVotes);
+
+    // 4. Automatic redirect reconciliation: checks URL for ?reference= or ?trxref= if redirected back by Paystack
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectRef = urlParams.get("reference") || urlParams.get("trxref");
+      if (redirectRef && !sessionStorage.getItem("aic_reconciled_" + redirectRef)) {
+        sessionStorage.setItem("aic_reconciled_" + redirectRef, "true");
+        fetch(`${APPS_SCRIPT_URL}?action=verify_pageant_payment&reference=${encodeURIComponent(redirectRef)}`)
+          .then(res => res.json())
+          .then(res => {
+            fetchPageantVotes();
+            if (res && (res.status === "success" || res.alreadyCredited)) {
+              showAlert(`🎉 Welcome back! Payment verified (${redirectRef}). Your votes are live on the leaderboard!`, "success");
+            }
+          })
+          .catch(e => console.warn(e));
+      }
+    } catch (e) {}
   }
 }
 

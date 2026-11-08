@@ -1835,29 +1835,3 @@ function testBlogSetup() {
   return "SUCCESS: Blog sheet is initialized and ready.";
 }
 
-
-/**
- * BACKEND-ONLY TOOLBAR RUNNER: Reset Pageant Database
- * This function can ONLY be executed inside the Google Apps Script editor by authorized Google account owners/editors.
- * Select 'resetPageantDatabase' from the function dropdown at the top of the Apps Script editor and click 'Run'.
- */
-function resetPageantDatabase() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-
-  let clearedReg = 0;
-  const regSheet = ss.getSheetByName(CONFIG.pageantRegSheet);
-  if (regSheet && regSheet.getLastRow() > 1) {
-    clearedReg = regSheet.getLastRow() - 1;
-    regSheet.getRange(2, 1, clearedReg, regSheet.getLastColumn()).clearContent();
-  }
-
-  let clearedVotes = 0;
-  const voteSheet = ss.getSheetByName(CONFIG.pageantVoteSheet);
-  if (voteSheet && voteSheet.getLastRow() > 1) {
-    clearedVotes = voteSheet.getLastRow() - 1;
-    voteSheet.getRange(2, 1, clearedVotes, voteSheet.getLastColumn()).clearContent();
-  }
-
-  Logger.log("✅ Backend Reset: Cleared " + clearedReg + " contestant registrations and " + clearedVotes + " votes.");
-  return "Pageant database reset successfully: " + clearedReg + " contestants and " + clearedVotes + " votes cleared.";
-}
